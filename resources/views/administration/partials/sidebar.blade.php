@@ -11,78 +11,105 @@
     <!--navigation-->
     <ul class="metismenu" id="menu">
         <!-- Tableau de bord -->
-        <li>
-            <a href="{{ route('administration.tableau-de-bord') }}">
+        <li class="{{ request()->routeIs('administration.tableau-de-bord') ? 'mm-active' : '' }}">
+            <a href="{{ route('administration.tableau-de-bord') }}" class="{{ request()->routeIs('administration.tableau-de-bord') ? 'mm-active' : '' }}">
                 <div class="parent-icon"><i class='bx bx-home-circle'></i></div>
                 <div class="menu-title">Tableau de bord</div>
             </a>
         </li>
 
-        <!-- Publications -->
-        <li>
-            <a href="javascript:;" class="has-arrow">
+        <!-- Publications et Actualités -->
+        <li class="{{ request()->routeIs('administration.publications.*') ? 'mm-active' : '' }}">
+            <a href="javascript:;" class="has-arrow {{ request()->routeIs('administration.publications.*') ? 'mm-active' : '' }}">
                 <div class="parent-icon"><i class='bx bx-news'></i></div>
                 <div class="menu-title">Publications</div>
             </a>
             <ul>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Liste des publications</a>
+                    <a href="{{ route('administration.publications.liste') }}"><i class="bx bx-right-arrow-alt"></i>Toutes les publications</a>
                 </li>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Nouvelle publication</a>
+                    <a href="{{ route('administration.publications.creer') }}"><i class="bx bx-right-arrow-alt"></i>Créer une publication</a>
                 </li>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Catégories</a>
+                    <a href="{{ route('administration.publications.categories') }}"><i class="bx bx-right-arrow-alt"></i>Catégories</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.publications.carousels') }}"><i class="bx bx-right-arrow-alt"></i>Carousels d'accueil</a>
                 </li>
             </ul>
         </li>
 
-        <!-- Documents -->
-        <li>
-            <a href="javascript:;" class="has-arrow">
+        <!-- Documents Administratifs -->
+        <li class="{{ request()->routeIs('administration.documents.*') ? 'mm-active' : '' }}">
+            <a href="javascript:;" class="has-arrow {{ request()->routeIs('administration.documents.*') ? 'mm-active' : '' }}">
                 <div class="parent-icon"><i class='bx bx-folder'></i></div>
                 <div class="menu-title">Documents</div>
             </a>
             <ul>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Gestion des documents</a>
+                    <a href="{{ route('administration.documents.liste') }}"><i class="bx bx-right-arrow-alt"></i>Tous les documents</a>
                 </li>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Ajouter un document</a>
+                    <a href="{{ route('administration.documents.ajouter') }}"><i class="bx bx-right-arrow-alt"></i>Ajouter un document</a>
                 </li>
                 <li>
-                    <a href="#"><i class="bx bx-right-arrow-alt"></i>Catégories documents</a>
+                    <a href="{{ route('administration.documents.categories') }}"><i class="bx bx-right-arrow-alt"></i>Catégories</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.documents.statistiques') }}"><i class="bx bx-right-arrow-alt"></i>Statistiques</a>
                 </li>
             </ul>
         </li>
 
-        <!-- Événements -->
-        <li>
-            <a href="#">
-                <div class="parent-icon"><i class='bx bx-calendar-event'></i></div>
-                <div class="menu-title">Événements</div>
+        <!-- Pages Statiques -->
+        <li class="{{ request()->routeIs('administration.pages.*') ? 'mm-active' : '' }}">
+            <a href="javascript:;" class="has-arrow {{ request()->routeIs('administration.pages.accueil.*') || request()->routeIs('administration.pages.a-propos.*') || request()->routeIs('administration.pages.mission.*') || request()->routeIs('administration.pages.historique.*') || request()->routeIs('administration.pages.contact.*') ? 'mm-active' : '' }}">
+                <div class="parent-icon"><i class='bx bx-globe'></i></div>
+                <div class="menu-title">Pages du site</div>
             </a>
+            <ul>
+                <li>
+                    <a href="{{ route('administration.pages.accueil.edit') }}" class="{{ request()->routeIs('administration.pages.accueil.*') ? 'mm-active' : '' }}"><i class="bx bx-right-arrow-alt"></i>Page d'accueil</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.pages.a-propos.edit') }}" class="{{ request()->routeIs('administration.pages.a-propos.*') ? 'mm-active' : '' }}"><i class="bx bx-right-arrow-alt"></i>À propos</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.pages.mission.edit') }}" class="{{ request()->routeIs('administration.pages.mission.*') ? 'mm-active' : '' }}"><i class="bx bx-right-arrow-alt"></i>Notre mission</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.pages.historique.edit') }}" class="{{ request()->routeIs('administration.pages.historique.*') ? 'mm-active' : '' }}"><i class="bx bx-right-arrow-alt"></i>Historique</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.pages.contact.edit') }}" class="{{ request()->routeIs('administration.pages.contact.*') ? 'mm-active' : '' }}"><i class="bx bx-right-arrow-alt"></i>Contact</a>
+                </li>
+            </ul>
         </li>
 
-        <!-- Galerie -->
-        <li>
-            <a href="#">
+        <!-- Médiathèque -->
+        <li class="{{ request()->routeIs('administration.mediatheque.*') ? 'mm-active' : '' }}">
+            <a href="javascript:;" class="has-arrow {{ request()->routeIs('administration.mediatheque.*') ? 'mm-active' : '' }}">
                 <div class="parent-icon"><i class='bx bx-photo-album'></i></div>
                 <div class="menu-title">Médiathèque</div>
             </a>
+            <ul>
+                <li>
+                    <a href="{{ route('administration.mediatheque.images') }}"><i class="bx bx-right-arrow-alt"></i>Images</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.mediatheque.documents') }}"><i class="bx bx-right-arrow-alt"></i>Documents</a>
+                </li>
+                <li>
+                    <a href="{{ route('administration.mediatheque.upload') }}"><i class="bx bx-right-arrow-alt"></i>Upload</a>
+                </li>
+            </ul>
         </li>
 
-        <!-- Membres -->
+        <!-- Paramètres essentiels -->
+      
         <li>
-            <a href="#">
-                <div class="parent-icon"><i class='bx bx-user'></i></div>
-                <div class="menu-title">Gestion des membres</div>
-            </a>
-        </li>
-
-        <!-- Paramètres -->
-        <li>
-            <a href="#">
+            <a href="{{ route('administration.parametres.index') }}">
                 <div class="parent-icon"><i class='bx bx-cog'></i></div>
                 <div class="menu-title">Paramètres</div>
             </a>

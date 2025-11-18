@@ -52,9 +52,9 @@
                     <li>
                         <form method="POST" action="{{ route('logout') }}" id="logout-form">
                             @csrf
-                            <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <button type="submit" class="dropdown-item btn-logout">
                                 <i class='bx bx-log-out-circle'></i><span>Déconnexion</span>
-                            </a>
+                            </button>
                         </form>
                     </li>
                 </ul>

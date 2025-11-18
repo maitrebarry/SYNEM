@@ -5,6 +5,7 @@
 	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<!--favicon-->
 	<link rel="icon" href="{{ asset('template-admin/assets/images/favicon-32x32.png') }}" type="image/png" />
 	<!--plugins-->
@@ -15,6 +16,8 @@
 	<link href="{{ asset('template-admin/assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
 	<!-- lien pour icone -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Font Awesome (pour icônes utilisées dans les vues) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 	<!-- loader-->
 	<link href="{{ asset('template-admin/assets/css/pace.min.css') }}" rel="stylesheet" />
 	<script src="{{ asset('template-admin/assets/js/pace.min.js') }}"></script>
@@ -193,6 +196,7 @@ $(document).ready(function () {
 </script>
 
 
-@yield('scripts')
+@stack('scripts')
+    {{-- Notifications handled inline in the layout (Bootstrap alerts) to avoid duplicate popups. --}}
 </body>
 </html>

@@ -53,26 +53,41 @@
     <div class="container-fluid p-0" style="margin-bottom: 90px;">
         <div id="header-carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img class="w-100" src="{{ asset('template-siteweb/asset/img/r.jpg') }}" alt="SYNEM Éducation">
-                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                        <div class="p-3" style="max-width: 900px;">
-                            <h4 class="text-white text-uppercase mb-md-3">Syndicat National</h4>
-                            <h1 class="display-1 text-white mb-md-4">Défense des Droits des Enseignants</h1>
-                            <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                @if($content && $content->carouselImages && count($content->carouselImages))
+                    @foreach($content->carouselImages as $key => $img)
+                        <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+                            <img class="w-100" src="{{ asset('storage/carousel/' . $img->file) }}" alt="Carrousel {{ $key+1 }}">
+                            <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                                <div class="p-3" style="max-width: 900px;">
+                                    <h4 class="text-white text-uppercase mb-md-3">{{ $content->carousel_title ?? 'Syndicat National' }}</h4>
+                                    <h1 class="display-1 text-white mb-md-4">{{ $content->carousel_subtitle ?? 'Défense des Droits des Enseignants' }}</h1>
+                                    <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="carousel-item active">
+                        <img class="w-100" src="{{ asset('template-siteweb/asset/img/ens8.jpeg') }}" alt="SYNEM Éducation">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width: 900px;">
+                                <h4 class="text-white text-uppercase mb-md-3">Syndicat National</h4>
+                                <h1 class="display-1 text-white mb-md-4">Défense des Droits des Enseignants</h1>
+                                         SELECT * FROM homepage_contents;                                        SELECT * FROM homepage_contents;                       <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="carousel-item">
-                    <img class="w-100" src="{{ asset('template-siteweb/asset/img/bg.jpg') }}" alt="SYNEM Formation">
-                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                        <div class="p-3" style="max-width: 900px;">
-                            <h4 class="text-white text-uppercase mb-md-3">Formation Continue</h4>
-                            <h1 class="display-1 text-white mb-md-4">Développement Professionnel des Enseignants</h1>
-                            <a href="{{ route('mission') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Notre Mission</a>
+                    <div class="carousel-item">
+                        <img class="w-100" src="{{ asset('template-siteweb/asset/img/ens2.jpg') }}" alt="SYNEM Formation">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width: 900px;">
+                                <h4 class="text-white text-uppercase mb-md-3">Formation Continue</h4>
+                                <h1 class="display-1 text-white mb-md-4">Développement Professionnel des Enseignants</h1>
+                                <a href="{{ route('mission') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Notre Mission</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
             <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
                 <div class="btn btn-dark" style="width: 45px; height: 45px;">
@@ -95,7 +110,7 @@
             <h1 class="display-4 text-uppercase text-center mb-5">Bienvenue au <span class="text-primary">SYNEM</span></h1>
             <div class="row justify-content-center">
                 <div class="col-lg-10 text-center">
-                    <img class="w-75 mb-4" src="{{ asset('template-siteweb/asset/img/about.png') }}" alt="À propos du SYNEM">
+                    <img class="w-75 mb-4" src="{{ asset('template-siteweb/asset/img/ens10.jpeg') }}" alt="À propos du SYNEM">
                     <p>Le Syndicat National des Enseignants du Mali (SYNEM) est l'organisation syndicale qui représente et défend les intérêts des enseignants maliens à tous les niveaux du système éducatif. Fort de plusieurs décennies d'engagement, le SYNEM œuvre pour l'amélioration des conditions de travail et de vie des enseignants, la défense de leurs droits professionnels et la promotion d'une éducation de qualité pour tous les enfants du Mali.</p>
                 </div>
             </div>
@@ -185,266 +200,141 @@
             <h1 class="display-1 text-primary text-center">03</h1>
             <h1 class="display-4 text-uppercase text-center mb-5">Dernières Actualités</h1>
             <div class="row">
-                <!-- Article 1 -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="rent-item mb-4">
-                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/gallery-1.jpg') }}" alt="Actualité 1">
-                        <h4 class="text-uppercase mb-4">Assemblée Générale 2024</h4>
-                        <p class="mb-4">L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024...</p>
-                        <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                @if(!empty($content->compte_rendu_title) && !empty($content->compte_rendu_content))
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="rent-item mb-4">
+                            @php
+                                $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
+                                $crImage = !empty($crImages) ? $crImages[0] : null;
+                            @endphp
+                            @if($crImage)
+                                <img class="img-fluid mb-4" src="{{ asset('storage/compte_rendu/' . $crImage) }}" alt="Compte Rendu">
+                            @endif
+                            <h4 class="text-uppercase mb-4">{{ $content->compte_rendu_title }}</h4>
+                            <button class="btn btn-primary px-3" data-toggle="modal" data-target="#compteRenduModal">Lire la suite</button>
+                        </div>
                     </div>
-                </div>
-                <!-- Article 2 -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="rent-item mb-4">
-                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/gallery-2.jpg') }}" alt="Actualité 2">
-                        <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
-                        <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
-                        <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                @else
+                    <!-- Static Fallback Data -->
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="rent-item mb-4">
+                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité 1">
+                            <h4 class="text-uppercase mb-4">Assemblée Générale 2024</h4>
+                            <p class="mb-4">L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024...</p>
+                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                        </div>
                     </div>
-                </div>
-                <!-- Article 3 -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="rent-item mb-4">
-                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/gallery-3.jpg') }}" alt="Actualité 3">
-                        <h4 class="text-uppercase mb-4">Accords Salariaux</h4>
-                        <p class="mb-4">Signature d'un nouvel accord salarial avec le ministère de l'Éducation...</p>
-                        <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="rent-item mb-4">
+                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité 2">
+                            <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
+                            <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
+                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                        </div>
                     </div>
-                </div>
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="rent-item mb-4">
+                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/accord.jpg') }}" alt="Actualité 3">
+                            <h4 class="text-uppercase mb-4">Accords Salariaux</h4>
+                            <p class="mb-4">Signature d'un nouvel accord salarial avec le ministère de l'Éducation...</p>
+                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
     <!-- Dernières Actualités End -->
 
+    @if(!empty($content->compte_rendu_title) && !empty($content->compte_rendu_content))
+    <!-- Modal Compte Rendu -->
+    <div class="modal fade" id="compteRenduModal" tabindex="-1" role="dialog" aria-labelledby="compteRenduModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title  text-white" id="compteRenduModalLabel">{{ $content->compte_rendu_title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {!! nl2br(e($content->compte_rendu_content)) !!}
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Documents Administratifs Start -->
     <div class="container-fluid py-5">
         <div class="container pt-5 pb-3">
             <h1 class="display-1 text-primary text-center">04</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">Documents Administratifs</h1>
-            
-            <!-- Notifications des nouveaux documents -->
-            <div class="alert alert-primary alert-dismissible fade show mb-5" role="alert">
-                <strong>Nouveauté !</strong> De nouveaux documents sont disponibles au téléchargement.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <!-- Filtres par catégorie -->
-            <div class="row mb-4">
-                <div class="col-12 text-center">
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-outline-primary active">
-                            <input type="radio" name="categories" id="tous" checked> Tous les documents
-                        </label>
-                        <label class="btn btn-outline-primary">
-                            <input type="radio" name="categories" id="congres"> Congrès
-                        </label>
-                        <label class="btn btn-outline-primary">
-                            <input type="radio" name="categories" id="rapports"> Rapports
-                        </label>
-                        <label class="btn btn-outline-primary">
-                            <input type="radio" name="categories" id="decisions"> Décisions administratives
-                        </label>
-                    </div>
-                </div>
-            </div>
-
+            <h1 class="display-4 text-uppercase text-center mb-5">
+                {{ ($content && $content->documents_title) ? $content->documents_title : 'Documents Administratifs' }}
+            </h1>
             <div class="row">
-                <!-- Document 1 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="congres">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <span class="badge badge-light">Congrès</span>
-                            <span class="badge badge-warning">Nouveau</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Compte-rendu Congrès 2024</h5>
-                                    <small class="text-muted">Publié le 15 Jan 2024</small>
+                @if($content && $content->documents && count($content->documents))
+                    @foreach($content->documents as $doc)
+                        <div class="col-lg-4 col-md-6 mb-4 document-item">
+                            <div class="card document-card h-100 border-0 shadow-sm">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-light">{{ strtoupper($doc->type) }}</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        @if($doc->type === 'pdf')
+                                            <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
+                                        @elseif($doc->type === 'word')
+                                            <i class="fas fa-file-word text-primary fa-2x mr-3"></i>
+                                        @elseif($doc->type === 'excel')
+                                            <i class="fas fa-file-excel text-success fa-2x mr-3"></i>
+                                        @else
+                                            <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                        @endif
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ $doc->title }}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a href="{{ asset('storage/documents/' . $doc->file) }}" class="btn btn-primary btn-sm" download>
+                                        <i class="fas fa-download mr-2"></i>Télécharger
+                                    </a>
                                 </div>
                             </div>
-                            <p class="card-text">Rapport complet des résolutions et décisions du congrès annuel 2024.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 2.4 MB
-                                </small>
+                        </div>
+                    @endforeach
+                @else
+                    <!-- Fallback contenu statique -->
+                    <div class="col-lg-4 col-md-6 mb-4 document-item">
+                        <div class="card document-card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <span class="badge badge-light">Congrès</span>
+                                <span class="badge badge-warning">Nouveau</span>
                             </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/congres-2024.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2" data-toggle="modal" data-target="#documentModal1">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document 2 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="rapports">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                            <span class="badge badge-light">Rapport</span>
-                            <span class="badge badge-warning">Nouveau</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Rapport d'Activités 2023</h5>
-                                    <small class="text-muted">Publié le 10 Jan 2024</small>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
+                                    <div>
+                                        <h5 class="card-title mb-1">Compte-rendu Congrès 2024</h5>
+                                        <small class="text-muted">Publié le 15 Jan 2024</small>
+                                    </div>
+                                </div>
+                                <p class="card-text">Rapport complet des résolutions et décisions du congrès annuel 2024.</p>
+                                <div class="document-info">
+                                    <small class="text-muted">
+                                        <i class="fas fa-file-alt mr-1"></i>PDF - 2.4 MB
+                                    </small>
                                 </div>
                             </div>
-                            <p class="card-text">Bilan complet des activités et réalisations du SYNEM pour l'année 2023.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 1.8 MB
-                                </small>
+                            <div class="card-footer bg-transparent">
+                                <a href="{{ asset('storage/documents/congres-2024.pdf') }}" class="btn btn-primary btn-sm" download>
+                                    <i class="fas fa-download mr-2"></i>Télécharger
+                                </a>
                             </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/rapport-2023.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2" data-toggle="modal" data-target="#documentModal2">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Document 3 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="decisions">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-info text-white">
-                            <span class="badge badge-light">Décision administrative</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Décision N°2024-001</h5>
-                                    <small class="text-muted">Publié le 5 Jan 2024</small>
-                                </div>
-                            </div>
-                            <p class="card-text">Décision relative à l'organisation des élections syndicales 2024.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 856 KB
-                                </small>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/decision-2024-001.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2" data-toggle="modal" data-target="#documentModal3">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document 4 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="congres">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <span class="badge badge-light">Congrès</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Ordre du Jour Congrès 2024</h5>
-                                    <small class="text-muted">Publié le 20 Déc 2023</small>
-                                </div>
-                            </div>
-                            <p class="card-text">Ordre du jour détaillé et programme du congrès extraordinaire 2024.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 1.2 MB
-                                </small>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/ordre-jour-2024.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document 5 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="rapports">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-success text-white">
-                            <span class="badge badge-light">Rapport</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Rapport Financier 2023</h5>
-                                    <small class="text-muted">Publié le 8 Jan 2024</small>
-                                </div>
-                            </div>
-                            <p class="card-text">Rapport détaillé de la situation financière et du budget 2023.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 3.1 MB
-                                </small>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/rapport-financier-2023.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document 6 -->
-                <div class="col-lg-4 col-md-6 mb-4 document-item" data-category="decisions">
-                    <div class="card document-card h-100 border-0 shadow-sm">
-                        <div class="card-header bg-info text-white">
-                            <span class="badge badge-light">Décision administrative</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                <div>
-                                    <h5 class="card-title mb-1">Circulaire N°2023-045</h5>
-                                    <small class="text-muted">Publié le 15 Déc 2023</small>
-                                </div>
-                            </div>
-                            <p class="card-text">Circulaire relative aux modalités d'adhésion et cotisations 2024.</p>
-                            <div class="document-info">
-                                <small class="text-muted">
-                                    <i class="fas fa-file-alt mr-1"></i>PDF - 745 KB
-                                </small>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <a href="{{ asset('storage/documents/circulaire-2023-045.pdf') }}" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download mr-2"></i>Télécharger
-                            </a>
-                            <button class="btn btn-outline-secondary btn-sm ml-2">
-                                <i class="fas fa-eye mr-2"></i>Aperçu
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                @endif
             </div>
 
             <!-- Bouton Voir Plus -->

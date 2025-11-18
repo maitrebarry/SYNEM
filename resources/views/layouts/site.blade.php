@@ -26,7 +26,7 @@
 
     <!-- Template Stylesheet -->
     <link href="{{ asset('template-siteweb/asset/css/style.css') }}" rel="stylesheet">
-
+     <link href="{{ asset('template-siteweb/asset/css/stylecarosel.css') }}" rel="stylesheet">
     @yield('styles')
 </head>
 
@@ -55,7 +55,7 @@
 
     <!-- Template Javascript -->
     <script src="{{ asset('template-siteweb/asset/js/main.js') }}"></script>
-
+    <script src="{{ asset('template-siteweb/asset/js/carosel.js') }}"></script>
     @yield('scripts')
 </body>
 </html>

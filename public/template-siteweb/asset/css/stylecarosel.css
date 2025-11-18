@@ -1,0 +1,62 @@
+/* Styles pour les carousels de page */
+#page-carousel .carousel-item {
+    height: 70vh;
+    min-height: 500px;
+}
+
+#page-carousel .carousel-item img {
+    object-fit: cover;
+    height: 100%;
+    filter: brightness(0.7);
+}
+
+#page-carousel .carousel-caption {
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#page-carousel .breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+#page-carousel .breadcrumb-item.active {
+    color: #f8f9fa;
+}
+
+#page-carousel .breadcrumb-item a {
+    color: #e9ecef;
+    text-decoration: none;
+}
+
+#page-carousel .breadcrumb-item a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Animation pour le texte */
+.animated.slideInDown {
+    animation-duration: 1s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #page-carousel .carousel-item {
+        height: 50vh;
+        min-height: 400px;
+    }
+    
+    #page-carousel .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    #page-carousel .display-6 {
+        font-size: 1.25rem;
+    }
+}
