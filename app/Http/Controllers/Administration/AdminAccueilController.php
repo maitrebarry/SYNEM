@@ -164,12 +164,18 @@ class AdminAccueilController extends Controller
         $content->save();
 
         // Upload des nouvelles images carrousel
+        // Support per-image title/text fields: carousel_image_title[] and carousel_image_text[] (parallel arrays)
+        $newTitles = $request->input('carousel_image_title', []);
+        $newTexts = $request->input('carousel_image_text', []);
         if ($request->hasFile('carousel_images')) {
-            foreach ($request->file('carousel_images') as $img) {
+            foreach ($request->file('carousel_images') as $i => $img) {
+                if (!($img instanceof \Illuminate\Http\UploadedFile)) continue;
                 $path = $img->store('carousel', 'public');
                 HomepageCarouselImage::create([
                     'homepage_content_id' => $content->id,
                     'file' => basename($path),
+                    'title' => trim((string)($newTitles[$i] ?? '')) ?: null,
+                    'text' => trim((string)($newTexts[$i] ?? '')) ?: null,
                 ]);
             }
         }
@@ -321,6 +327,25 @@ class AdminAccueilController extends Controller
         return redirect()->route('administration.pages.accueil.edit')->with('success', 'Image du carrousel supprimée.');
     }
 
+    /** Update metadata (title/text) for a single carousel image */
+    public function updateCarouselImage(Request $request, $id)
+    {
+        $img = HomepageCarouselImage::findOrFail($id);
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'text' => 'nullable|string',
+        ]);
+        $img->title = $request->input('title') ?: null;
+        $img->text = $request->input('text') ?: null;
+        $img->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Métadonnées mises à jour.']);
+        }
+
+        return redirect()->route('administration.pages.accueil.edit')->with('success', 'Image mise à jour.');
+    }
+
     public function deleteAboutImage()
     {
         $content = HomepageContent::first();
@@ -340,6 +365,27 @@ class AdminAccueilController extends Controller
      */
     public function updateCarousel(Request $request)
     {
+        // Log incoming request for debug: whether files arrived and their original names
+        try {
+            $received = [];
+            $files = $request->file('carousel_images', []);
+            if (is_array($files)) {
+                foreach ($files as $f) {
+                    if ($f instanceof \Illuminate\Http\UploadedFile) {
+                        $received[] = $f->getClientOriginalName();
+                    }
+                }
+            }
+            \Illuminate\Support\Facades\Log::info('updateCarousel request received', [
+                'has_files' => $request->hasFile('carousel_images'),
+                'files_count' => is_array($files) ? count($files) : 0,
+                'file_names' => $received,
+                'full_url' => $request->fullUrl(),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('updateCarousel logging failed: ' . $e->getMessage());
+        }
+
         $content = HomepageContent::firstOrNew([]);
         $request->validate([
             'carousel_title' => 'nullable|string|max:255',
@@ -378,7 +424,14 @@ class AdminAccueilController extends Controller
         }
 
         if ($fileErrors->any()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erreurs de fichiers.', 'errors' => $fileErrors->all()], 422);
+            }
             return redirect()->back()->withErrors($fileErrors)->withInput();
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Carrousel mis à jour.']);
         }
 
         return redirect()->route('administration.pages.accueil.edit')->with(['success' => 'Carrousel mis à jour.', 'success_section' => 'carousel']);
@@ -401,6 +454,10 @@ class AdminAccueilController extends Controller
         }
         $content->save();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Section À propos mise à jour.']);
+        }
+
         return redirect()->route('administration.pages.accueil.edit')->with(['success' => 'Section À propos mise à jour.', 'success_section' => 'about']);
     }
 
@@ -417,7 +474,46 @@ class AdminAccueilController extends Controller
         $content->news_items = $request->input('news_items');
         $content->save();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Actualités mises à jour.']);
+        }
+
         return redirect()->route('administration.pages.accueil.edit')->with(['success' => 'Actualités mises à jour.', 'success_section' => 'news']);
+    }
+
+    /** Update services section ("Nos Domaines d'Intervention") */
+    public function updateServices(Request $request)
+    {
+        $content = HomepageContent::firstOrNew([]);
+        $request->validate([
+            'services_title' => 'nullable|string|max:255',
+            'service_title' => 'nullable|array',
+            'service_title.*' => 'nullable|string|max:255',
+            'service_text' => 'nullable|array',
+            'service_text.*' => 'nullable|string',
+        ]);
+
+        $content->services_title = $request->input('services_title');
+
+        $titles = $request->input('service_title', []);
+        $texts = $request->input('service_text', []);
+        $items = [];
+        $count = max(count($titles), count($texts));
+        for ($i = 0; $i < $count; $i++) {
+            $t = trim((string)($titles[$i] ?? ''));
+            $tx = trim((string)($texts[$i] ?? ''));
+            if ($t === '' && $tx === '') continue;
+            $items[] = ['title' => $t, 'text' => $tx];
+        }
+
+        $content->services_items = count($items) ? json_encode(array_values($items)) : null;
+        $content->save();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Section Nos Domaines d\'Intervention mise à jour.']);
+        }
+
+        return redirect()->route('administration.pages.accueil.edit')->with(['success' => 'Section Nos Domaines d\'Intervention mise à jour.', 'success_section' => 'services']);
     }
 
     /** Update documents section */
@@ -467,7 +563,14 @@ class AdminAccueilController extends Controller
         }
 
         if ($fileErrors->any()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erreurs de fichiers.', 'errors' => $fileErrors->all()], 422);
+            }
             return redirect()->back()->withErrors($fileErrors)->withInput();
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Documents mis à jour.']);
         }
 
         return redirect()->route('administration.pages.accueil.edit')->with(['success' => 'Documents mis à jour.', 'success_section' => 'documents']);

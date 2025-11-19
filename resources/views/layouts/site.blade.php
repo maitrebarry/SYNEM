@@ -6,6 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="SYNEM, Enseignants, Mali, Éducation" name="keywords">
     <meta content="Syndicat National des Enseignants du Mali" name="description">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Favicon -->
     <link href="{{ asset('template-siteweb/asset/img/vendor-4.png') }}" rel="icon">

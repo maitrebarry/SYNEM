@@ -45,22 +45,47 @@
         border-color: #007bff;
         color: white;
     }
+    /* Uniform news/card sizing */
+    .rent-item {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .rent-item img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+    .rent-item .content {
+        flex: 1 1 auto;
+    }
+    .rent-item .read-btn {
+        margin-top: auto;
+    }
 </style>
 @endsection
 
 @section('content')
     <!-- Carousel Start -->
     <div class="container-fluid p-0" style="margin-bottom: 90px;">
-        <div id="header-carousel" class="carousel slide" data-ride="carousel">
+        <div id="header-carousel" class="carousel slide" data-ride="carousel" data-bs-ride="carousel" data-interval="3000" data-bs-interval="3000">
             <div class="carousel-inner">
                 @if($content && $content->carouselImages && count($content->carouselImages))
                     @foreach($content->carouselImages as $key => $img)
+                        @php
+                            // support optional per-image text if present (legacy compatibility)
+                            $imgTitle = $img->title ?? $img->caption ?? $img->label ?? null;
+                            $imgText = $img->text ?? $img->description ?? null;
+                            // fallback to global carousel title/subtitle
+                            $displayTitle = $imgTitle ?: ($content->carousel_title ?? 'Syndicat National');
+                            $displaySubtitle = $imgText ?: ($content->carousel_subtitle ?? 'Défense des Droits des Enseignants');
+                        @endphp
                         <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
                             <img class="w-100" src="{{ asset('storage/carousel/' . $img->file) }}" alt="Carrousel {{ $key+1 }}">
                             <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                                 <div class="p-3" style="max-width: 900px;">
-                                    <h4 class="text-white text-uppercase mb-md-3">{{ $content->carousel_title ?? 'Syndicat National' }}</h4>
-                                    <h1 class="display-1 text-white mb-md-4">{{ $content->carousel_subtitle ?? 'Défense des Droits des Enseignants' }}</h1>
+                                    <h4 class="text-white text-uppercase mb-md-3">{{ $displayTitle }}</h4>
+                                    <h1 class="display-1 text-white mb-md-4">{{ $displaySubtitle }}</h1>
                                     <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
                                 </div>
                             </div>
@@ -73,7 +98,7 @@
                             <div class="p-3" style="max-width: 900px;">
                                 <h4 class="text-white text-uppercase mb-md-3">Syndicat National</h4>
                                 <h1 class="display-1 text-white mb-md-4">Défense des Droits des Enseignants</h1>
-                                         SELECT * FROM homepage_contents;                                        SELECT * FROM homepage_contents;                       <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                                                          <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
                             </div>
                         </div>
                     </div>
@@ -148,47 +173,75 @@
     <div class="container-fluid py-5">
         <div class="container pt-5 pb-3">
             <h1 class="display-1 text-primary text-center">02</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">Nos Domaines d'Intervention</h1>
+            <h1 class="display-4 text-uppercase text-center mb-5">{{ ($content && $content->services_title) ? $content->services_title : 'Nos Domaines d\'Intervention' }}</h1>
             <div class="row">
-                <!-- Défense des droits -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                <i class="fa fa-2x fa-balance-scale text-secondary"></i>
+                @php
+                    $servicesItems = [];
+                    if (!empty($content->services_items)) {
+                        $servicesItems = is_array($content->services_items) ? $content->services_items : (json_decode($content->services_items, true) ?: []);
+                    }
+                @endphp
+
+                @if(count($servicesItems))
+                    @foreach($servicesItems as $idx => $s)
+                        @php
+                            $number = str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+                            $title = $s['title'] ?? ($s['label'] ?? 'Service');
+                            $description = $s['text'] ?? ($s['description'] ?? ($s['content'] ?? ''));
+                            $iconClass = $s['icon'] ?? ($s['fa'] ?? 'fa-briefcase');
+                        @endphp
+                        <div class="col-lg-4 col-md-6 mb-2">
+                            <div class="service-item {{ $idx === 1 ? 'active' : '' }} d-flex flex-column justify-content-center px-4 mb-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
+                                        <i class="fa fa-2x {{ $iconClass }} text-secondary"></i>
+                                    </div>
+                                    <h1 class="display-2 text-white mt-n2 m-0">{{ $number }}</h1>
+                                </div>
+                                <h4 class="text-uppercase mb-3">{{ $title }}</h4>
+                                <p class="m-0">{{ $description }}</p>
                             </div>
-                            <h1 class="display-2 text-white mt-n2 m-0">01</h1>
                         </div>
-                        <h4 class="text-uppercase mb-3">Défense des Droits</h4>
-                        <p class="m-0">Protection des droits professionnels et amélioration des conditions de travail des enseignants.</p>
-                    </div>
-                </div>
-                <!-- Formation -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="service-item active d-flex flex-column justify-content-center px-4 mb-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                <i class="fa fa-2x fa-book text-secondary"></i>
+                    @endforeach
+                @else
+                    <!-- Static fallback content -->
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
+                                    <i class="fa fa-2x fa-balance-scale text-secondary"></i>
+                                </div>
+                                <h1 class="display-2 text-white mt-n2 m-0">01</h1>
                             </div>
-                            <h1 class="display-2 text-white mt-n2 m-0">02</h1>
+                            <h4 class="text-uppercase mb-3">Défense des Droits</h4>
+                            <p class="m-0">Protection des droits professionnels et amélioration des conditions de travail des enseignants.</p>
                         </div>
-                        <h4 class="text-uppercase mb-3">Formation Continue</h4>
-                        <p class="m-0">Programmes de formation pour le développement professionnel des enseignants.</p>
                     </div>
-                </div>
-                <!-- Négociation -->
-                <div class="col-lg-4 col-md-6 mb-2">
-                    <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                <i class="fa fa-2x fa-comments text-secondary"></i>
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="service-item active d-flex flex-column justify-content-center px-4 mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
+                                    <i class="fa fa-2x fa-book text-secondary"></i>
+                                </div>
+                                <h1 class="display-2 text-white mt-n2 m-0">02</h1>
                             </div>
-                            <h1 class="display-2 text-white mt-n2 m-0">03</h1>
+                            <h4 class="text-uppercase mb-3">Formation Continue</h4>
+                            <p class="m-0">Programmes de formation pour le développement professionnel des enseignants.</p>
                         </div>
-                        <h4 class="text-uppercase mb-3">Négociation Collective</h4>
-                        <p class="m-0">Dialogue social avec les autorités pour de meilleures politiques éducatives.</p>
                     </div>
-                </div>
+                    <div class="col-lg-4 col-md-6 mb-2">
+                        <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
+                                    <i class="fa fa-2x fa-comments text-secondary"></i>
+                                </div>
+                                <h1 class="display-2 text-white mt-n2 m-0">03</h1>
+                            </div>
+                            <h4 class="text-uppercase mb-3">Négociation Collective</h4>
+                            <p class="m-0">Dialogue social avec les autorités pour de meilleures politiques éducatives.</p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -200,13 +253,21 @@
             <h1 class="display-1 text-primary text-center">03</h1>
             <h1 class="display-4 text-uppercase text-center mb-5">Dernières Actualités</h1>
             <div class="row">
-                @if(!empty($content->compte_rendu_title) && !empty($content->compte_rendu_content))
+                @php
+                    // Compte rendu card (if present) + news list
+                    $hasCompteRendu = !empty($content->compte_rendu_title) && !empty($content->compte_rendu_content);
+                    $crImages = [];
+                    if ($hasCompteRendu && !empty($content->compte_rendu_images)) {
+                        $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
+                    }
+                    $newsItems = collect(explode("\n", trim((string)($content->news_items ?? ''))))->map(fn($v)=>trim($v))->filter()->values();
+                    $newsCount = $newsItems->count();
+                @endphp
+
+                @if($hasCompteRendu)
                     <div class="col-lg-4 col-md-6 mb-2">
                         <div class="rent-item mb-4">
-                            @php
-                                $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
-                                $crImage = !empty($crImages) ? $crImages[0] : null;
-                            @endphp
+                            @php $crImage = !empty($crImages) ? $crImages[0] : null; @endphp
                             @if($crImage)
                                 <img class="img-fluid mb-4" src="{{ asset('storage/compte_rendu/' . $crImage) }}" alt="Compte Rendu">
                             @endif
@@ -214,32 +275,79 @@
                             <button class="btn btn-primary px-3" data-toggle="modal" data-target="#compteRenduModal">Lire la suite</button>
                         </div>
                     </div>
+                    {{-- show up to 2 news items next to compte-rendu --}}
+                    @foreach($newsItems->slice(0,2) as $it)
+                        <div class="col-lg-4 col-md-6 mb-2">
+                                    <div class="rent-item mb-4">
+                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité">
+                                        <div class="content">
+                                            <h4 class="text-uppercase mb-4">{{ \Illuminate\Support\Str::limit($it, 60) }}</h4>
+                                            <p class="mb-4">{{ \Illuminate\Support\Str::limit($it, 120) }}</p>
+                                        </div>
+                                        <button type="button" class="btn btn-primary px-3 read-btn news-read-btn" data-news-text="{{ e($it) }}">Lire la suite</button>
+                                    </div>
+                        </div>
+                    @endforeach
+
+                    {{-- if less than 2 news items, fill with static fallbacks --}}
+                    @if($newsCount < 2)
+                        @for($i = 0; $i < 2 - $newsCount; $i++)
+                            <div class="col-lg-4 col-md-6 mb-2">
+                                <div class="rent-item mb-4">
+                                    <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité">
+                                    <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
+                                    <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
+                                    <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                                </div>
+                            </div>
+                        @endfor
+                    @endif
                 @else
-                    <!-- Static Fallback Data -->
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="rent-item mb-4">
-                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité 1">
-                            <h4 class="text-uppercase mb-4">Assemblée Générale 2024</h4>
-                            <p class="mb-4">L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024...</p>
-                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                    {{-- No compte-rendu: show either news items or static three boxes --}}
+                    @if($newsCount > 0)
+                        @foreach($newsItems->slice(0,3) as $it)
+                            <div class="col-lg-4 col-md-6 mb-2">
+                                <div class="rent-item mb-4">
+                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité">
+                                        <div class="content">
+                                            <h4 class="text-uppercase mb-4">{{ \Illuminate\Support\Str::limit($it, 60) }}</h4>
+                                            <p class="mb-4">{{ \Illuminate\Support\Str::limit($it, 120) }}</p>
+                                        </div>
+                                        <button type="button" class="btn btn-primary px-3 read-btn news-read-btn" data-news-text="{{ e($it) }}">Lire la suite</button>
+                                    </div>
+                            </div>
+                        @endforeach
+                    @else
+                        {{-- Static Fallback Data --}}
+                        <div class="col-lg-4 col-md-6 mb-2">
+                            <div class="rent-item mb-4">
+                                <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité 1">
+                                <h4 class="text-uppercase mb-4">Assemblée Générale 2024</h4>
+                                <p class="mb-4">L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024...</p>
+                                <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="rent-item mb-4">
-                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité 2">
-                            <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
-                            <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
-                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                        <div class="col-lg-4 col-md-6 mb-2">
+                                <div class="rent-item mb-4">
+                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité">
+                                        <div class="content">
+                                            <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
+                                            <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
+                                        </div>
+                                        <button type="button" class="btn btn-primary px-3 read-btn" data-news-text="Formation Pédagogique">Lire la suite</button>
+                                    </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="rent-item mb-4">
-                            <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/accord.jpg') }}" alt="Actualité 3">
-                            <h4 class="text-uppercase mb-4">Accords Salariaux</h4>
-                            <p class="mb-4">Signature d'un nouvel accord salarial avec le ministère de l'Éducation...</p>
-                            <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                        <div class="col-lg-4 col-md-6 mb-2">
+                                <div class="rent-item mb-4">
+                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/accord.jpg') }}" alt="Actualité 3">
+                                        <div class="content">
+                                            <h4 class="text-uppercase mb-4">Accords Salariaux</h4>
+                                            <p class="mb-4">Signature d'un nouvel accord salarial avec le ministère de l'Éducation...</p>
+                                        </div>
+                                        <button type="button" class="btn btn-primary px-3 read-btn" data-news-text="Accords Salariaux">Lire la suite</button>
+                                    </div>
                         </div>
-                    </div>
+                    @endif
                 @endif
             </div>
         </div>
@@ -264,6 +372,23 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal for news items -->
+    <div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-labelledby="newsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="newsModalLabel">Actualité</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="newsModalBody">
+                    <!-- filled by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Documents Administratifs Start -->
     <div class="container-fluid py-5">
@@ -339,7 +464,7 @@
 
             <!-- Bouton Voir Plus -->
             <div class="text-center mt-4">
-                <a href="#" class="btn btn-outline-primary btn-lg">
+                <a href="{{ route('site.documents.index') }}" class="btn btn-outline-primary btn-lg">
                     <i class="fas fa-folder-open mr-2"></i>Voir tous les documents
                 </a>
             </div>
@@ -450,6 +575,23 @@
             let docTitle = $(this).closest('.document-card').find('.card-title').text();
             console.log('Document téléchargé : ' + docTitle);
             // Ici vous pouvez envoyer une requête AJAX pour tracker les téléchargements
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        // open news modal with full text
+        document.querySelectorAll('.news-read-btn').forEach(function(btn){
+            btn.addEventListener('click', function(){
+                const txt = btn.getAttribute('data-news-text') || '';
+                const modalLabel = document.getElementById('newsModalLabel');
+                const modalBody = document.getElementById('newsModalBody');
+                if(modalLabel) modalLabel.textContent = 'Actualité';
+                if(modalBody) modalBody.innerHTML = '<p>' + txt.replace(/\n/g, '<br>') + '</p>';
+                try{ $('#newsModal').modal('show'); } catch(e){
+                    try{ new bootstrap.Modal(document.getElementById('newsModal')).show(); } catch(err){ console.warn('Modal show failed', err); }
+                }
+            });
         });
     });
 </script>

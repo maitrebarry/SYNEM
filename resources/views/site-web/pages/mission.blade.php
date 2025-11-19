@@ -56,35 +56,47 @@
 
 @section('content')
 <!-- Page Header Start -->
-@include('site-web.partials.page-carousel', [
-    'pageTitle' => 'Notre Mission',
-    'breadcrumb' => 'Mission',
-    'images' => [
+@php
+    // Use dynamic carousel images/captions when provided by controller, fallback to static ones
+    $carouselImages = $carouselImages ?? [
         asset('template-siteweb/asset/img/bg.jpg'),
         asset('template-siteweb/asset/img/gallery-2.jpg'),
         asset('template-siteweb/asset/img/gallery-3.jpg')
-    ],
-    'captions' => [
+    ];
+    $carouselCaptions = $carouselCaptions ?? [
         'Défendre les droits des enseignants maliens',
         'Promouvoir une éducation de qualité pour tous',
         'Œuvrer pour le développement professionnel'
-    ]
+    ];
+@endphp
+
+@include('site-web.partials.page-carousel', [
+    'pageTitle' => 'Notre Mission',
+    'breadcrumb' => 'Mission',
+    'images' => $carouselImages,
+    'captions' => $carouselCaptions,
 ])
 <!-- Page Header End -->
 
 <div class="container py-5">
     <div class="row align-items-center g-5">
         <div class="col-lg-6 mb-4 mb-lg-0">
-            <img src="{{ asset('template-siteweb/asset/img/mission-demo.jpg') }}" alt="Mission SYNEM" class="img-fluid rounded shadow">
+            <img src="{{ $missionImage ?? asset('template-siteweb/asset/img/mission-demo.jpg') }}" alt="Mission SYNEM" class="img-fluid rounded shadow">
         </div>
         <div class="col-lg-6">
             <h1 class="mb-3 text-primary">Notre Mission</h1>
-            <p class="lead mb-4">La mission du SYNEM est de défendre les intérêts moraux et matériels des enseignants, d’améliorer leurs conditions de travail, et de promouvoir le respect et la reconnaissance du métier. Le syndicat agit pour une école inclusive, équitable et performante au Mali.</p>
+            <p class="lead mb-4">{{ $missionMain ?? 'La mission du SYNEM est de défendre les intérêts moraux et matériels des enseignants, d’améliorer leurs conditions de travail, et de promouvoir le respect et la reconnaissance du métier. Le syndicat agit pour une école inclusive, équitable et performante au Mali.' }}</p>
             <ul class="list-unstyled mb-4">
-                <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Défense des droits et intérêts</li>
-                <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Amélioration des conditions de travail</li>
-                <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Respect et valorisation du métier</li>
-                <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Éducation inclusive et performante</li>
+                @if(!empty($missions) && is_array($missions))
+                    @foreach($missions as $m)
+                        <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>{{ $m['title'] ?? '' }}</li>
+                    @endforeach
+                @else
+                    <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Défense des droits et intérêts</li>
+                    <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Amélioration des conditions de travail</li>
+                    <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Respect et valorisation du métier</li>
+                    <li class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i>Éducation inclusive et performante</li>
+                @endif
             </ul>
         </div>
     </div>
@@ -100,66 +112,73 @@
             <h1 class="mb-0">Nos Missions Principales</h1>
         </div>
         <div class="row g-5">
-            <!-- Mission 1 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-balance-scale"></i>
+            @if(!empty($missions) && is_array($missions))
+                @foreach($missions as $m)
+                    <div class="col-lg-4 col-md-6">
+                        <div class="mission-card bg-light text-center p-5">
+                            <div class="mission-icon"><i class="{{ $m['icon'] ?? 'fa fa-circle' }}"></i></div>
+                            <h4 class="text-uppercase mb-3">{{ $m['title'] ?? '' }}</h4>
+                            <p>{{ $m['text'] ?? '' }}</p>
+                        </div>
                     </div>
-                    <h4 class="text-uppercase mb-3">Défense des Droits</h4>
-                    <p>Protéger les droits professionnels, sociaux et économiques des enseignants à tous les niveaux.</p>
-                </div>
-            </div>
-            <!-- Mission 2 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-graduation-cap"></i>
+                @endforeach
+            @else
+                <!-- fallback static items -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-balance-scale"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Défense des Droits</h4>
+                        <p>Protéger les droits professionnels, sociaux et économiques des enseignants à tous les niveaux.</p>
                     </div>
-                    <h4 class="text-uppercase mb-3">Formation Continue</h4>
-                    <p>Organiser des programmes de formation pour le développement professionnel des enseignants.</p>
                 </div>
-            </div>
-            <!-- Mission 3 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-handshake"></i>
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Formation Continue</h4>
+                        <p>Organiser des programmes de formation pour le développement professionnel des enseignants.</p>
                     </div>
-                    <h4 class="text-uppercase mb-3">Dialogue Social</h4>
-                    <p>Faciliter le dialogue entre les enseignants, l'administration et les autorités éducatives.</p>
                 </div>
-            </div>
-            <!-- Mission 4 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-chart-line"></i>
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-handshake"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Dialogue Social</h4>
+                        <p>Faciliter le dialogue entre les enseignants, l'administration et les autorités éducatives.</p>
                     </div>
-                    <h4 class="text-uppercase mb-3">Promotion de l'Éducation</h4>
-                    <p>Contribuer à l'amélioration de la qualité de l'éducation au Mali.</p>
                 </div>
-            </div>
-            <!-- Mission 5 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-users"></i>
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-chart-line"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Promotion de l'Éducation</h4>
+                        <p>Contribuer à l'amélioration de la qualité de l'éducation au Mali.</p>
                     </div>
-                    <h4 class="text-uppercase mb-3">Représentation</h4>
-                    <p>Représenter les enseignants dans toutes les instances décisionnelles.</p>
                 </div>
-            </div>
-            <!-- Mission 6 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="mission-card bg-light text-center p-5">
-                    <div class="mission-icon">
-                        <i class="fa fa-shield-alt"></i>
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Représentation</h4>
+                        <p>Représenter les enseignants dans toutes les instances décisionnelles.</p>
                     </div>
-                    <h4 class="text-uppercase mb-3">Protection Sociale</h4>
-                    <p>Assurer la protection sociale et la sécurité des enseignants.</p>
                 </div>
-            </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="mission-card bg-light text-center p-5">
+                        <div class="mission-icon">
+                            <i class="fa fa-shield-alt"></i>
+                        </div>
+                        <h4 class="text-uppercase mb-3">Protection Sociale</h4>
+                        <p>Assurer la protection sociale et la sécurité des enseignants.</p>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>

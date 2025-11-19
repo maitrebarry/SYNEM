@@ -13,8 +13,14 @@ Route::get('/', [AccueilController::class, 'index'])->name('accueil');
 // Pages publiques
 Route::get('/a-propos', [PageController::class, 'aPropos'])->name('a-propos');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+
+// Public submission for militants to request membership (from contact page)
+Route::post('/contact/submit-membership', [\App\Http\Controllers\SiteWeb\ContactSubmissionController::class, 'store'])->name('contact.submit.membership');
 Route::get('/mission', [PageController::class, 'mission'])->name('mission');
 Route::get('/historique', [PageController::class, 'historique'])->name('historique');
+
+// Documents publics - liste complète
+Route::get('/documents', [\App\Http\Controllers\SiteWeb\DocumentController::class, 'index'])->name('site.documents.index');
 
 // Routes d'authentification Breeze
 Route::get('/connexion', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -90,11 +96,13 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::post('/accueil/update/carousel', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateCarousel'])->name('accueil.update.carousel');
         Route::post('/accueil/update/about', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateAbout'])->name('accueil.update.about');
         Route::post('/accueil/update/news', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateNews'])->name('accueil.update.news');
+        Route::post('/accueil/update/services', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateServices'])->name('accueil.update.services');
         Route::post('/accueil/update/documents', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateDocuments'])->name('accueil.update.documents');
         Route::get('/accueil', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'edit'])->name('accueil');
         Route::delete('/accueil/document/{id}', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'deleteDocument'])->name('accueil.document.delete');
         Route::put('/accueil/document/{id}', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateDocument'])->name('accueil.document.update');
         Route::delete('/accueil/carousel/{id}', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'deleteCarouselImage'])->name('accueil.carousel.delete');
+        Route::put('/accueil/carousel/{id}', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateCarouselImage'])->name('accueil.carousel.update');
         // Compte Rendu managed via its own POST endpoint
         Route::post('/accueil/compte-rendu/update', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'updateCompteRendu'])->name('accueil.compte_rendu.update');
         Route::delete('/accueil/about-image', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'deleteAboutImage'])->name('accueil.about_image.delete');
@@ -128,6 +136,11 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::post('/mission/update/main', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateMain'])->name('mission.update.main');
         Route::post('/mission/update/image', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateImage'])->name('mission.update.image');
         Route::post('/mission/update/documents', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateDocuments'])->name('mission.update.documents');
+        // Additional mission section endpoints used by the modal-first admin UI
+        Route::post('/mission/update/header', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateHeader'])->name('mission.update.header');
+        Route::post('/mission/update/items', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateItems'])->name('mission.update.items');
+        Route::post('/mission/update/values', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateValues'])->name('mission.update.values');
+        Route::post('/mission/update/cta', [\App\Http\Controllers\Administration\AdminMissionController::class, 'updateCta'])->name('mission.update.cta');
         Route::delete('/mission/image', [\App\Http\Controllers\Administration\AdminMissionController::class, 'deleteImage'])->name('mission.image.delete');
         Route::delete('/mission/document/{id}', [\App\Http\Controllers\Administration\AdminMissionController::class, 'deleteDocument'])->name('mission.document.delete');
 
@@ -138,6 +151,22 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::post('/historique/update/documents', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'updateDocuments'])->name('historique.update.documents');
         Route::delete('/historique/image', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'deleteImage'])->name('historique.image.delete');
         Route::delete('/historique/document/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'deleteDocument'])->name('historique.document.delete');
+        // Events CRUD for historique
+        Route::post('/historique/events', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'store'])->name('historique.events.store');
+        Route::put('/historique/events/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'update'])->name('historique.events.update');
+        Route::delete('/historique/events/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'destroy'])->name('historique.events.destroy');
+        Route::post('/historique/events/reorder', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'reorder'])->name('historique.events.reorder');
+        // Milestones (Nos Réalisations)
+        Route::post('/historique/milestones', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'storeMilestone'])->name('historique.milestones.store');
+        Route::put('/historique/milestones/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'updateMilestone'])->name('historique.milestones.update');
+        Route::delete('/historique/milestones/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'destroyMilestone'])->name('historique.milestones.destroy');
+        Route::post('/historique/milestones/reorder', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'reorderMilestones'])->name('historique.milestones.reorder');
+
+        // Archives
+        Route::post('/historique/archives', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'storeArchive'])->name('historique.archives.store');
+        Route::put('/historique/archives/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'updateArchive'])->name('historique.archives.update');
+        Route::delete('/historique/archives/{id}', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'destroyArchive'])->name('historique.archives.destroy');
+        Route::post('/historique/archives/reorder', [\App\Http\Controllers\Administration\AdminHistoriqueController::class, 'reorderArchives'])->name('historique.archives.reorder');
 
         // Contact
         Route::get('/contact/edit', [\App\Http\Controllers\Administration\AdminContactController::class, 'edit'])->name('contact.edit');
@@ -146,6 +175,41 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::post('/contact/update/documents', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateDocuments'])->name('contact.update.documents');
         Route::delete('/contact/image', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteImage'])->name('contact.image.delete');
         Route::delete('/contact/document/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteDocument'])->name('contact.document.delete');
+
+        // Contact carousel CRUD
+        Route::post('/contact/carousels', [\App\Http\Controllers\Administration\AdminContactController::class, 'storeCarousel'])->name('contact.carousels.store');
+        Route::put('/contact/carousels/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateCarousel'])->name('contact.carousels.update');
+        Route::get('/contact/carousels/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'showCarousel'])->name('contact.carousels.show');
+        Route::delete('/contact/carousels/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteCarousel'])->name('contact.carousels.delete');
+        Route::post('/contact/carousels/reorder', [\App\Http\Controllers\Administration\AdminContactController::class, 'reorderCarousels'])->name('contact.carousels.reorder');
+
+        // Contact infos CRUD
+        Route::post('/contact/infos', [\App\Http\Controllers\Administration\AdminContactController::class, 'storeInfo'])->name('contact.infos.store');
+        Route::put('/contact/infos/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateInfo'])->name('contact.infos.update');
+        Route::delete('/contact/infos/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteInfo'])->name('contact.infos.delete');
+        Route::post('/contact/infos/reorder', [\App\Http\Controllers\Administration\AdminContactController::class, 'reorderInfos'])->name('contact.infos.reorder');
+
+        // Hours CRUD
+        Route::post('/contact/hours', [\App\Http\Controllers\Administration\AdminContactController::class, 'storeHour'])->name('contact.hours.store');
+        Route::put('/contact/hours/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateHour'])->name('contact.hours.update');
+        Route::delete('/contact/hours/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteHour'])->name('contact.hours.delete');
+        Route::post('/contact/hours/reorder', [\App\Http\Controllers\Administration\AdminContactController::class, 'reorderHours'])->name('contact.hours.reorder');
+
+        // FAQ CRUD
+        Route::post('/contact/faqs', [\App\Http\Controllers\Administration\AdminContactController::class, 'storeFaq'])->name('contact.faqs.store');
+        Route::put('/contact/faqs/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateFaq'])->name('contact.faqs.update');
+        Route::delete('/contact/faqs/{id}', [\App\Http\Controllers\Administration\AdminContactController::class, 'deleteFaq'])->name('contact.faqs.delete');
+        Route::post('/contact/faqs/reorder', [\App\Http\Controllers\Administration\AdminContactController::class, 'reorderFaqs'])->name('contact.faqs.reorder');
+
+        // Map update
+        Route::post('/contact/map', [\App\Http\Controllers\Administration\AdminContactController::class, 'updateMap'])->name('contact.map.update');
+
+        // Contact submissions (public requests to become militant)
+        Route::get('/contact/submissions', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'index'])->name('contact.submissions.index');
+        Route::get('/contact/submissions/{id}', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'show'])->name('contact.submissions.show');
+        Route::get('/contact/submissions/{id}/attachment', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'attachment'])->name('administration.contact.submission.attachment');
+        Route::post('/contact/submissions/{id}/approve', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'approve'])->name('contact.submissions.approve');
+        Route::post('/contact/submissions/{id}/reject', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'reject'])->name('contact.submissions.reject');
     });
 
     // Médiathèque
