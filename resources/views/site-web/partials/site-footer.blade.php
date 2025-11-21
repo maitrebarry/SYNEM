@@ -3,14 +3,20 @@
     <div class="row pt-5">
         <div class="col-lg-3 col-md-6 mb-5">
             <h4 class="text-uppercase text-light mb-4">Contactez-nous</h4>
-            <p class="mb-2"><i class="fa fa-map-marker-alt text-white mr-3"></i>Bamako, Mali</p>
-            <p class="mb-2"><i class="fa fa-phone-alt text-white mr-3"></i>+223 92190993</p>
-            <p><i class="fa fa-envelope text-white mr-3"></i>contact@synem.ml</p>
+            <p class="mb-2"><i class="fa fa-map-marker-alt text-white mr-3"></i>{{ $sharedFooter->address ?? 'Bamako, Mali' }}</p>
+            <p class="mb-2"><i class="fa fa-phone-alt text-white mr-3"></i>{{ $sharedFooter->phone ?? '+223 92190993' }}</p>
+            <p><i class="fa fa-envelope text-white mr-3"></i>{{ $sharedFooter->email ?? 'contact@synem.ml' }}</p>
             <h6 class="text-uppercase text-white py-2">Suivez-nous</h6>
             <div class="d-flex justify-content-start">
-                <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
-                <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
-                <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                @if($sharedFooter->twitter_url ?? null)
+                    <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="{{ $sharedFooter->twitter_url }}"><i class="fab fa-twitter"></i></a>
+                @endif
+                @if($sharedFooter->facebook_url ?? null)
+                    <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="{{ $sharedFooter->facebook_url }}"><i class="fab fa-facebook-f"></i></a>
+                @endif
+                @if($sharedFooter->linkedin_url ?? null)
+                    <a class="btn btn-lg btn-dark btn-lg-square mr-2" href="{{ $sharedFooter->linkedin_url }}"><i class="fab fa-linkedin-in"></i></a>
+                @endif
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-5">
@@ -26,20 +32,26 @@
         <div class="col-lg-3 col-md-6 mb-5">
             <h4 class="text-uppercase text-light mb-4">Galerie</h4>
             <div class="row mx-n1">
+                @for($i = 1; $i <= 3; $i++)
                 <div class="col-4 px-1 mb-2">
-                    <a href=""><img class="w-100" src="{{ asset('template-siteweb/asset/img/gallery-1.jpg') }}" alt="Galerie 1"></a>
+                    @php
+                        $imageField = 'gallery_image_' . $i;
+                        $imagePath = $sharedFooter->$imageField ?? null;
+                    @endphp
+                    <a href="">
+                        @if($imagePath)
+                            <img class="w-100" src="{{ asset('storage/' . $imagePath) }}" alt="Galerie {{ $i }}">
+                        @else
+                            <img class="w-100" src="{{ asset('template-siteweb/asset/img/gallery-' . $i . '.jpg') }}" alt="Galerie {{ $i }}">
+                        @endif
+                    </a>
                 </div>
-                <div class="col-4 px-1 mb-2">
-                    <a href=""><img class="w-100" src="{{ asset('template-siteweb/asset/img/gallery-2.jpg') }}" alt="Galerie 2"></a>
-                </div>
-                <div class="col-4 px-1 mb-2">
-                    <a href=""><img class="w-100" src="{{ asset('template-siteweb/asset/img/gallery-3.jpg') }}" alt="Galerie 3"></a>
-                </div>
+                @endfor
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-5">
             <h4 class="text-uppercase text-light mb-4">Newsletter</h4>
-            <p class="mb-4">Inscrivez-vous pour recevoir les dernières actualités du SYNEM.</p>
+            <p class="mb-4">{{ $sharedFooter->newsletter_description ?? 'Inscrivez-vous pour recevoir les dernières actualités du SYNEM.' }}</p>
             <div class="w-100 mb-3">
                 <div class="input-group">
                     <input type="text" class="form-control bg-dark border-dark" style="padding: 25px;" placeholder="Votre email">
@@ -52,7 +64,7 @@
     </div>
 </div>
 <div class="container-fluid bg-dark py-4 px-sm-3 px-md-5">
-    <p class="mb-2 text-center text-body">&copy; <a href="#">SYNEM</a>. Tous droits réservés.</p>
-    <p class="m-0 text-center text-body">Syndicat National des Enseignants du Mali</p>
+    <p class="mb-2 text-center text-body">{{ $sharedFooter->copyright_text ?? '&copy; SYNEM. Tous droits réservés.' }}</p>
+    <p class="m-0 text-center text-body">{{ $sharedFooter->organization_name ?? 'Syndicat National des Enseignants du Mali' }}</p>
 </div>
 <!-- Footer End -->

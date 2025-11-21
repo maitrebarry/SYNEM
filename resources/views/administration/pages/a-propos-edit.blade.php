@@ -2,8 +2,19 @@
 
 @section('content')
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('administration.tableau-de-bord') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Édition de la page À propos du SYNEM</li>
+    </ol>
+</nav>
+
+<a href="{{ route('administration.tableau-de-bord') }}" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+</a>
+
 <div class="container-fluid py-4">
-    <h2 class="mb-4">Édition de la page À propos du SYNEM</h2>
+    <!-- <h2 class="mb-4">Édition de la page À propos du SYNEM</h2> -->
     <form method="POST" action="/administration/pages/a-propos/update" enctype="multipart/form-data">
         @csrf
         <div class="card mb-4">

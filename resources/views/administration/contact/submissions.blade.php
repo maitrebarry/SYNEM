@@ -12,7 +12,7 @@
                         <th>#</th>
                         <th>Nom</th>
                         <th>Email</th>
-                        <th>Organisation</th>
+                        <th>Coordonnées</th>
                         <th>Statut</th>
                         <th>Soumis le</th>
                         <th>Actions</th>
@@ -24,7 +24,7 @@
                             <td>{{ $s->id }}</td>
                             <td>{{ $s->name }}</td>
                             <td>{{ $s->email }}</td>
-                            <td>{{ $s->organisation }}</td>
+                            <td>{{ $s->coordinates }}</td>
                             <td><span class="badge bg-{{ $s->status == 'pending' ? 'warning' : ($s->status == 'approved' ? 'success' : 'danger') }}">{{ ucfirst($s->status) }}</span></td>
                             <td>{{ $s->created_at->format('Y-m-d H:i') }}</td>
                             <td>
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let html = `<p><strong>Nom:</strong> ${data.name}</p>`;
             html += `<p><strong>Email:</strong> ${data.email}</p>`;
             html += `<p><strong>Téléphone:</strong> ${data.phone || '-'} </p>`;
-            html += `<p><strong>Organisation:</strong> ${data.organisation || '-'} </p>`;
+            html += `<p><strong>Coordonnées:</strong> ${data.coordinates || '-'} </p>`;
             html += `<p><strong>Message:</strong><br/> ${data.message || '-'}</p>`;
             if (data.attachment) {
                 html += `<p><strong>Pièce jointe:</strong> <a href="{{ url('administration/contact/submissions') }}/${id}/attachment" target="_blank">Télécharger / Voir</a></p>`;

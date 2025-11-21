@@ -162,16 +162,33 @@ class AdminContactController extends Controller
     // FAQ CRUD
     public function storeFaq(Request $request)
     {
-        $request->validate(['question'=>'required|string','answer'=>'required|string']);
+        $request->validate([
+            'question'=>'required|string',
+            'answer'=>'required|string',
+            'link'=>'nullable|url',
+            'link_type'=>'nullable|in:internal,external'
+        ]);
         $last = ContactFaq::max('ordering') ?? 0;
-        ContactFaq::create(['question'=>$request->question,'answer'=>$request->answer,'ordering'=>$last+1]);
+        ContactFaq::create([
+            'question'=>$request->question,
+            'answer'=>$request->answer,
+            'link'=>$request->link,
+            'link_type'=>$request->link_type,
+            'ordering'=>$last+1
+        ]);
         return response()->json(['success' => true]);
     }
 
     public function updateFaq(Request $request, $id)
     {
         $f = ContactFaq::findOrFail($id);
-        $f->update($request->only('question','answer'));
+        $request->validate([
+            'question'=>'required|string',
+            'answer'=>'required|string',
+            'link'=>'nullable|url',
+            'link_type'=>'nullable|in:internal,external'
+        ]);
+        $f->update($request->only('question','answer','link','link_type'));
         return response()->json(['success' => true]);
     }
 

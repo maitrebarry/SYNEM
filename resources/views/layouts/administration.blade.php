@@ -11,8 +11,10 @@
 	<!--plugins-->
 	<link href="{{ asset('template-admin/assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
 	<link href="{{ asset('template-admin/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
+	@if(request()->is('administration/tableau-de-bord'))
 	<link href="{{ asset('template-admin/assets/plugins/highcharts/css/highcharts.css') }}" rel="stylesheet" />
 	<link href="{{ asset('template-admin/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
+	@endif
 	<link href="{{ asset('template-admin/assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
 	<!-- lien pour icone -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
@@ -140,21 +142,51 @@
     // Redéfinir PerfectScrollbar pour éviter les erreurs
     const OriginalPerfectScrollbar = window.PerfectScrollbar;
     window.PerfectScrollbar = function(element, options) {
-        if (!element) {
-            console.warn('PerfectScrollbar: Élément non trouvé, initialisation annulée');
+        // Vérifier si element est valide
+        if (!element || typeof element === 'undefined' || element === null) {
+            console.warn('PerfectScrollbar: Aucun élément spécifié, initialisation annulée');
             return {
                 update: function() {},
-                destroy: function() {}
+                destroy: function() {},
+                initialized: false
             };
         }
-        return new OriginalPerfectScrollbar(element, options);
+
+        // Vérifier si c'est un élément DOM valide
+        if (!(element instanceof Element) && !(element instanceof HTMLElement)) {
+            console.warn('PerfectScrollbar: Élément invalide, initialisation annulée');
+            return {
+                update: function() {},
+                destroy: function() {},
+                initialized: false
+            };
+        }
+
+        try {
+            return new OriginalPerfectScrollbar(element, options);
+        } catch (e) {
+            console.warn('PerfectScrollbar: Erreur lors de l\'initialisation:', e.message);
+            return {
+                update: function() {},
+                destroy: function() {},
+                initialized: false
+            };
+        }
     };
+
+    // Également redéfinir la fonction d'initialisation si elle existe
+    if (typeof window.PerfectScrollbar.initializeAll === 'function') {
+        window.PerfectScrollbar.initializeAll = function() {
+            console.warn('PerfectScrollbar.initializeAll désactivé');
+        };
+    }
 </script>
 
 <!-- Charger app.js APRÈS avoir redéfini PerfectScrollbar -->
 <script src="{{ asset('template-admin/assets/js/app.js') }}"></script>
 
-<!-- Scripts additionnels -->
+<!-- Scripts additionnels - UNIQUEMENT pour le dashboard -->
+@if(request()->is('administration/tableau-de-bord'))
 <script src="{{ asset('template-admin/assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js') }}"></script>
 <script src="{{ asset('template-admin/assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
 <script src="{{ asset('template-admin/assets/plugins/highcharts/js/highcharts.js') }}"></script>
@@ -164,6 +196,7 @@
 <script src="{{ asset('template-admin/assets/plugins/highcharts/js/accessibility.js') }}"></script>
 <script src="{{ asset('template-admin/assets/plugins/apexcharts-bundle/js/apexcharts.min.js') }}"></script>
 <script src="{{ asset('template-admin/assets/js/index.js') }}"></script>
+@endif
 
 <!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -197,7 +230,6 @@ $(document).ready(function () {
     }, 200);
 });
 </script>
-
 
 @stack('scripts')
     {{-- Notifications handled inline in the layout (Bootstrap alerts) to avoid duplicate popups. --}}

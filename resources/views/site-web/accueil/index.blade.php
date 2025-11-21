@@ -398,75 +398,105 @@
                 {{ ($content && $content->documents_title) ? $content->documents_title : 'Documents Administratifs' }}
             </h1>
             <div class="row">
+                @php
+                    $displayedDocuments = 0;
+                    $maxDocuments = 6;
+                @endphp
                 @if($content && $content->documents && count($content->documents))
                     @foreach($content->documents as $doc)
+                        @if($displayedDocuments < $maxDocuments)
+                            <div class="col-lg-4 col-md-6 mb-4 document-item">
+                                <div class="card document-card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                        <span class="badge badge-light">{{ strtoupper($doc->type) }}</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            @if($doc->type === 'pdf')
+                                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
+                                            @elseif($doc->type === 'word')
+                                                <i class="fas fa-file-word text-primary fa-2x mr-3"></i>
+                                            @elseif($doc->type === 'excel')
+                                                <i class="fas fa-file-excel text-success fa-2x mr-3"></i>
+                                            @else
+                                                <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                            @endif
+                                            <div>
+                                                <h5 class="card-title mb-1">{{ $doc->title }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <a href="{{ asset('storage/documents/' . $doc->file) }}" class="btn btn-primary btn-sm" download>
+                                            <i class="fas fa-download mr-2"></i>Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            @php $displayedDocuments++; @endphp
+                        @endif
+                    @endforeach
+                @else
+                    <!-- Fallback contenu statique limité à 6 documents -->
+                    @php
+                        $fallbackDocuments = [
+                            ['title' => 'Compte-rendu Congrès 2024', 'type' => 'pdf', 'size' => '2.4 MB', 'description' => 'Rapport complet des résolutions et décisions du congrès annuel 2024.'],
+                            ['title' => 'Rapport d\'Activités 2023', 'type' => 'pdf', 'size' => '1.8 MB', 'description' => 'Bilan complet des activités de l\'année 2023.'],
+                            ['title' => 'Convention Collective 2024', 'type' => 'pdf', 'size' => '3.2 MB', 'description' => 'Convention collective des enseignants du Mali.'],
+                            ['title' => 'Guide du Militant', 'type' => 'pdf', 'size' => '1.5 MB', 'description' => 'Guide complet pour les militants actifs.'],
+                            ['title' => 'Statuts SYNEM 2024', 'type' => 'pdf', 'size' => '2.1 MB', 'description' => 'Statuts officiels du Syndicat National des Enseignants du Mali.'],
+                            ['title' => 'Règlement Intérieur', 'type' => 'pdf', 'size' => '1.9 MB', 'description' => 'Règlement intérieur de l\'organisation.']
+                        ];
+                    @endphp
+                    @foreach(array_slice($fallbackDocuments, 0, $maxDocuments) as $index => $doc)
                         <div class="col-lg-4 col-md-6 mb-4 document-item">
                             <div class="card document-card h-100 border-0 shadow-sm">
                                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                    <span class="badge badge-light">{{ strtoupper($doc->type) }}</span>
+                                    <span class="badge badge-light">{{ strtoupper($doc['type']) }}</span>
+                                    @if($index === 0)
+                                        <span class="badge badge-warning">Nouveau</span>
+                                    @endif
                                 </div>
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
-                                        @if($doc->type === 'pdf')
+                                        @if($doc['type'] === 'pdf')
                                             <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                        @elseif($doc->type === 'word')
+                                        @elseif($doc['type'] === 'word')
                                             <i class="fas fa-file-word text-primary fa-2x mr-3"></i>
-                                        @elseif($doc->type === 'excel')
+                                        @elseif($doc['type'] === 'excel')
                                             <i class="fas fa-file-excel text-success fa-2x mr-3"></i>
                                         @else
                                             <i class="fas fa-file-alt fa-2x mr-3"></i>
                                         @endif
                                         <div>
-                                            <h5 class="card-title mb-1">{{ $doc->title }}</h5>
+                                            <h5 class="card-title mb-1">{{ $doc['title'] }}</h5>
+                                            <small class="text-muted">Publié récemment</small>
                                         </div>
+                                    </div>
+                                    <p class="card-text">{{ $doc['description'] }}</p>
+                                    <div class="document-info">
+                                        <small class="text-muted">
+                                            <i class="fas fa-file-alt mr-1"></i>{{ strtoupper($doc['type']) }} - {{ $doc['size'] }}
+                                        </small>
                                     </div>
                                 </div>
                                 <div class="card-footer bg-transparent">
-                                    <a href="{{ asset('storage/documents/' . $doc->file) }}" class="btn btn-primary btn-sm" download>
+                                    <button type="button" class="btn btn-primary btn-sm document-download-btn" data-document-title="{{ $doc['title'] }}">
                                         <i class="fas fa-download mr-2"></i>Télécharger
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                        @php $displayedDocuments++; @endphp
                     @endforeach
-                @else
-                    <!-- Fallback contenu statique -->
-                    <div class="col-lg-4 col-md-6 mb-4 document-item">
-                        <div class="card document-card h-100 border-0 shadow-sm">
-                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                <span class="badge badge-light">Congrès</span>
-                                <span class="badge badge-warning">Nouveau</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                    <div>
-                                        <h5 class="card-title mb-1">Compte-rendu Congrès 2024</h5>
-                                        <small class="text-muted">Publié le 15 Jan 2024</small>
-                                    </div>
-                                </div>
-                                <p class="card-text">Rapport complet des résolutions et décisions du congrès annuel 2024.</p>
-                                <div class="document-info">
-                                    <small class="text-muted">
-                                        <i class="fas fa-file-alt mr-1"></i>PDF - 2.4 MB
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <a href="{{ asset('storage/documents/congres-2024.pdf') }}" class="btn btn-primary btn-sm" download>
-                                    <i class="fas fa-download mr-2"></i>Télécharger
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 @endif
             </div>
 
-            <!-- Bouton Voir Plus -->
+            <!-- Bouton Voir Tous les Documents avec Vérification Militant -->
             <div class="text-center mt-4">
-                <a href="{{ route('site.documents.index') }}" class="btn btn-outline-primary btn-lg">
+                <button type="button" class="btn btn-outline-primary btn-lg" data-toggle="modal" data-target="#militantVerificationModal">
                     <i class="fas fa-folder-open mr-2"></i>Voir tous les documents
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -519,24 +549,203 @@
         </div>
     </div>
 
-    <div class="modal fade" id="documentModal3" tabindex="-1" role="dialog" aria-labelledby="documentModal3Label" aria-hidden="true">
+    <!-- Modal de Vérification Militant -->
+    <div class="modal fade" id="militantVerificationModal" tabindex="-1" role="dialog" aria-labelledby="militantVerificationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="militantVerificationModalLabel">
+                        <i class="fas fa-user-check me-2"></i>
+                        Vérification du Statut Militant
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="verificationForm">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h5>Accès aux Documents Complets</h5>
+                            <p class="text-muted">
+                                Pour accéder à tous les documents, veuillez confirmer votre statut de militant approuvé.
+                            </p>
+                        </div>
+
+                        <form id="militantVerificationForm">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="verification_email" class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>Adresse Email *
+                                    </label>
+                                    <input type="email" class="form-control" id="verification_email" name="email" required
+                                           placeholder="votre.email@example.com">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="verification_card_number" class="form-label">
+                                        <i class="fas fa-id-card me-1"></i>Numéro de Carte *
+                                    </label>
+                                    <input type="text" class="form-control" id="verification_card_number" name="card_number" required
+                                           placeholder="Votre numéro de carte">
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg" id="verifyBtn">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Vérifier et Accéder
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="verificationResult" style="display: none;">
+                        <!-- Résultat de la vérification sera affiché ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid py-5 bg-light">
+        <div class="container pt-5 pb-3">
+            <h1 class="display-1 text-primary text-center">05</h1>
+            <h1 class="display-4 text-uppercase text-center mb-5">Espace Militant</h1>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-primary shadow">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-lock me-2"></i>
+                                Documents Réservés aux Militants Approuvés
+                            </h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="mb-4">
+                                <i class="fas fa-file-alt fa-4x text-primary mb-3"></i>
+                                <p class="lead">
+                                    Accédez à des documents exclusifs réservés aux militants approuvés du SYNEM :
+                                </p>
+                                <ul class="list-unstyled text-left d-inline-block">
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Statuts de l'organisation</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Règlement intérieur</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Convention collective</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Guide du militant</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Documents stratégiques</li>
+                                </ul>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Accès sécurisé :</strong> Seuls les militants dont la demande a été approuvée peuvent accéder à ces documents.
+                            </div>
+
+                            <a href="{{ route('militant.documents.access') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Accéder aux Documents Réservés
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Documents Réservés Militants End -->
+
+    <!-- Membership Submission Modal -->
+    <div class="modal fade" id="membershipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="documentModal3Label">Décision N°2024-001</h5>
+                    <h5 class="modal-title">Soumettre ma demande de militant</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fas fa-file-pdf text-danger fa-5x mb-3"></i>
-                        <p>Ce document est disponible en téléchargement.</p>
-                        <p><strong>Taille :</strong> 856 KB</p>
-                        <a href="{{ asset('storage/documents/decision-2024-001.pdf') }}" class="btn btn-primary" download>
-                            <i class="fas fa-download mr-2"></i>Télécharger le PDF
-                        </a>
-                    </div>
+                    <form id="membershipForm">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Nom *</label>
+                                <input name="nom" type="text" class="form-control" placeholder="Votre nom" required>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Prénom *</label>
+                                <input name="prenom" type="text" class="form-control" placeholder="Votre prénom" required>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Email *</label>
+                                <input name="email" type="email" class="form-control" placeholder="votre.email@example.com" required>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Téléphone *</label>
+                                <input name="tel" type="tel" class="form-control" placeholder="+223 XX XX XX XX" required>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Numéro de carte *</label>
+                                <input name="n_cartes_syndicale" type="text" class="form-control" placeholder="Votre numéro de carte" required>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label class="form-label">Coordination Locale</label>
+                                <input name="coordinations" type="text" class="form-control" placeholder="Ville, Région">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Message (optionnel)</label>
+                                <textarea name="message" class="form-control" rows="3" placeholder="Informations supplémentaires..."></textarea>
+                            </div>
+
+                            <!-- Photo de la carte de membre -->
+                            <div class="col-12">
+                                <label class="form-label">Photo de votre carte de membre *</label>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="text-center mb-3">
+                                                    <button type="button" id="captureBtn" class="btn btn-primary">
+                                                        <i class="fa fa-camera me-2"></i>Prendre une photo
+                                                    </button>
+                                                    <button type="button" id="uploadPhotoBtn" class="btn btn-outline-secondary btn-sm ms-2">
+                                                        <i class="fa fa-image me-1"></i>Importer une photo
+                                                    </button>
+                                                    <p class="text-muted small mt-2">Utilisez votre caméra pour photographier votre carte de membre</p>
+                                                    <p id="cameraFallbackHint" class="text-muted small mt-1 d-none"></p>
+                                                    <input type="file" id="memberCardUpload" accept="image/*" capture="environment" class="d-none">
+                                                </div>
+                                                <div id="cameraContainer" class="d-none">
+                                                    <video id="camera" class="w-100 border rounded" autoplay playsinline></video>
+                                                    <div class="mt-2">
+                                                        <button type="button" id="takePhotoBtn" class="btn btn-success btn-sm me-2">
+                                                            <i class="fa fa-camera me-1"></i>Capturer
+                                                        </button>
+                                                        <button type="button" id="retakeBtn" class="btn btn-warning btn-sm d-none">
+                                                            <i class="fa fa-refresh me-1"></i>Reprendre
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="photoPreview" class="d-none">
+                                                    <h6>Aperçu de la photo :</h6>
+                                                    <canvas id="photoCanvas" class="w-100 border rounded"></canvas>
+                                                    <input type="hidden" name="member_card_photo" id="memberCardPhoto">
+                                                </div>
+                                                <div id="noPhotoMessage" class="text-center text-muted">
+                                                    <i class="fa fa-camera fa-3x mb-3"></i>
+                                                    <p>Cliquez sur "Prendre une photo" pour commencer</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="submitMembershipBtn">Soumettre la demande</button>
                 </div>
             </div>
         </div>
@@ -549,9 +758,9 @@
         // Filtrage des documents par catégorie
         $('input[name="categories"]').change(function() {
             var selectedCategory = this.id;
-            
+
             $('.document-item').hide();
-            
+
             if (selectedCategory === 'tous') {
                 $('.document-item').show();
             } else {
@@ -570,13 +779,99 @@
         // Vérifier les nouveaux documents au chargement
         checkNewDocuments();
 
-        // Compter les téléchargements (exemple)
-        $('a[download]').click(function() {
-            let docTitle = $(this).closest('.document-card').find('.card-title').text();
-            console.log('Document téléchargé : ' + docTitle);
-            // Ici vous pouvez envoyer une requête AJAX pour tracker les téléchargements
+        // Gestionnaire pour les boutons de téléchargement de documents
+        $('.document-download-btn').on('click', function() {
+            var documentTitle = $(this).data('document-title');
+            checkMilitantAccess(documentTitle);
         });
     });
+
+    // Fonction de vérification d'accès militant
+    function checkMilitantAccess(documentTitle) {
+        // Ouvrir le modal de vérification
+        $('#militantVerificationModal').modal('show');
+
+        // Reset du formulaire
+        $('#militantVerificationForm')[0].reset();
+        $('#verificationForm').show();
+        $('#verificationResult').hide();
+    }
+
+    // Gestionnaire pour le formulaire de vérification
+    $(document).on('submit', '#militantVerificationForm', function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+        var submitBtn = $('#verifyBtn');
+        var originalText = submitBtn.html();
+
+        // Désactiver le bouton et afficher le loading
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Vérification...');
+
+        $.ajax({
+            url: '{{ route("militant.documents.verify") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Vérification réussie - rediriger vers la liste complète des documents
+                    $('#verificationForm').hide();
+                    $('#verificationResult').show().html(`
+                        <div class="text-center">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">Vérification Réussie !</h5>
+                            <p>Vous allez être redirigé vers la liste complète des documents...</p>
+                        </div>
+                    `);
+
+                    // Rediriger après 2 secondes
+                    setTimeout(function() {
+                        window.location.href = '{{ route("militant.documents.index") }}';
+                    }, 2000);
+                }
+            },
+            error: function(xhr) {
+                var errorMessage = 'Une erreur est survenue lors de la vérification.';
+
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    // Erreurs de validation
+                    var errors = xhr.responseJSON.errors;
+                    errorMessage = Object.values(errors).flat().join('<br>');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+
+                $('#verificationForm').hide();
+                $('#verificationResult').show().html(`
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5 class="text-warning">Vérification Échouée</h5>
+                        <p>${errorMessage}</p>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="showVerificationForm()">
+                                <i class="fas fa-arrow-left me-1"></i>Réessayer
+                            </button>
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#membershipModal">
+                                <i class="fas fa-user-plus me-1"></i>Devenir Militant
+                            </a>
+                        </div>
+                    </div>
+                `);
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Fonction pour revenir au formulaire de vérification
+    function showVerificationForm() {
+        $('#verificationResult').hide();
+        $('#verificationForm').show();
+        $('#militantVerificationForm')[0].reset();
+    }
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function(){
@@ -593,6 +888,297 @@
                 }
             });
         });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let stream = null;
+    let canvas = document.getElementById('photoCanvas');
+    let video = null;
+
+    const captureBtn = document.getElementById('captureBtn');
+    const takePhotoBtn = document.getElementById('takePhotoBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const fileUploadInput = document.getElementById('memberCardUpload');
+    const fallbackHint = document.getElementById('cameraFallbackHint');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const noPhotoMessage = document.getElementById('noPhotoMessage');
+    const photoPreview = document.getElementById('photoPreview');
+    const memberCardPhotoField = document.getElementById('memberCardPhoto');
+
+    const stopCameraStream = () => {
+        if (!stream) return;
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    };
+
+    const showFallbackMessage = (message) => {
+        if (!fallbackHint) return;
+        fallbackHint.textContent = message;
+        fallbackHint.classList.remove('d-none');
+    };
+
+    const hideFallbackMessage = () => {
+        if (fallbackHint) {
+            fallbackHint.classList.add('d-none');
+        }
+    };
+
+    const finalizePreview = (dataUrl) => {
+        if (memberCardPhotoField) {
+            memberCardPhotoField.value = dataUrl;
+        }
+        if (photoPreview) {
+            photoPreview.classList.remove('d-none');
+        }
+        if (retakeBtn) {
+            retakeBtn.classList.remove('d-none');
+        }
+        if (takePhotoBtn) {
+            takePhotoBtn.classList.add('d-none');
+        }
+        if (noPhotoMessage) {
+            noPhotoMessage.classList.add('d-none');
+        }
+        if (captureBtn) {
+            captureBtn.classList.add('d-none');
+        }
+        hideFallbackMessage();
+    };
+
+    const drawUploadedImage = (dataUrl) => {
+        if (!canvas) {
+            canvas = document.getElementById('photoCanvas');
+        }
+        if (!canvas) return;
+
+        const image = new Image();
+        image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            const finalDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            finalizePreview(finalDataUrl);
+        };
+        image.src = dataUrl;
+    };
+
+    const handleFileUpload = (file) => {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            drawUploadedImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+        stopCameraStream();
+        if (cameraContainer) {
+            cameraContainer.classList.add('d-none');
+        }
+    };
+
+    const startCamera = async () => {
+        hideFallbackMessage();
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showFallbackMessage('La caméra n\'est pas disponible dans ce navigateur. Importez une photo en utilisant le bouton ci-dessous.');
+            return;
+        }
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false
+            });
+
+            video = document.getElementById('camera');
+            canvas = canvas || document.getElementById('photoCanvas');
+
+            if (video) {
+                video.srcObject = stream;
+            }
+
+            if (cameraContainer) {
+                cameraContainer.classList.remove('d-none');
+            }
+            if (noPhotoMessage) {
+                noPhotoMessage.classList.add('d-none');
+            }
+            if (captureBtn) {
+                captureBtn.classList.add('d-none');
+            }
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            showFallbackMessage('Impossible d\'accéder à la caméra. Importez une photo en utilisant le bouton ci-dessous.');
+            stopCameraStream();
+        }
+    };
+
+    if (captureBtn) {
+        captureBtn.addEventListener('click', startCamera);
+    }
+
+    if (takePhotoBtn) {
+        takePhotoBtn.addEventListener('click', function () {
+            if (!canvas || !video) return;
+
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            finalizePreview(dataUrl);
+
+            stopCameraStream();
+            if (cameraContainer) {
+                cameraContainer.classList.add('d-none');
+            }
+        });
+    }
+    if (retakeBtn) {
+        retakeBtn.addEventListener('click', function () {
+            if (photoPreview) {
+                photoPreview.classList.add('d-none');
+            }
+            if (memberCardPhotoField) {
+                memberCardPhotoField.value = '';
+            }
+            if (fileUploadInput) {
+                fileUploadInput.value = '';
+            }
+            hideFallbackMessage();
+            if (takePhotoBtn) {
+                takePhotoBtn.classList.remove('d-none');
+            }
+
+            if (captureBtn) {
+                captureBtn.classList.remove('d-none');
+                captureBtn.click();
+            }
+            this.classList.add('d-none');
+        });
+    }
+    if (uploadPhotoBtn) {
+        uploadPhotoBtn.addEventListener('click', function () {
+        if (fileUploadInput) {
+            fileUploadInput.value = '';
+            fileUploadInput.click();
+        }
+        });
+    }
+
+    if (fileUploadInput) {
+        fileUploadInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            handleFileUpload(file);
+        });
+    }
+
+    $('#membershipModal').on('hidden.bs.modal', function () {
+        stopCameraStream();
+        if (cameraContainer) {
+            cameraContainer.classList.add('d-none');
+        }
+        if (photoPreview) {
+            photoPreview.classList.add('d-none');
+        }
+        if (captureBtn) {
+            captureBtn.classList.remove('d-none');
+        }
+        if (retakeBtn) {
+            retakeBtn.classList.add('d-none');
+        }
+        if (takePhotoBtn) {
+            takePhotoBtn.classList.remove('d-none');
+        }
+        hideFallbackMessage();
+        if (memberCardPhotoField) {
+            memberCardPhotoField.value = '';
+        }
+        if (fileUploadInput) {
+            fileUploadInput.value = '';
+        }
+    });
+
+    document.getElementById('submitMembershipBtn').addEventListener('click', async function () {
+        const form = document.getElementById('membershipForm');
+        const formData = new FormData(form);
+
+        // Validate required fields
+        const nom = formData.get('nom');
+        const prenom = formData.get('prenom');
+        const email = formData.get('email');
+        const phone = formData.get('tel');
+        const photo = memberCardPhotoField ? memberCardPhotoField.value : '';
+
+        if (!nom || !prenom || !email || !phone) {
+            Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error');
+            return;
+        }
+
+        if (!photo) {
+            Swal.fire('Erreur', 'Veuillez prendre une photo de votre carte de membre.', 'error');
+            return;
+        }
+
+        // Convert base64 photo to blob for FormData
+        if (photo.startsWith('data:image')) {
+            const response = await fetch(photo);
+            const blob = await response.blob();
+            formData.set('attachment', blob, 'member_card.jpg');
+        }
+
+        const submitBtn = this;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Envoi...';
+
+        try {
+            const url = '{{ route("contact.submit.membership") }}';
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+                Swal.fire('Demande soumise', data.message || 'Nous vous contacterons bientôt.', 'success');
+                form.reset();
+                if (memberCardPhotoField) {
+                    memberCardPhotoField.value = '';
+                }
+                if (photoPreview) {
+                    photoPreview.classList.add('d-none');
+                }
+                hideFallbackMessage();
+                if (fileUploadInput) {
+                    fileUploadInput.value = '';
+                }
+                $('#membershipModal').modal('hide');
+            } else {
+                let msg = 'Erreur lors de la soumission.';
+                if (data && data.errors) {
+                    msg = Object.values(data.errors).map(v=>v.join(', ')).join('\n');
+                } else if (data && data.message) {
+                    msg = data.message;
+                }
+                Swal.fire('Erreur', msg, 'error');
+            }
+        } catch (e) {
+            console.error('Submission error:', e);
+            Swal.fire('Erreur', 'Erreur réseau. Veuillez réessayer.', 'error');
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Soumettre la demande';
     });
 </script>
 @endsection

@@ -17,8 +17,8 @@ class ContactSubmissionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:50',
-            'organisation' => 'nullable|string|max:255',
+            'phone' => 'required|string|max:50',
+            'coordinates' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:2000',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);

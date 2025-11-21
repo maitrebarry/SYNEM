@@ -3,6 +3,24 @@
 @section('title', 'Gestion de la page d\'accueil')
 
 @section('content')
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+    <div class="breadcrumb-title pe-3">Page d'accueil</div>
+    <div class="ps-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+                <li class="breadcrumb-item"><a href="{{ route('administration.tableau-de-bord') }}"><i class="bx bx-home-alt"></i></a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Édition Page d'accueil</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="ms-auto">
+        <div class="btn-group">
+            <a href="{{ route('administration.tableau-de-bord') }}" class="btn btn-primary">Retour au tableau de bord</a>
+        </div>
+    </div>
+</div>
+<hr />
 <div class="container">
     <h2 class="mb-4">Édition de la page d'accueil du site</h2>
     <div class="mb-3">

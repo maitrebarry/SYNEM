@@ -17,6 +17,18 @@
             $content->values = $page->values->map(function($v){ return ['id'=>$v->id, 'icon'=>$v->icon, 'title'=>$v->title, 'text'=>$v->text]; })->toArray();
         }
     @endphp
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('administration.tableau-de-bord') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Notre Mission</li>
+    </ol>
+</nav>
+
+<a href="{{ route('administration.tableau-de-bord') }}" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+</a>
+
     <h2 class="mb-4">Notre Mission</h2>
     {{-- Header Carousel (page header) --}}
     <div class="card mb-4">

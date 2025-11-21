@@ -1,6 +1,18 @@
 @extends('layouts.administration')
 
 @section('content')
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('administration.tableau-de-bord') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Contact SYNEM</li>
+    </ol>
+</nav>
+
+<a href="{{ route('administration.tableau-de-bord') }}" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+</a>
+
 <div class="container-fluid py-4">
     <h2 class="mb-4">Contact SYNEM</h2>
     {{-- Carousel (images d'en-tête) --}}
@@ -150,7 +162,7 @@
                 </thead>
                 <tbody>
                     @foreach($faqs as $f)
-                        <tr data-id="{{ $f->id }}" data-question="{{ e($f->question) }}" data-answer="{{ e($f->answer) }}">
+                        <tr data-id="{{ $f->id }}" data-question="{{ e($f->question) }}" data-answer="{{ e($f->answer) }}" data-link="{{ e($f->link ?? '') }}" data-link_type="{{ $f->link_type ?? '' }}">
                             <td><i class="fas fa-grip-vertical drag-handle"></i></td>
                             <td>{{ $f->id }}</td>
                             <td>{{ Str::limit($f->question, 80) }}</td>
@@ -437,6 +449,8 @@ const mapUrl = "{{ url('administration/pages/contact/map') }}";
                         <div class="modal-body">
                             <div class="mb-2"><label>Question</label><input name="question" class="form-control"></div>
                             <div class="mb-2"><label>Réponse</label><textarea name="answer" class="form-control"></textarea></div>
+                            <div class="mb-2"><label>Lien (optionnel)</label><input name="link" class="form-control" placeholder="https://..."></div>
+                            <div class="mb-2"><label>Type de lien</label><select name="link_type" class="form-control"><option value="">Aucun</option><option value="internal">Interne</option><option value="external">Externe</option></select></div>
                         </div>
                         <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button class="btn btn-primary" type="submit">Enregistrer</button></div>
                     </div>
@@ -458,7 +472,7 @@ const mapUrl = "{{ url('administration/pages/contact/map') }}";
     document.querySelectorAll('.btn-edit-faq').forEach(btn=>{
         btn.addEventListener('click', function(){
             const tr = this.closest('tr');
-            const id = tr.dataset.id; const q = tr.dataset.question || ''; const a = tr.dataset.answer || '';
+            const id = tr.dataset.id; const q = tr.dataset.question || ''; const a = tr.dataset.answer || ''; const link = tr.dataset.link || ''; const linkType = tr.dataset.link_type || '';
             const html = `
             <div class="modal fade" id="faqEditModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -470,6 +484,8 @@ const mapUrl = "{{ url('administration/pages/contact/map') }}";
                             <div class="modal-body">
                                 <div class="mb-2"><label>Question</label><input name="question" class="form-control" value="${q}"></div>
                                 <div class="mb-2"><label>Réponse</label><textarea name="answer" class="form-control">${a}</textarea></div>
+                                <div class="mb-2"><label>Lien (optionnel)</label><input name="link" class="form-control" value="${link}" placeholder="https://..."></div>
+                                <div class="mb-2"><label>Type de lien</label><select name="link_type" class="form-control"><option value="" ${linkType===''?'selected':''}>Aucun</option><option value="internal" ${linkType==='internal'?'selected':''}>Interne</option><option value="external" ${linkType==='external'?'selected':''}>Externe</option></select></div>
                             </div>
                             <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button class="btn btn-primary" type="submit">Enregistrer</button></div>
                         </div>

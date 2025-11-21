@@ -3,25 +3,33 @@
     <div class="row">
         <div class="col-md-6 text-center text-lg-left mb-2 mb-lg-0">
             <div class="d-inline-flex align-items-center">
-                <a class="text-body pr-3" href=""><i class="fa fa-phone-alt mr-2"></i>+223 92190993</a>
+                <a class="text-body pr-3" href=""><i class="fa fa-phone-alt mr-2"></i>{{ $sharedTopbar->phone ?? '+223 92190993' }}</a>
                 <span class="text-body">|</span>
-                <a class="text-body px-3" href=""><i class="fa fa-envelope mr-2"></i>contact@synem.ml</a>
+                <a class="text-body px-3" href=""><i class="fa fa-envelope mr-2"></i>{{ $sharedTopbar->email ?? 'contact@synem.ml' }}</a>
             </div>
         </div>
         <div class="col-md-6 text-center text-lg-right">
             <div class="d-inline-flex align-items-center">
-                <a class="text-body px-3" href="">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a class="text-body px-3" href="">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a class="text-body px-3" href="">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-                <a class="text-body px-3" href="">
-                    <i class="fab fa-instagram"></i>
-                </a>
+                @if($sharedTopbar->facebook_url ?? null)
+                    <a class="text-body px-3" href="{{ $sharedTopbar->facebook_url }}">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                @endif
+                @if($sharedTopbar->twitter_url ?? null)
+                    <a class="text-body px-3" href="{{ $sharedTopbar->twitter_url }}">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                @endif
+                @if($sharedTopbar->linkedin_url ?? null)
+                    <a class="text-body px-3" href="{{ $sharedTopbar->linkedin_url }}">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                @endif
+                @if($sharedTopbar->instagram_url ?? null)
+                    <a class="text-body px-3" href="{{ $sharedTopbar->instagram_url }}">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                @endif
             </div>
         </div>
     </div>

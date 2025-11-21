@@ -10,5 +10,5 @@ class ContactFaq extends Model
     use HasFactory;
 
     protected $table = 'contact_faqs';
-    protected $fillable = ['question','answer','ordering'];
+    protected $fillable = ['question','answer','ordering','link','link_type'];
 }

@@ -13,7 +13,7 @@ class ContactSubmission extends Model
     protected $table = 'contact_submissions';
 
     protected $fillable = [
-        'name', 'email', 'phone', 'organisation', 'message', 'attachment', 'status', 'approved_by', 'admin_comment', 'approved_at'
+        'name', 'email', 'phone', 'coordinates', 'message', 'attachment', 'status', 'approved_by', 'admin_comment', 'approved_at'
     ];
 
     protected $casts = [

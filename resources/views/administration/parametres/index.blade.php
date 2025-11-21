@@ -78,11 +78,6 @@
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between">
                 <h4 class="mb-0 text-synem-primary">Paramètres du Site</h4>
-                <div>
-                    <button class="btn btn-success" id="saveSettings">
-                        <i class="bi bi-save me-1"></i> Enregistrer les modifications
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -93,25 +88,17 @@
             <div class="parametres-sidebar rounded">
                 <div class="parametres-menu">
                     <nav class="nav flex-column">
-                        <a class="nav-link {{ $section_active == 'generaux' ? 'active' : '' }}" 
-                           href="{{ route('administration.parametres.generaux') }}">
-                            <i class="bi bi-gear me-2"></i> Paramètres Généraux
-                        </a>
-                        <a class="nav-link {{ $section_active == 'seo' ? 'active' : '' }}" 
-                           href="{{ route('administration.parametres.seo') }}">
-                            <i class="bi bi-search me-2"></i> SEO & Référencement
-                        </a>
                         <a class="nav-link {{ $section_active == 'utilisateurs' ? 'active' : '' }}" 
                            href="{{ route('administration.parametres.utilisateurs') }}">
                             <i class="bi bi-people me-2"></i> Utilisateurs Admin
                         </a>
-                        <a class="nav-link {{ $section_active == 'reseaux-sociaux' ? 'active' : '' }}" 
-                           href="{{ route('administration.parametres.reseaux-sociaux') }}">
-                            <i class="bi bi-share me-2"></i> Réseaux Sociaux
+                        <a class="nav-link {{ $section_active == 'topbar' ? 'active' : '' }}" 
+                           href="{{ route('administration.parametres.topbar') }}">
+                            <i class="bi bi-bar-chart me-2"></i> Topbar
                         </a>
-                        <a class="nav-link {{ $section_active == 'notifications' ? 'active' : '' }}" 
-                           href="{{ route('administration.parametres.notifications') }}">
-                            <i class="bi bi-bell me-2"></i> Notifications
+                        <a class="nav-link {{ $section_active == 'footer' ? 'active' : '' }}" 
+                           href="{{ route('administration.parametres.footer') }}">
+                            <i class="bi bi-card-text me-2"></i> Footer
                         </a>
                     </nav>
                 </div>
@@ -131,20 +118,6 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Gestion de l'enregistrement des paramètres
-        $('#saveSettings').on('click', function() {
-            const btn = $(this);
-            const originalText = btn.html();
-            
-            btn.prop('disabled', true).html('<i class="bi bi-arrow-repeat spinner-border spinner-border-sm me-1"></i> Enregistrement...');
-            
-            // Simulation d'enregistrement
-            setTimeout(function() {
-                btn.prop('disabled', false).html(originalText);
-                showNotification('success', 'Paramètres enregistrés avec succès !');
-            }, 1500);
-        });
-        
         // Fonction de notification
         function showNotification(type, message) {
             const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';

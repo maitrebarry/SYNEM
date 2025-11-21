@@ -6,6 +6,151 @@ use App\Http\Controllers\SiteWeb\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Administration\UtilisateurController;
+use App\Http\Controllers\MilitantMessageController;
+
+// Test route for admin militants without auth (can be removed after testing)
+Route::get('/test-admin-militants', function() {
+    $request = request();
+
+    $query = App\Models\Militant::query();
+
+    // Filter by status
+    if ($request->filled('status') && $request->status !== 'all') {
+        $query->where('status', $request->status);
+    }
+
+    // Filter by local coordination
+    if ($request->filled('coordination') && $request->coordination !== 'all') {
+        $query->where('coordinations', $request->coordination);
+    }
+
+    // Search by name, email, phone or card number
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('nom', 'like', "%$search%")
+              ->orWhere('prenom', 'like', "%$search%")
+              ->orWhere('name', 'like', "%$search%")
+              ->orWhere('email', 'like', "%$search%")
+              ->orWhere('n_cartes_syndicale', 'like', "%$search%")
+              ->orWhere('tel', 'like', "%$search%");
+        });
+    }
+
+    // Coordinations list - ensure we get fresh data
+    $coordinations = App\Models\Militant::distinct()->pluck('coordinations')->filter()->sort()->values();
+
+    // Stats - ensure we get fresh data
+    $stats = [
+        'total' => App\Models\Militant::count(),
+        'pending' => App\Models\Militant::where('status', 'pending')->count(),
+        'approved' => App\Models\Militant::where('status', 'approved')->count(),
+        'rejected' => App\Models\Militant::where('status', 'rejected')->count(),
+    ];
+
+    $militants = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
+    return view('administration.militants.index', compact('militants', 'coordinations', 'stats'));
+})->name('test.admin.militants');
+
+// Nouvelle route de test pour éviter le cache
+Route::get('/test-militants-fresh', function() {
+    $request = request();
+
+    $query = App\Models\Militant::query();
+
+    // Filter by status
+    if ($request->filled('status') && $request->status !== 'all') {
+        $query->where('status', $request->status);
+    }
+
+    // Filter by local coordination
+    if ($request->filled('coordination') && $request->coordination !== 'all') {
+        $query->where('coordinations', $request->coordination);
+    }
+
+    // Search by name, email, phone or card number
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('nom', 'like', "%$search%")
+              ->orWhere('prenom', 'like', "%$search%")
+              ->orWhere('name', 'like', "%$search%")
+              ->orWhere('email', 'like', "%$search%")
+              ->orWhere('n_cartes_syndicale', 'like', "%$search%")
+              ->orWhere('tel', 'like', "%$search%");
+        });
+    }
+
+    // Coordinations list - ensure we get fresh data
+    $coordinations = App\Models\Militant::distinct()->pluck('coordinations')->filter()->sort()->values();
+
+    // Stats - ensure we get fresh data
+    $stats = [
+        'total' => App\Models\Militant::count(),
+        'pending' => App\Models\Militant::where('status', 'pending')->count(),
+        'approved' => App\Models\Militant::where('status', 'approved')->count(),
+        'rejected' => App\Models\Militant::where('status', 'rejected')->count(),
+    ];
+
+    $militants = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
+    return view('administration.militants.index', compact('militants', 'coordinations', 'stats'));
+})->name('test.militants.fresh');
+
+// Test route with auth simulation
+Route::get('/test-admin-auth', function() {
+    // Simulate authentication
+    $user = App\Models\User::find(1);
+    if ($user) {
+        Illuminate\Support\Facades\Auth::login($user);
+    }
+
+    return redirect('/administration/pages/militants');
+})->name('test.admin.auth');
+
+// Test route for debug page
+Route::get('/test-militants-debug', function() {
+    $query = App\Models\Militant::query();
+
+    // Filter by status
+    if (request()->filled('status') && request()->status !== 'all') {
+        $query->where('status', request()->status);
+    }
+
+    // Filter by local coordination
+    if (request()->filled('coordination') && request()->coordination !== 'all') {
+        $query->where('coordinations', request()->coordination);
+    }
+
+    // Search by name, email, or card number
+    if (request()->filled('search')) {
+        $search = request()->search;
+        $query->where(function($q) use ($search) {
+            $q->where('nom', 'like', '%' . $search . '%')
+              ->orWhere('prenom', 'like', '%' . $search . '%')
+              ->orWhere('name', 'like', '%' . $search . '%')
+              ->orWhere('email', 'like', '%' . $search . '%')
+              ->orWhere('n_cartes_syndicale', 'like', '%' . $search . '%')
+              ->orWhere('tel', 'like', '%' . $search . '%');
+        });
+    }
+
+    // Get unique coordinations for filter dropdown
+    $coordinations = App\Models\Militant::distinct()->pluck('coordinations')->filter()->sort();
+
+    // Get statistics
+    $stats = [
+        'total' => App\Models\Militant::count(),
+        'pending' => App\Models\Militant::where('status', 'pending')->count(),
+        'approved' => App\Models\Militant::where('status', 'approved')->count(),
+        'rejected' => App\Models\Militant::where('status', 'rejected')->count(),
+    ];
+
+    $militants = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
+    return view('test.militants', compact('militants', 'coordinations', 'stats'));
+})->name('test.militants.debug');
 
 // Page d'accueil publique
 Route::get('/', [AccueilController::class, 'index'])->name('accueil');
@@ -14,8 +159,18 @@ Route::get('/', [AccueilController::class, 'index'])->name('accueil');
 Route::get('/a-propos', [PageController::class, 'aPropos'])->name('a-propos');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
-// Public submission for militants to request membership (from contact page)
-Route::post('/contact/submit-membership', [\App\Http\Controllers\SiteWeb\ContactSubmissionController::class, 'store'])->name('contact.submit.membership');
+// Militant documents access (public access for approved militants)
+Route::get('/militant/documents', [\App\Http\Controllers\MilitantDocumentController::class, 'accessForm'])->name('militant.documents.access');
+Route::post('/militant/documents/verify', [\App\Http\Controllers\MilitantDocumentController::class, 'verifyAccess'])->name('militant.documents.verify');
+Route::get('/militant/documents/list', [\App\Http\Controllers\MilitantDocumentController::class, 'index'])->name('militant.documents.index');
+Route::get('/militant/documents/download/{filename}', [\App\Http\Controllers\MilitantDocumentController::class, 'download'])->name('militant.documents.download');
+Route::post('/militant/documents/logout', [\App\Http\Controllers\MilitantDocumentController::class, 'logout'])->name('militant.documents.logout');
+Route::get('/militant/test', [\App\Http\Controllers\MilitantDocumentController::class, 'testCategories'])->name('militant.test');
+
+// Public route for militant membership submission
+Route::post('/militant/submit', [\App\Http\Controllers\MilitantController::class, 'store'])->name('contact.submit.membership');
+Route::post('/militant/messages', [MilitantMessageController::class, 'store'])->name('militant.messages.store');
+
 Route::get('/mission', [PageController::class, 'mission'])->name('mission');
 Route::get('/historique', [PageController::class, 'historique'])->name('historique');
 
@@ -35,19 +190,7 @@ Route::get('/dashboard', function () {
 Route::prefix('administration')->name('administration.')->middleware(['auth'])->group(function () {
 
     // Tableau de bord
-    Route::get('/tableau-de-bord', function () {
-        $stats = [
-            'publications_total' => 0,
-            'membres_total' => 1,
-            'documents_total' => 0,
-            'evenements_prochains' => 0,
-        ];
-
-        $activites_recentes = [];
-        $publications_recentes = [];
-
-        return view('administration.pages.tableau-de-bord', compact('stats', 'activites_recentes', 'publications_recentes'));
-    })->name('tableau-de-bord');
+    Route::get('/tableau-de-bord', [\App\Http\Controllers\Administration\TableauDeBordController::class, 'index'])->name('tableau-de-bord');
 
     
     // Publications
@@ -210,6 +353,15 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::get('/contact/submissions/{id}/attachment', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'attachment'])->name('administration.contact.submission.attachment');
         Route::post('/contact/submissions/{id}/approve', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'approve'])->name('contact.submissions.approve');
         Route::post('/contact/submissions/{id}/reject', [\App\Http\Controllers\Administration\AdminContactSubmissionsController::class, 'reject'])->name('contact.submissions.reject');
+
+        // Militants management
+        Route::get('/militants', [\App\Http\Controllers\MilitantController::class, 'index'])->name('militants.index');
+        Route::get('/militants/{militant}', [\App\Http\Controllers\MilitantController::class, 'show'])->name('militants.show');
+        Route::patch('/militants/{militant}/status', [\App\Http\Controllers\MilitantController::class, 'updateStatus'])->name('militants.update-status');
+        Route::patch('/militants/{militant}/status-ajax', [\App\Http\Controllers\MilitantController::class, 'updateStatusAjax'])->name('militants.update-status-ajax');
+
+        Route::get('/militant-messages', [MilitantMessageController::class, 'adminIndex'])->name('militant-messages.index');
+        Route::post('/militant-messages/{message}/reply', [MilitantMessageController::class, 'reply'])->name('militant-messages.reply');
     });
 
     // Médiathèque
@@ -230,22 +382,8 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
    // Paramètres
     Route::prefix('parametres')->name('parametres.')->group(function () {
         Route::get('/', function () {
-            return redirect()->route('administration.parametres.generaux');
+            return redirect()->route('administration.parametres.utilisateurs');
         })->name('index');
-
-        Route::get('/generaux', function () {
-            return view('administration.parametres.index', [
-                'section_active' => 'generaux',
-                'contenu' => 'administration.parametres.sections.generaux'
-            ]);
-        })->name('generaux');
-
-        Route::get('/seo', function () {
-            return view('administration.parametres.index', [
-                'section_active' => 'seo',
-                'contenu' => 'administration.parametres.sections.seo'
-            ]);
-        })->name('seo');
 
         // Route pour la gestion des utilisateurs dans les paramètres
         Route::get('/utilisateurs', [UtilisateurController::class, 'index'])->name('utilisateurs');
@@ -256,19 +394,12 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::delete('/utilisateurs/{id}', [UtilisateurController::class, 'destroy'])->name('utilisateurs.destroy');
         Route::post('/utilisateurs/{id}/toggle-status', [UtilisateurController::class, 'toggleStatus'])->name('utilisateurs.toggle-status');
 
-        Route::get('/reseaux-sociaux', function () {
-            return view('administration.parametres.index', [
-                'section_active' => 'reseaux-sociaux',
-                'contenu' => 'administration.parametres.sections.reseaux-sociaux'
-            ]);
-        })->name('reseaux-sociaux');
+        Route::get('/topbar', [\App\Http\Controllers\Administration\AdminTopbarController::class, 'edit'])->name('topbar');
+        Route::post('/topbar/update', [\App\Http\Controllers\Administration\AdminTopbarController::class, 'update'])->name('topbar.update');
 
-        Route::get('/notifications', function () {
-            return view('administration.parametres.index', [
-                'section_active' => 'notifications',
-                'contenu' => 'administration.parametres.sections.notifications'
-            ]);
-        })->name('notifications');
+        Route::get('/footer', [\App\Http\Controllers\Administration\AdminFooterController::class, 'edit'])->name('footer');
+        Route::post('/footer/update', [\App\Http\Controllers\Administration\AdminFooterController::class, 'update'])->name('footer.update');
+        Route::delete('/footer/gallery-image/{index}', [\App\Http\Controllers\Administration\AdminFooterController::class, 'deleteGalleryImage'])->name('footer.gallery_image.delete');
     });
 
     Route::post('/administration/pages/a-propos/update', [App\Http\Controllers\Administration\AdminAproposController::class, 'update'])

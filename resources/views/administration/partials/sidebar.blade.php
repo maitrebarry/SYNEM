@@ -10,6 +10,14 @@
     </div>
     <!--navigation: conserver uniquement les pages du site comme modules top-level + Paramètres -->
     <ul class="metismenu" id="menu">
+        <!-- Tableau de bord -->
+        <li class="{{ request()->routeIs('administration.tableau-de-bord') ? 'mm-active' : '' }}">
+            <a href="{{ route('administration.tableau-de-bord') }}" class="{{ request()->routeIs('administration.tableau-de-bord') ? 'mm-active' : '' }}">
+                <div class="parent-icon"><i class='bx bx-grid-alt'></i></div>
+                <div class="menu-title">Tableau de bord</div>
+            </a>
+        </li>
+
         <!-- Page d'accueil -->
         <li class="{{ request()->routeIs('administration.pages.accueil.*') ? 'mm-active' : '' }}">
             <a href="{{ route('administration.pages.accueil.edit') }}" class="{{ request()->routeIs('administration.pages.accueil.*') ? 'mm-active' : '' }}">
@@ -47,6 +55,14 @@
             <a href="{{ route('administration.pages.contact.edit') }}" class="{{ request()->routeIs('administration.pages.contact.*') ? 'mm-active' : '' }}">
                 <div class="parent-icon"><i class='bx bx-envelope'></i></div>
                 <div class="menu-title">Contact</div>
+            </a>
+        </li>
+
+        <!-- Militants -->
+        <li class="{{ request()->routeIs('administration.pages.militants.*') ? 'mm-active' : '' }}">
+            <a href="{{ route('administration.pages.militants.index') }}" class="{{ request()->routeIs('administration.pages.militants.*') ? 'mm-active' : '' }}">
+                <div class="parent-icon"><i class='bx bx-group'></i></div>
+                <div class="menu-title">Militants</div>
             </a>
         </li>
 

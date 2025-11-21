@@ -1,3 +1,9 @@
+@php
+use Illuminate\Support\Str;
+$notificationsList = $militantNotifications ?? collect();
+$notificationCount = $pendingMilitantMessagesCount ?? 0;
+@endphp
+
 <header>
     <div class="topbar d-flex align-items-center">
         <nav class="navbar navbar-expand">
@@ -7,20 +13,36 @@
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item dropdown dropdown-large">
                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="alert-count" id="notification-count">0</span>
+                            <span class="alert-count" id="notification-count">{{ $notificationCount }}</span>
                             <i class='bx bx-bell'></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a href="javascript:;">
                                 <div class="msg-header">
                                     <p class="msg-header-title">Notifications</p>
-                                    <p class="msg-header-clear ms-auto">Tout marquer comme lu</p>
+                                    <p class="msg-header-clear ms-auto">
+                                        <a href="{{ route('administration.pages.militant-messages.index') }}" class="text-decoration-none">Tout marquer comme lu</a>
+                                    </p>
                                 </div>
                             </a>
                             <div class="header-notifications-list" id="notifications-list">
-                                <!-- Notifications dynamiques -->
+                                @if($notificationsList->isEmpty())
+                                    <div class="text-center py-3 text-muted small">Aucune nouvelle question.</div>
+                                @else
+                                    @foreach($notificationsList as $notification)
+                                        <a class="dropdown-item" href="{{ route('administration.pages.militant-messages.index') }}">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <i class="fas fa-question-circle text-warning fs-5"></i>
+                                                <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">
+                                                    <p class="mb-1 text-truncate" style="max-width: 220px;">{{ Str::limit($notification->question, 80) }}</p>
+                                                    <small class="text-muted d-block text-truncate" style="max-width: 220px;">{{ $notification->militant?->name ?? 'Militant' }} • {{ $notification->created_at->diffForHumans() }}</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                @endif
                             </div>
-                            <a href="javascript:;">
+                            <a href="{{ route('administration.pages.militant-messages.index') }}">
                                 <div class="text-center msg-footer">Voir toutes les notifications</div>
                             </a>
                         </div>
@@ -31,20 +53,21 @@
             <!-- Menu utilisateur -->
             <div class="user-box dropdown">
                 <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ Auth::user()->photo ?? asset('template-admin/assets/images/default-user.jpg') }}" class="user-img" alt="user avatar" id="headerUserImg">
+                    <img src="{{ Auth::check() && Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : asset('template-admin/assets/images/default-user.jpg') }}" class="user-img" alt="user avatar" id="headerUserImg">
                     <div class="user-info ps-3">
-                        <p class="user-name mb-0">{{ Auth::user()->name ?? 'Admin SYNEM' }}</p>
+                        <p class="user-name mb-0">{{ Auth::check() ? Auth::user()->name : 'Admin SYNEM' }}</p>
                         <p class="designattion mb-0">Administrateur</p>
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    @if(Auth::check())
                     <li>
                         <a class="dropdown-item" href="{{ route('profile.edit') }}">
                             <i class="bx bx-user"></i><span>Mon Profil</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('administration.parametres.index') }}">
                             <i class="bx bx-cog"></i><span>Paramètres</span>
                         </a>
                     </li>
@@ -57,6 +80,13 @@
                             </button>
                         </form>
                     </li>
+                    @else
+                    <li>
+                        <a class="dropdown-item" href="{{ route('login') }}">
+                            <i class="bx bx-log-in-circle"></i><span>Connexion</span>
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </div>
         </nav>

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h2 class="mb-4">Historique - Gestion</h2>
+    <!-- <h2 class="mb-4">Historique - Gestion</h2> -->
         <div id="historique-routes" style="display:none"
             data-store-events="{{ route('administration.pages.historique.events.store') }}"
             data-update-event="{{ url('/administration/pages/historique/events') }}"
@@ -16,6 +16,17 @@
             data-update-main="{{ route('administration.pages.historique.update.main') }}"
             data-update-image="{{ route('administration.pages.historique.update.image') }}"
         ></div>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('administration.tableau-de-bord') }}">Tableau de bord</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Historique - Gestion</li>
+    </ol>
+</nav>
+
+<a href="{{ route('administration.tableau-de-bord') }}" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+</a>
 
     <!-- Card: Historique (Texte & Image) -->
     <div class="card mb-4">

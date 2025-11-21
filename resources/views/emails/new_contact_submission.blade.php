@@ -10,7 +10,7 @@
         <li><strong>Nom :</strong> {{ $submission->name }}</li>
         <li><strong>Email :</strong> {{ $submission->email }}</li>
         <li><strong>Téléphone :</strong> {{ $submission->phone }}</li>
-        <li><strong>Organisation :</strong> {{ $submission->organisation }}</li>
+        <li><strong>Coordonnées :</strong> {{ $submission->coordinates }}</li>
         <li><strong>Message :</strong> {{ $submission->message }}</li>
         <li><strong>Statut :</strong> {{ $submission->status }}</li>
         @if($submission->attachment)
