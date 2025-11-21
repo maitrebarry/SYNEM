@@ -142,7 +142,9 @@
                         <label for="role" class="form-label">Rôle</label>
                         <select class="form-select" id="role" name="role" required>
                             <option value="admin">Admin</option>
-                            <option value="superadmin">Super Admin</option>
+                            @if(Auth::user()->isSuperAdmin())
+                                <option value="superadmin">Super Admin</option>
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -191,7 +193,9 @@
                         <label for="edit_role" class="form-label">Rôle</label>
                         <select class="form-select" id="edit_role" name="role" required>
                             <option value="admin">Admin</option>
-                            <option value="superadmin">Super Admin</option>
+                            @if(Auth::user()->isSuperAdmin())
+                                <option value="superadmin">Super Admin</option>
+                            @endif
                         </select>
                     </div>
                     
