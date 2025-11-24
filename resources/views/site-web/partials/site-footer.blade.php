@@ -38,12 +38,14 @@
                         $imageField = 'gallery_image_' . $i;
                         $imagePath = $sharedFooter->$imageField ?? null;
                     @endphp
-                    <a href="">
-                        @if($imagePath)
-                            <img class="w-100" src="{{ asset('storage/' . $imagePath) }}" alt="Galerie {{ $i }}">
-                        @else
-                            <img class="w-100" src="{{ asset('template-siteweb/asset/img/gallery-' . $i . '.jpg') }}" alt="Galerie {{ $i }}">
-                        @endif
+                    <a href="" style="display:block;">
+                        <div class="footer-gallery-card" style="position:relative; width:100%; padding-top:100%; overflow:hidden; border-radius:0.35rem; background:#000;">
+                            @if($imagePath)
+                                <img src="{{ asset('storage/' . $imagePath) }}" alt="Galerie {{ $i }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+                            @else
+                                <img src="{{ asset('template-siteweb/asset/img/gallery-' . $i . '.jpg') }}" alt="Galerie {{ $i }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+                            @endif
+                        </div>
                     </a>
                 </div>
                 @endfor
