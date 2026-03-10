@@ -58,12 +58,22 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Gestion des Militants</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <h3 class="card-title mb-0">Gestion des Militants</h3>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="btn-group" role="group" aria-label="Export militants">
+                            <button type="button" class="btn btn-success btn-sm" id="export-excel-btn">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" id="export-word-btn">
+                                <i class="fas fa-file-word"></i> Export Word
+                            </button>
+                        </div>
+                        <div class="card-tools d-flex align-items-center">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -304,6 +314,26 @@ $(document).ready(function() {
         // Stats left static for now
     }
 
+    function buildExportUrl(baseUrl) {
+        const params = new URLSearchParams();
+        const searchTerm = $('#search').val().trim();
+        const statusValue = $('#status-filter').val();
+        const coordinationValue = $('#coordination-filter').val();
+
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        if (statusValue && statusValue !== 'all') {
+            params.append('status', statusValue);
+        }
+        if (coordinationValue && coordinationValue !== 'all') {
+            params.append('coordination', coordinationValue);
+        }
+
+        const query = params.toString();
+        return query ? `${baseUrl}?${query}` : baseUrl;
+    }
+
     $('#search').on('input', function() {
         clearTimeout(filterTimeout);
         filterTimeout = setTimeout(loadFilteredData, 300);
@@ -381,6 +411,14 @@ $(document).ready(function() {
         const originalHtml = button.data('original-html') || button.html();
         button.data('original-html', originalHtml);
         button.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + originalHtml);
+    });
+
+    $('#export-excel-btn').on('click', function() {
+        window.location.href = buildExportUrl('{{ route("administration.pages.militants.export.excel") }}');
+    });
+
+    $('#export-word-btn').on('click', function() {
+        window.location.href = buildExportUrl('{{ route("administration.pages.militants.export.word") }}');
     });
 
 });

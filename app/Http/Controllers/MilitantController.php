@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\MilitantApprovedNotification;
 use App\Models\Militant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -59,32 +60,10 @@ class MilitantController extends Controller
 {
     // Si c'est une requête AJAX pour le filtrage, retourner toutes les données filtrées
     if ($request->ajax()) {
-        $query = Militant::query();
+        $militants = $this->filteredMilitantQuery($request)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        // Apply filters if provided
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('coordination') && $request->coordination !== 'all') {
-            $query->where('coordinations', $request->coordination);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nom', 'like', "%$search%")
-                  ->orWhere('prenom', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('n_cartes_syndicale', 'like', "%$search%")
-                  ->orWhere('tel', 'like', "%$search%")
-                  ->orWhere('coordinations', 'like', "%$search%");
-            });
-        }
-
-        $militants = $query->orderBy('created_at', 'desc')->get();
-
-        // Retourner les données au format JSON pour AJAX
         return response()->json([
             'data' => $militants->map(function($militant, $index) {
                 return [
@@ -105,30 +84,9 @@ class MilitantController extends Controller
         ]);
     }
 
-    // Pour les requêtes normales (affichage initial), utiliser la pagination
-    $query = Militant::query();
-
-    // Apply filters if provided (pour l'affichage initial avec filtres depuis l'URL)
-    if ($request->filled('status') && $request->status !== 'all') {
-        $query->where('status', $request->status);
-    }
-
-    if ($request->filled('coordination') && $request->coordination !== 'all') {
-        $query->where('coordinations', $request->coordination);
-    }
-
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('nom', 'like', "%$search%")
-              ->orWhere('prenom', 'like', "%$search%")
-              ->orWhere('email', 'like', "%$search%")
-              ->orWhere('n_cartes_syndicale', 'like', "%$search%")
-              ->orWhere('tel', 'like', "%$search%");
-        });
-    }
-
-    $militants = $query->orderBy('created_at', 'desc')->paginate(50);
+    $militants = $this->filteredMilitantQuery($request)
+        ->orderBy('created_at', 'desc')
+        ->paginate(50);
 
     $coordinations = Militant::distinct()->pluck('coordinations')->filter()->sort()->values();
 
@@ -141,6 +99,16 @@ class MilitantController extends Controller
 
     return view('administration.militants.index', compact('militants', 'coordinations', 'stats'));
 }
+
+    public function exportExcel(Request $request)
+    {
+        return $this->exportMilitants($request, 'xls', 'application/vnd.ms-excel');
+    }
+
+    public function exportWord(Request $request)
+    {
+        return $this->exportMilitants($request, 'doc', 'application/msword');
+    }
 
 
     public function show(Militant $militant)
@@ -208,5 +176,51 @@ class MilitantController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    protected function exportMilitants(Request $request, string $extension, string $contentType)
+    {
+        $militants = $this->filteredMilitantQuery($request)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $content = view('administration.militants.exports.table', [
+            'militants' => $militants,
+            'generatedAt' => now(),
+        ])->render();
+
+        $filename = 'militants-' . now()->format('Ymd-His') . '.' . $extension;
+
+        return response($content, 200, [
+            'Content-Type' => $contentType . '; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    protected function filteredMilitantQuery(Request $request): Builder
+    {
+        $query = Militant::query();
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('coordination') && $request->coordination !== 'all') {
+            $query->where('coordinations', $request->coordination);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('nom', 'like', "%$search%")
+                    ->orWhere('prenom', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%")
+                    ->orWhere('n_cartes_syndicale', 'like', "%$search%")
+                    ->orWhere('tel', 'like', "%$search%")
+                    ->orWhere('coordinations', 'like', "%$search%");
+            });
+        }
+
+        return $query;
     }
 }

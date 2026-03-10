@@ -1,7 +1,7 @@
 <div class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
         <div class="branding">
-            <img src="{{ asset('template-admin/assets/images/logo2_atelierCouture.jpeg') }}" class="logo-icon" alt="SYNEM Logo">
+            <!-- <img src="{{ asset('template-admin/assets/images/syneklogo.jpeg') }}" class="logo-icon" alt="SYNEM Logo"> -->
             <h6 class="logo-text synem-logo">SYNEM ADMIN</h6>
         </div>
         <div class="toggle-icon ms-auto">

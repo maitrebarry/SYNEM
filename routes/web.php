@@ -356,6 +356,8 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
 
         // Militants management
         Route::get('/militants', [\App\Http\Controllers\MilitantController::class, 'index'])->name('militants.index');
+        Route::get('/militants/export/excel', [\App\Http\Controllers\MilitantController::class, 'exportExcel'])->name('militants.export.excel');
+        Route::get('/militants/export/word', [\App\Http\Controllers\MilitantController::class, 'exportWord'])->name('militants.export.word');
         Route::get('/militants/{militant}', [\App\Http\Controllers\MilitantController::class, 'show'])->name('militants.show');
         Route::patch('/militants/{militant}/status', [\App\Http\Controllers\MilitantController::class, 'updateStatus'])->name('militants.update-status');
         Route::patch('/militants/{militant}/status-ajax', [\App\Http\Controllers\MilitantController::class, 'updateStatusAjax'])->name('militants.update-status-ajax');

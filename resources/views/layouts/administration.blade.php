@@ -121,7 +121,7 @@
 		<!--End Back To Top Button-->
 		
 		<footer class="page-footer">
-			<p class="mb-0">SYNEM &copy; {{ date('Y') }}. Tous droits réservés.</p>
+			<p class="mb-0">b@rry@te@ch@ &copy; {{ date('Y') }}. Tous droits réservés.</p>
 		</footer>
 	</div>
 	<!--end wrapper-->

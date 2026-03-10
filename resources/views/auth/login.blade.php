@@ -192,7 +192,7 @@
                             
                             <!-- Se souvenir de moi -->
                             <div class="mb-4 form-check">
-                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                <input type="checkbox" class="form-check-input" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="remember">
                                     Se souvenir de moi
                                 </label>
