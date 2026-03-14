@@ -11,6 +11,12 @@ $notificationCount = $pendingMilitantMessagesCount ?? 0;
             
             <div class="top-menu ms-auto">
                 <ul class="navbar-nav align-items-center">
+                    <li class="nav-item me-2">
+                        <a class="nav-link" href="{{ url('/') }}" target="_blank" rel="noopener" title="Voir le site">
+                            <i class='bx bx-globe'></i>
+                            <span class="d-none d-md-inline ms-1">Voir le site</span>
+                        </a>
+                    </li>
                     <li class="nav-item dropdown dropdown-large">
                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="alert-count" id="notification-count">{{ $notificationCount }}</span>

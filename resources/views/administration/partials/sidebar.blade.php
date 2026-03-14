@@ -73,6 +73,14 @@
                 <div class="menu-title">Paramètres</div>
             </a>
         </li>
+
+        <!-- Retour au site public -->
+        <li>
+            <a href="{{ url('/') }}" target="_blank" rel="noopener">
+                <div class="parent-icon"><i class='bx bx-globe'></i></div>
+                <div class="menu-title">Voir le site</div>
+            </a>
+        </li>
     </ul>
     <!--end navigation-->
 </div>

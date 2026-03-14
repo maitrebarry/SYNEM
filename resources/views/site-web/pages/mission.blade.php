@@ -56,26 +56,42 @@
 
 @section('content')
 <!-- Page Header Start -->
-@php
-    // Use dynamic carousel images/captions when provided by controller, fallback to static ones
-    $carouselImages = $carouselImages ?? [
-        asset('template-siteweb/asset/img/bg.jpg'),
-        asset('template-siteweb/asset/img/gallery-2.jpg'),
-        asset('template-siteweb/asset/img/gallery-3.jpg')
-    ];
-    $carouselCaptions = $carouselCaptions ?? [
-        'Défendre les droits des enseignants maliens',
-        'Promouvoir une éducation de qualité pour tous',
-        'Œuvrer pour le développement professionnel'
-    ];
-@endphp
-
-@include('site-web.partials.page-carousel', [
-    'pageTitle' => 'Notre Mission',
-    'breadcrumb' => 'Mission',
-    'images' => $carouselImages,
-    'captions' => $carouselCaptions,
-])
+<div class="container-fluid p-0" style="margin-bottom: 90px;">
+    <div id="header-carousel" class="carousel slide" data-ride="carousel" data-bs-ride="carousel" data-interval="3000" data-bs-interval="3000">
+        <div class="carousel-inner">
+            @foreach(($carouselImages ?? []) as $key => $image)
+                @php
+                    $captionText = trim((string) (($carouselCaptions ?? [])[$key] ?? ''));
+                @endphp
+                <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+                    <img class="w-100" src="{{ $image }}" alt="Notre Mission {{ $key + 1 }}">
+                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        <div class="p-3" style="max-width: 900px;">
+                            <!-- <h4 class="text-white text-uppercase mb-md-3">SYNEM</h4>
+                            <h1 class="display-1 text-white mb-md-4">Notre Mission</h1> -->
+                            @if($captionText !== '')
+                                <p class="text-white mb-md-4">{{ $captionText }}</p>
+                            @endif
+                            <a href="{{ route('contact') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Nous contacter</a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        @if(count($carouselImages ?? []) > 1)
+            <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
+                <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                    <span class="carousel-control-prev-icon mb-n2"></span>
+                </div>
+            </a>
+            <a class="carousel-control-next" href="#header-carousel" data-slide="next">
+                <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                    <span class="carousel-control-next-icon mb-n2"></span>
+                </div>
+            </a>
+        @endif
+    </div>
+</div>
 <!-- Page Header End -->
 
 <div class="container py-5">

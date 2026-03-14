@@ -201,6 +201,80 @@
 <!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Global 5 Mo/image client-side validation (all admin pages) -->
+<script>
+    (function(){
+        const MAX = 5 * 1024 * 1024; // 5 Mo
+        window.SYNEM_MAX_IMAGE_BYTES = MAX;
+
+        function formatMo(bytes){
+            return (bytes/1024/1024).toFixed(2) + ' Mo';
+        }
+
+        function showTooLarge(files){
+            const items = files.map(f => `<li>${String(f.name)} — ${formatMo(f.size)}</li>`).join('');
+            const html = `Chaque image doit faire au maximum <b>5 Mo</b>.<br><ul class="text-start mb-0">${items}</ul>`;
+            if (window.Swal && typeof window.Swal.fire === 'function') {
+                window.Swal.fire({ icon: 'error', title: 'Image trop volumineuse', html });
+            } else {
+                alert('Chaque image doit faire au maximum 5 Mo.');
+            }
+        }
+
+        function isImage(file, input){
+            const mime = (file && file.type) ? String(file.type) : '';
+            if (mime.startsWith('image/')) return true;
+            const accept = (input && input.getAttribute) ? (input.getAttribute('accept') || '') : '';
+            return String(accept).includes('image');
+        }
+
+        function validateInput(input){
+            if(!input || input.type !== 'file') return true;
+            const files = Array.from(input.files || []);
+            if(!files.length) return true;
+
+            const oversized = files.filter(f => isImage(f, input) && f.size > MAX);
+            if(!oversized.length) return true;
+
+            // Keep only valid files when possible
+            try{
+                if(input.multiple && window.DataTransfer){
+                    const dt = new DataTransfer();
+                    files.filter(f => !oversized.includes(f)).forEach(f => dt.items.add(f));
+                    input.files = dt.files;
+                } else {
+                    input.value = '';
+                }
+            }catch(e){
+                input.value = '';
+            }
+
+            showTooLarge(oversized.map(f => ({ name: f.name, size: f.size })));
+            return false;
+        }
+
+        // Validate immediately on file selection
+        document.addEventListener('change', function(e){
+            const t = e.target;
+            if(t && t.matches && t.matches('input[type="file"]')) validateInput(t);
+        }, true);
+
+        // Validate on normal form submit (for pages not using fetch)
+        document.addEventListener('submit', function(e){
+            const form = e.target;
+            if(!form || !form.querySelectorAll) return;
+            const inputs = Array.from(form.querySelectorAll('input[type="file"]'));
+            for(const inp of inputs){
+                if(!validateInput(inp)){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }, true);
+    })();
+</script>
+
 <!-- SortableJS for drag and drop -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 

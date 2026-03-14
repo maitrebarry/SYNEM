@@ -1,8 +1,12 @@
 @php
-    $pageTitle = $pageTitle ?? 'Titre de la page';
-    $breadcrumb = $breadcrumb ?? 'Page actuelle';
-    $images = $images ?? [asset('template-siteweb/asset/img/r.jpg')];
-    $captions = $captions ?? ['Default caption'];
+    $pageTitle = isset($pageTitle) ? trim((string) $pageTitle) : '';
+    $breadcrumb = isset($breadcrumb) ? trim((string) $breadcrumb) : '';
+
+    $images = (isset($images) && is_array($images) && count($images) > 0)
+        ? $images
+        : [asset('template-siteweb/asset/img/r.jpg')];
+
+    $captions = (isset($captions) && is_array($captions)) ? $captions : [];
 @endphp
 
 <!-- Page Carousel Start -->
@@ -10,18 +14,29 @@
     <div id="page-carousel" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
             @foreach($images as $index => $image)
+            @php
+                $captionText = trim((string) ($captions[$index] ?? ''));
+            @endphp
             <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                 <img class="w-100" src="{{ $image }}" alt="{{ $pageTitle }}">
                 <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                     <div class="p-3" style="max-width: 900px;">
-                        <h1 class="display-3 text-white mb-3 animated slideInDown">{{ $pageTitle }}</h1>
-                        <p class="display-6 text-white mb-4 animated slideInDown">{{ $captions[$index] ?? '' }}</p>
-                        <nav aria-label="breadcrumb animated slideInDown">
-                            <ol class="breadcrumb justify-content-center mb-0">
-                                <li class="breadcrumb-item"><a class="text-white" href="{{ route('accueil') }}">Accueil</a></li>
-                                <li class="breadcrumb-item text-white active" aria-current="page">{{ $breadcrumb }}</li>
-                            </ol>
-                        </nav>
+                        @if($pageTitle !== '')
+                            <h1 class="display-3 text-white mb-3 animated slideInDown">{{ $pageTitle }}</h1>
+                        @endif
+
+                        @if($captionText !== '')
+                            <p class="display-6 text-white mb-4 animated slideInDown">{{ $captionText }}</p>
+                        @endif
+
+                        @if($breadcrumb !== '')
+                            <nav aria-label="breadcrumb animated slideInDown">
+                                <ol class="breadcrumb justify-content-center mb-0">
+                                    <li class="breadcrumb-item"><a class="text-white" href="{{ route('accueil') }}">Accueil</a></li>
+                                    <li class="breadcrumb-item text-white active" aria-current="page">{{ $breadcrumb }}</li>
+                                </ol>
+                            </nav>
+                        @endif
                     </div>
                 </div>
             </div>

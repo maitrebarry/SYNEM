@@ -7,6 +7,17 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Development (uploads)
+
+If you run the app with `php artisan serve`, it uses the **CLI** php.ini (often `upload_max_filesize=2M` and `post_max_size=8M`).
+For admin pages that upload images (carousel, news, etc.), use the helper script that overrides these limits:
+
+- `./scripts/serve-dev.sh`
+
+You can change host/port via env vars: `HOST=127.0.0.1 PORT=8000 ./scripts/serve-dev.sh`.
+
+Note: the application enforces a **maximum of 5 Mo per image** (client-side + server-side). Larger images will be rejected.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

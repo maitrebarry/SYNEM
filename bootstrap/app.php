@@ -11,8 +11,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Enforce a global max of 5 Mo per uploaded image (server-side guardrail)
+        $middleware->web(append: [
+            \App\Http\Middleware\LimitImageUploadSize::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            $message = "La requête est trop volumineuse pour le serveur. Réduisez la taille ou le nombre d'images, puis réessayez.";
+
+            if (method_exists($request, 'expectsJson') && ($request->expectsJson() || $request->ajax())) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'post_too_large',
+                    'message' => $message,
+                ], 413);
+            }
+
+            return redirect()->back()->withErrors(['upload' => $message])->withInput();
+        });
     })->create();
+

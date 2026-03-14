@@ -116,6 +116,7 @@
                         @endif
                         <input type="file" class="form-control" id="gallery_image_{{ $i }}" name="gallery_image_{{ $i }}" 
                                accept="image/*">
+                        <small class="form-text text-muted">Taille maximale : 5 Mo.</small>
                     </div>
                 </div>
                 @endfor

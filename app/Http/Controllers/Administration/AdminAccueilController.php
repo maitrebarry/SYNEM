@@ -401,25 +401,43 @@ class AdminAccueilController extends Controller
         $allowedImages = ['jpg','jpeg','png','gif','webp'];
         $maxImageBytes = 5120 * 1024; // 5MB
         $fileErrors = new \Illuminate\Support\MessageBag();
-        if ($request->hasFile('carousel_images')) {
-            $files = $request->file('carousel_images');
+        $files = $request->file('carousel_images');
+        if (is_array($files) && count($files)) {
             foreach ($files as $i => $f) {
-                if ($f instanceof \Illuminate\Http\UploadedFile) {
-                    $ext = strtolower($f->getClientOriginalExtension() ?: $f->extension());
-                    if (!in_array($ext, $allowedImages)) {
-                        $fileErrors->add("carousel_images.$i", 'Image invalide.');
-                        continue;
-                    }
-                    if ($f->getSize() > $maxImageBytes) {
-                        $fileErrors->add("carousel_images.$i", 'Image trop volumineuse (max 5 Mo).');
-                        continue;
-                    }
-                    $path = $f->store('carousel', 'public');
-                    HomepageCarouselImage::create([
-                        'homepage_content_id' => $content->id,
-                        'file' => basename($path),
-                    ]);
+                if (!($f instanceof \Illuminate\Http\UploadedFile)) {
+                    continue;
                 }
+
+                // Important: hasFile() becomes false when PHP marks the upload as invalid (size limits, partial upload, etc.)
+                if (!$f->isValid()) {
+                    $err = $f->getError();
+                    $msg = "Upload invalide.";
+                    if (in_array($err, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+                        $msg = "Fichier trop volumineux pour le serveur. Réduisez la taille ou envoyez moins d'images.";
+                    } elseif ($err === UPLOAD_ERR_PARTIAL) {
+                        $msg = "Upload incomplet. Réessayez.";
+                    } elseif ($err === UPLOAD_ERR_NO_FILE) {
+                        $msg = "Aucun fichier reçu.";
+                    }
+                    $fileErrors->add("carousel_images.$i", $msg);
+                    continue;
+                }
+
+                $ext = strtolower($f->getClientOriginalExtension() ?: $f->extension());
+                if (!in_array($ext, $allowedImages)) {
+                    $fileErrors->add("carousel_images.$i", 'Image invalide.');
+                    continue;
+                }
+                if ($f->getSize() > $maxImageBytes) {
+                    $fileErrors->add("carousel_images.$i", 'Image trop volumineuse (max 5 Mo).');
+                    continue;
+                }
+
+                $path = $f->store('carousel', 'public');
+                HomepageCarouselImage::create([
+                    'homepage_content_id' => $content->id,
+                    'file' => basename($path),
+                ]);
             }
         }
 

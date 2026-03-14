@@ -74,21 +74,32 @@
                     @foreach($content->carouselImages as $key => $img)
                         @php
                             // support optional per-image text if present (legacy compatibility)
-                            $imgTitle = $img->title ?? $img->caption ?? $img->label ?? null;
-                            $imgText = $img->text ?? $img->description ?? null;
-                            // fallback to global carousel title/subtitle
-                            $displayTitle = $imgTitle ?: ($content->carousel_title ?? 'Syndicat National');
-                            $displaySubtitle = $imgText ?: ($content->carousel_subtitle ?? 'Défense des Droits des Enseignants');
+                            $imgTitle = trim((string)($img->title ?? $img->caption ?? $img->label ?? ''));
+                            $imgText = trim((string)($img->text ?? $img->description ?? ''));
+                            $globalTitle = trim((string)($content->carousel_title ?? ''));
+                            $globalSubtitle = trim((string)($content->carousel_subtitle ?? ''));
+
+                            // Important: do NOT show static defaults when dynamic data exists.
+                            // If no title/text is provided, we render no caption.
+                            $displayTitle = $imgTitle !== '' ? $imgTitle : ($globalTitle !== '' ? $globalTitle : null);
+                            $displaySubtitle = $imgText !== '' ? $imgText : ($globalSubtitle !== '' ? $globalSubtitle : null);
+                            $hasCaption = !empty($displayTitle) || !empty($displaySubtitle);
                         @endphp
                         <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
                             <img class="w-100" src="{{ asset('storage/carousel/' . $img->file) }}" alt="Carrousel {{ $key+1 }}">
-                            <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                <div class="p-3" style="max-width: 900px;">
-                                    <h4 class="text-white text-uppercase mb-md-3">{{ $displayTitle }}</h4>
-                                    <h1 class="display-1 text-white mb-md-4">{{ $displaySubtitle }}</h1>
-                                    <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                            @if($hasCaption)
+                                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                                    <div class="p-3" style="max-width: 900px;">
+                                        @if(!empty($displayTitle))
+                                            <h4 class="text-white text-uppercase mb-md-3">{{ $displayTitle }}</h4>
+                                        @endif
+                                        @if(!empty($displaySubtitle))
+                                            <h1 class="display-1 text-white mb-md-4">{{ $displaySubtitle }}</h1>
+                                        @endif
+                                        <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     @endforeach
                 @else
@@ -173,15 +184,22 @@
     <div class="container-fluid py-5">
         <div class="container pt-5 pb-3">
             <h1 class="display-1 text-primary text-center">02</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">{{ ($content && $content->services_title) ? $content->services_title : 'Nos Domaines d\'Intervention' }}</h1>
+            @php
+                $servicesItems = [];
+                if (!empty($content->services_items)) {
+                    $servicesItems = is_array($content->services_items) ? $content->services_items : (json_decode($content->services_items, true) ?: []);
+                }
+                $hasServicesDynamic = count($servicesItems) > 0;
+                $servicesTitle = trim((string)($content->services_title ?? ''));
+            @endphp
+            @if($hasServicesDynamic)
+                @if($servicesTitle !== '')
+                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $servicesTitle }}</h1>
+                @endif
+            @else
+                <h1 class="display-4 text-uppercase text-center mb-5">Nos Domaines d'Intervention</h1>
+            @endif
             <div class="row">
-                @php
-                    $servicesItems = [];
-                    if (!empty($content->services_items)) {
-                        $servicesItems = is_array($content->services_items) ? $content->services_items : (json_decode($content->services_items, true) ?: []);
-                    }
-                @endphp
-
                 @if(count($servicesItems))
                     @foreach($servicesItems as $idx => $s)
                         @php
@@ -251,19 +269,26 @@
     <div class="container-fluid py-5">
         <div class="container pt-5 pb-3">
             <h1 class="display-1 text-primary text-center">03</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">Dernières Actualités</h1>
+            @php
+                // Compte rendu card (if present) + news list
+                $hasCompteRendu = !empty($content->compte_rendu_title) && !empty($content->compte_rendu_content);
+                $crImages = [];
+                if ($hasCompteRendu && !empty($content->compte_rendu_images)) {
+                    $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
+                }
+                $newsItems = collect(explode("\n", trim((string)($content->news_items ?? ''))))->map(fn($v)=>trim($v))->filter()->values();
+                $newsCount = $newsItems->count();
+                $hasNewsDynamic = $hasCompteRendu || ($newsCount > 0);
+                $newsTitle = trim((string)($content->news_title ?? ''));
+            @endphp
+            @if($hasNewsDynamic)
+                @if($newsTitle !== '')
+                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $newsTitle }}</h1>
+                @endif
+            @else
+                <h1 class="display-4 text-uppercase text-center mb-5">Dernières Actualités</h1>
+            @endif
             <div class="row">
-                @php
-                    // Compte rendu card (if present) + news list
-                    $hasCompteRendu = !empty($content->compte_rendu_title) && !empty($content->compte_rendu_content);
-                    $crImages = [];
-                    if ($hasCompteRendu && !empty($content->compte_rendu_images)) {
-                        $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
-                    }
-                    $newsItems = collect(explode("\n", trim((string)($content->news_items ?? ''))))->map(fn($v)=>trim($v))->filter()->values();
-                    $newsCount = $newsItems->count();
-                @endphp
-
                 @if($hasCompteRendu)
                     <div class="col-lg-4 col-md-6 mb-2">
                         <div class="rent-item mb-4">
@@ -288,20 +313,6 @@
                                     </div>
                         </div>
                     @endforeach
-
-                    {{-- if less than 2 news items, fill with static fallbacks --}}
-                    @if($newsCount < 2)
-                        @for($i = 0; $i < 2 - $newsCount; $i++)
-                            <div class="col-lg-4 col-md-6 mb-2">
-                                <div class="rent-item mb-4">
-                                    <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité">
-                                    <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
-                                    <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
-                                    <a class="btn btn-primary px-3" href="#">Lire la suite</a>
-                                </div>
-                            </div>
-                        @endfor
-                    @endif
                 @else
                     {{-- No compte-rendu: show either news items or static three boxes --}}
                     @if($newsCount > 0)
@@ -394,9 +405,17 @@
     <div class="container-fluid py-5">
         <div class="container pt-5 pb-3">
             <h1 class="display-1 text-primary text-center">04</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">
-                {{ ($content && $content->documents_title) ? $content->documents_title : 'Documents Administratifs' }}
-            </h1>
+            @php
+                $hasDocumentsDynamic = ($content && $content->documents && count($content->documents));
+                $documentsTitle = trim((string)($content->documents_title ?? ''));
+            @endphp
+            @if($hasDocumentsDynamic)
+                @if($documentsTitle !== '')
+                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $documentsTitle }}</h1>
+                @endif
+            @else
+                <h1 class="display-4 text-uppercase text-center mb-5">Documents Administratifs</h1>
+            @endif
             <div class="row">
                 @php
                     $displayedDocuments = 0;

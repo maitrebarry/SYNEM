@@ -21,7 +21,7 @@
     </div>
 </div>
 <hr />
-<div class="container">
+<div class="container-fluid py-4">
     <h2 class="mb-4">Édition de la page d'accueil du site</h2>
     <div class="mb-3">
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#compteRenduAdminModal">
@@ -712,6 +712,7 @@
         async function submitModalForm(formEl){
             if(!formEl) return;
             const url = (formEl.getAttribute('action') || mainAction || window.location.href);
+            const MAX_IMAGE_BYTES = (window.SYNEM_MAX_IMAGE_BYTES || (5 * 1024 * 1024)); // 5 Mo
             // Build FormData manually to ensure all text fields are included alongside files
             const fd = new FormData();
             Array.from(formEl.elements).forEach(function(el){
@@ -729,6 +730,29 @@
                     fd.append(name, el.value);
                 }
             });
+
+            // Client-side guardrail: refuse images > 5MB before sending
+            try{
+                const oversized = [];
+                for(const pair of fd.entries()){
+                    const v = pair[1];
+                    if(v instanceof File){
+                        const isImage = (v.type || '').startsWith('image/');
+                        if(isImage && v.size > MAX_IMAGE_BYTES){
+                            oversized.push({ name: v.name, size: v.size });
+                        }
+                    }
+                }
+                if(oversized.length){
+                    const items = oversized.map(o => `<li>${String(o.name)} — ${(o.size/1024/1024).toFixed(2)} Mo</li>`).join('');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Image trop volumineuse',
+                        html: `Chaque image doit faire au maximum <b>5 Mo</b>.<br><ul class="text-start mb-0">${items}</ul>`
+                    });
+                    return;
+                }
+            }catch(e){ /* ignore client-side check failures */ }
             // ensure CSRF token present
             if(!fd.get('_token')) fd.append('_token', getCsrfToken());
 
@@ -763,24 +787,53 @@
                     body: fd
                 });
 
-                // if server responds JSON use it, otherwise fallback to reload
+                // Read response as text first, then try to parse JSON.
+                // (On 413, PHP may prepend warnings before JSON which breaks res.json())
                 const contentType = res.headers.get('content-type') || '';
-                if(res.ok && contentType.indexOf('application/json') !== -1){
-                    const data = await res.json();
-                    if(data.success){
+                const raw = await res.text().catch(()=> '');
+                function tryParseJson(maybeJson){
+                    if(!maybeJson) return null;
+                    const t = String(maybeJson).trim();
+                    try{ return JSON.parse(t); }catch(e){}
+                    const start = t.indexOf('{');
+                    const end = t.lastIndexOf('}');
+                    if(start !== -1 && end !== -1 && end > start){
+                        const slice = t.slice(start, end + 1);
+                        try{ return JSON.parse(slice); }catch(e){}
+                    }
+                    return null;
+                }
+                const data = contentType.indexOf('application/json') !== -1 ? tryParseJson(raw) : null;
+
+                if(res.ok){
+                    if(data && data.success){
                         try{ localStorage.setItem('suppress_server_success','1'); }catch(e){}
                         Swal.fire({ icon: 'success', title: 'Enregistré', text: data.message || 'Modifications enregistrées.' }).then(()=>{ location.reload(); });
-                    } else {
+                    } else if(data) {
                         Swal.fire({ icon: 'error', title: 'Erreur', text: data.message || 'Impossible d\'enregistrer.' });
+                    } else {
+                        // success but not json (maybe redirected) -> reload
+                        location.reload();
                     }
-                } else if(res.ok){
-                    // success but not json (maybe redirected) -> reload
-                    location.reload();
                 } else {
-                    // try to read text for debug
-                    const txt = await res.text();
-                    console.error('Modal submit failed', res.status, txt);
-                    Swal.fire({ icon: 'error', title: 'Erreur', html: 'Échec de l\'enregistrement (status ' + res.status + ').' });
+                    console.error('Modal submit failed', res.status, data || raw);
+                    let htmlMsg;
+                    if(res.status === 413){
+                        htmlMsg = "La requête est trop volumineuse. Réduisez la taille ou le nombre d'images, puis réessayez.";
+                    } else {
+                        htmlMsg = (data && data.message) ? data.message : ('Échec de l\'enregistrement (status ' + res.status + ').');
+                    }
+                    // For Laravel validation errors (422), show details if present
+                    if(data && data.errors){
+                        try{
+                            const errs = data.errors;
+                            const list = Array.isArray(errs) ? errs : Object.values(errs).flat();
+                            if(list && list.length){
+                                htmlMsg += '<br><ul class="text-start mb-0">' + list.map(e=>'<li>' + String(e) + '</li>').join('') + '</ul>';
+                            }
+                        }catch(e){ /* ignore */ }
+                    }
+                    Swal.fire({ icon: 'error', title: 'Erreur', html: htmlMsg });
                 }
             } catch(err){
                 console.error('Fetch error', err);

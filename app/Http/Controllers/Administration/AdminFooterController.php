@@ -31,9 +31,9 @@ class AdminFooterController extends Controller
             'copyright_text' => 'nullable|string|max:500',
             'organization_name' => 'nullable|string|max:255',
             'newsletter_description' => 'nullable|string|max:500',
-            'gallery_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gallery_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'gallery_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'gallery_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $footer = Footer::first();

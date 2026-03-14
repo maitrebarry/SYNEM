@@ -28,11 +28,8 @@ class PageController extends Controller
             asset('template-siteweb/asset/img/gallery-2.jpg'),
             asset('template-siteweb/asset/img/gallery-3.jpg')
         ];
-        $carouselCaptions = [
-            'Défendre les droits des enseignants maliens',
-            'Promouvoir une éducation de qualité pour tous',
-            'Œuvrer pour le développement professionnel'
-        ];
+        // Captions are optional. By default, don't show any static text.
+        $carouselCaptions = [];
 
         $missionImage = asset('template-siteweb/asset/img/mission-demo.jpg');
         $missionMain = 'La mission du SYNEM est de défendre les intérêts moraux et matériels des enseignants, d’améliorer leurs conditions de travail, et de promouvoir le respect et la reconnaissance du métier. Le syndicat agit pour une école inclusive, équitable et performante au Mali.';
