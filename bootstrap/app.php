@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust reverse proxies like ngrok so asset(), url(), and secure request
+        // detection use the forwarded host/protocol instead of localhost/http.
+        $middleware->trustProxies(at: '*');
+
         // Enforce a global max of 5 Mo per uploaded image (server-side guardrail)
         $middleware->web(append: [
             \App\Http\Middleware\LimitImageUploadSize::class,

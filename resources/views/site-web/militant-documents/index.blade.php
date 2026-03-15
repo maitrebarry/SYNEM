@@ -2,6 +2,39 @@
 
 @section('title', 'Documents Réservés - ' . $militant->name)
 
+@section('styles')
+<style>
+    .member-camera-shell {
+        background: #0f172a;
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        min-height: 260px;
+    }
+
+    .member-camera-video,
+    .member-camera-canvas {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        display: block;
+        background: #020617;
+    }
+
+    .member-camera-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #e2e8f0;
+        padding: 1rem;
+        background: rgba(2, 6, 23, 0.45);
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container py-5">
     <div class="row">
@@ -197,6 +230,104 @@
                     </div>
                 </div>
             </div>
+
+            @if($activeMemberCardCampaign)
+                @php
+                    $submissionStatusClasses = [
+                        'pending' => 'warning text-dark',
+                        'approved' => 'success',
+                        'revision_requested' => 'danger',
+                    ];
+                @endphp
+                <div class="card mt-4 border-primary shadow-sm" id="memberCardPhotoRequest">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="mb-1"><i class="fas fa-id-card me-2"></i>Confection de votre carte SYNEM</h5>
+                            <small>Demande envoyée le {{ optional($activeMemberCardCampaign->sent_at)->format('d/m/Y H:i') }}</small>
+                        </div>
+                        @if($memberCardSubmission)
+                            <span class="badge bg-light text-dark">{{ $memberCardSubmission->status_label }}</span>
+                        @else
+                            <span class="badge bg-warning text-dark">Photo attendue</span>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">{{ $activeMemberCardCampaign->message }}</p>
+
+                        @if($memberCardSubmission)
+                            <div class="alert alert-{{ $memberCardSubmission->status === 'approved' ? 'success' : ($memberCardSubmission->status === 'revision_requested' ? 'danger' : 'warning') }}">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                                    <div>
+                                        <strong>Statut :</strong> {{ $memberCardSubmission->status_label }}<br>
+                                        <small>Envoyée le {{ optional($memberCardSubmission->submitted_at)->format('d/m/Y H:i') }}</small>
+                                        @if($memberCardSubmission->admin_comment)
+                                            <p class="mb-0 mt-2">Commentaire admin : {{ $memberCardSubmission->admin_comment }}</p>
+                                        @endif
+                                    </div>
+                                    <img src="{{ $memberCardSubmission->photo_url }}" alt="Votre photo" class="rounded border" style="width: 110px; height: 140px; object-fit: cover;">
+                                </div>
+                            </div>
+                        @endif
+
+                        @if(!$memberCardSubmission || $memberCardSubmission->status === 'revision_requested')
+                            <form action="{{ route('militant.member-card-photo.store') }}" method="POST" enctype="multipart/form-data" class="row g-3" id="memberCardPhotoForm">
+                                @csrf
+                                <input type="hidden" name="campaign_id" value="{{ $activeMemberCardCampaign->id }}">
+                                <input type="hidden" name="webcam_photo" id="webcam_photo">
+                                <div class="col-12">
+                                    <div class="border rounded p-3 bg-light">
+                                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                                            <div>
+                                                <h6 class="mb-1">Prise de photo avec la caméra</h6>
+                                                <small class="text-muted">Sur téléphone comme sur ordinateur, vous pouvez ouvrir la caméra, cadrer votre photo et la capturer directement.</small>
+                                            </div>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <button class="btn btn-sm btn-primary" type="button" id="openCameraBtn">
+                                                    <i class="fas fa-camera me-1"></i>Ouvrir la caméra
+                                                </button>
+                                                <button class="btn btn-sm btn-success d-none" type="button" id="takePhotoBtn">
+                                                    <i class="fas fa-camera-retro me-1"></i>Capturer
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary d-none" type="button" id="retakePhotoBtn">
+                                                    <i class="fas fa-redo me-1"></i>Reprendre
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="member-camera-shell">
+                                            <video id="memberCameraVideo" class="member-camera-video" playsinline autoplay muted></video>
+                                            <canvas id="memberCameraCanvas" class="member-camera-canvas d-none"></canvas>
+                                            <div class="member-camera-overlay" id="memberCameraOverlay">
+                                                <div>
+                                                    <i class="fas fa-camera fa-2x mb-3"></i>
+                                                    <div>La caméra peut s'ouvrir ici pour prendre directement votre photo de carte.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-danger d-none mt-3 mb-0" id="memberCameraError"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="captured_photo">Prendre une photo avec la caméra</label>
+                                    <input type="file" class="form-control" id="captured_photo" name="captured_photo" accept="image/*" capture="user">
+                                    <small class="text-muted">Sur mobile, la caméra peut s'ouvrir directement.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="uploaded_photo">Téléverser depuis l'appareil</label>
+                                    <input type="file" class="form-control" id="uploaded_photo" name="uploaded_photo" accept="image/png,image/jpeg,image/jpg,image/webp">
+                                    <small class="text-muted">Formats acceptés : JPG, PNG, WEBP. Taille max : 5 Mo.</small>
+                                </div>
+                                <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <small class="text-muted">La photo sera automatiquement liée à votre profil militant.</small>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-cloud-upload-alt me-1"></i>
+                                        Envoyer ma photo
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @endif
 
             @php
                 $chatStatusLabels = [
@@ -402,6 +533,19 @@ $(document).ready(function() {
     const submitQuestionBtn = $('#submitQuestionBtn');
     const chatRoute = "{{ route('militant.messages.store') }}";
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const memberCardPhotoForm = document.getElementById('memberCardPhotoForm');
+    const openCameraBtn = document.getElementById('openCameraBtn');
+    const takePhotoBtn = document.getElementById('takePhotoBtn');
+    const retakePhotoBtn = document.getElementById('retakePhotoBtn');
+    const cameraVideo = document.getElementById('memberCameraVideo');
+    const cameraCanvas = document.getElementById('memberCameraCanvas');
+    const cameraOverlay = document.getElementById('memberCameraOverlay');
+    const cameraError = document.getElementById('memberCameraError');
+    const webcamPhotoInput = document.getElementById('webcam_photo');
+    const mobileCameraInput = document.getElementById('captured_photo');
+    const uploadedPhotoInput = document.getElementById('uploaded_photo');
+    let memberCameraStream = null;
+    let capturedFromCamera = false;
 
     function escapeHtml(value) {
         return String(value)
@@ -447,6 +591,161 @@ $(document).ready(function() {
         const currentCount = Number(pendingChatBadge.text()) || 0;
         pendingChatBadge.text(currentCount + 1);
     }
+
+    async function stopMemberCamera() {
+        if (!memberCameraStream) {
+            return;
+        }
+
+        memberCameraStream.getTracks().forEach((track) => track.stop());
+        memberCameraStream = null;
+    }
+
+    function setCameraError(message) {
+        if (!cameraError) {
+            return;
+        }
+
+        if (!message) {
+            cameraError.classList.add('d-none');
+            cameraError.textContent = '';
+            return;
+        }
+
+        cameraError.textContent = message;
+        cameraError.classList.remove('d-none');
+    }
+
+    function resetCapturedCameraState() {
+        capturedFromCamera = false;
+        if (webcamPhotoInput) {
+            webcamPhotoInput.value = '';
+        }
+        if (cameraCanvas) {
+            cameraCanvas.classList.add('d-none');
+        }
+        if (cameraVideo) {
+            cameraVideo.classList.remove('d-none');
+        }
+        if (takePhotoBtn) {
+            takePhotoBtn.classList.remove('d-none');
+        }
+        if (retakePhotoBtn) {
+            retakePhotoBtn.classList.add('d-none');
+        }
+    }
+
+    async function startMemberCamera(autoStart = false) {
+        if (!cameraVideo || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            if (!autoStart) {
+                setCameraError('Votre navigateur ne permet pas l\'ouverture directe de la caméra. Utilisez le téléversement ou le bouton caméra du téléphone.');
+            }
+            return;
+        }
+
+        try {
+            await stopMemberCamera();
+            setCameraError('');
+
+            memberCameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            cameraVideo.srcObject = memberCameraStream;
+            cameraOverlay.classList.add('d-none');
+            resetCapturedCameraState();
+        } catch (error) {
+            if (!autoStart) {
+                setCameraError('Impossible d\'ouvrir la caméra. Vérifiez les permissions du navigateur puis réessayez.');
+            }
+        }
+    }
+
+    function captureMemberPhoto() {
+        if (!cameraVideo || !cameraCanvas || !memberCameraStream) {
+            setCameraError('La caméra n\'est pas encore active.');
+            return;
+        }
+
+        const width = cameraVideo.videoWidth || 1280;
+        const height = cameraVideo.videoHeight || 720;
+        cameraCanvas.width = width;
+        cameraCanvas.height = height;
+
+        const context = cameraCanvas.getContext('2d');
+        context.drawImage(cameraVideo, 0, 0, width, height);
+
+        webcamPhotoInput.value = cameraCanvas.toDataURL('image/jpeg', 0.92);
+        cameraCanvas.classList.remove('d-none');
+        cameraVideo.classList.add('d-none');
+        takePhotoBtn.classList.add('d-none');
+        retakePhotoBtn.classList.remove('d-none');
+        capturedFromCamera = true;
+
+        if (mobileCameraInput) {
+            mobileCameraInput.value = '';
+        }
+        if (uploadedPhotoInput) {
+            uploadedPhotoInput.value = '';
+        }
+    }
+
+    if (openCameraBtn) {
+        openCameraBtn.addEventListener('click', function () {
+            startMemberCamera(false);
+        });
+    }
+
+    if (takePhotoBtn) {
+        takePhotoBtn.addEventListener('click', captureMemberPhoto);
+    }
+
+    if (retakePhotoBtn) {
+        retakePhotoBtn.addEventListener('click', function () {
+            resetCapturedCameraState();
+        });
+    }
+
+    if (mobileCameraInput) {
+        mobileCameraInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0 && webcamPhotoInput) {
+                webcamPhotoInput.value = '';
+                capturedFromCamera = false;
+            }
+        });
+    }
+
+    if (uploadedPhotoInput) {
+        uploadedPhotoInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0 && webcamPhotoInput) {
+                webcamPhotoInput.value = '';
+                capturedFromCamera = false;
+            }
+        });
+    }
+
+    if (memberCardPhotoForm) {
+        memberCardPhotoForm.addEventListener('submit', function () {
+            stopMemberCamera();
+        });
+
+        startMemberCamera(true);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            stopMemberCamera();
+        }
+    });
+
+    window.addEventListener('beforeunload', function () {
+        stopMemberCamera();
+    });
 
     chatForm.on('submit', function(e) {
         e.preventDefault();

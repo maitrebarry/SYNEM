@@ -5,6 +5,9 @@ use App\Http\Controllers\SiteWeb\AccueilController;
 use App\Http\Controllers\SiteWeb\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Administration\MemberCardController;
+use App\Http\Controllers\MemberCardVerificationController;
+use App\Http\Controllers\MemberCardSubmissionController;
 use App\Http\Controllers\Administration\UtilisateurController;
 use App\Http\Controllers\MilitantMessageController;
 
@@ -170,6 +173,8 @@ Route::get('/militant/test', [\App\Http\Controllers\MilitantDocumentController::
 // Public route for militant membership submission
 Route::post('/militant/submit', [\App\Http\Controllers\MilitantController::class, 'store'])->name('contact.submit.membership');
 Route::post('/militant/messages', [MilitantMessageController::class, 'store'])->name('militant.messages.store');
+Route::post('/militant/member-card-photo', [MemberCardSubmissionController::class, 'store'])->name('militant.member-card-photo.store');
+Route::get('/militant/cartes/{militant}/verification', [MemberCardVerificationController::class, 'show'])->name('militant.cards.verify');
 
 Route::get('/mission', [PageController::class, 'mission'])->name('mission');
 Route::get('/historique', [PageController::class, 'historique'])->name('historique');
@@ -364,6 +369,20 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
 
         Route::get('/militant-messages', [MilitantMessageController::class, 'adminIndex'])->name('militant-messages.index');
         Route::post('/militant-messages/{message}/reply', [MilitantMessageController::class, 'reply'])->name('militant-messages.reply');
+
+        Route::prefix('/cartes-membres')->name('cartes-membres.')->group(function () {
+            Route::get('/', [MemberCardController::class, 'index'])->name('index');
+            Route::post('/campagnes', [MemberCardController::class, 'storeCampaign'])->name('campaigns.store');
+            Route::patch('/campagnes/{campaign}/close', [MemberCardController::class, 'closeCampaign'])->name('campaigns.close');
+            Route::post('/signature', [MemberCardController::class, 'storeSignature'])->name('signature.store');
+            Route::delete('/signature', [MemberCardController::class, 'clearSignature'])->name('signature.clear');
+            Route::patch('/militants/{militant}/identity', [MemberCardController::class, 'updateMilitantIdentity'])->name('militants.identity');
+            Route::patch('/soumissions/{submission}', [MemberCardController::class, 'reviewSubmission'])->name('submissions.review');
+            Route::delete('/soumissions/{submission}', [MemberCardController::class, 'destroySubmission'])->name('submissions.destroy');
+            Route::get('/export/pdf', [MemberCardController::class, 'exportPdf'])->name('export.pdf');
+            Route::get('/militants/{militant}/telecharger', [MemberCardController::class, 'downloadSinglePdf'])->name('militants.download');
+            Route::get('/militants/{militant}/image', [MemberCardController::class, 'downloadSingleImage'])->name('militants.image');
+        });
     });
 
     // Médiathèque

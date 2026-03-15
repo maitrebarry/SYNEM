@@ -80,7 +80,7 @@
             <h1 class="mb-0">Restons en Contact</h1>
             <p>Nous sommes à votre écoute pour toute question ou préoccupation</p>
             <div class="mt-3">
-                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#membershipModal">Je suis militant · Soumettre mes justificatifs</button>
+                <button id="openMembershipModal" class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#membershipModal">Je suis militant · Soumettre mes justificatifs</button>
             </div>
         </div>
         
@@ -645,6 +645,11 @@
 </style>
 <script>
     $(document).ready(function() {
+        $('#openMembershipModal').on('click', function(e) {
+            e.preventDefault();
+            $('#membershipModal').modal('show');
+        });
+
         // Gestion du formulaire de contact
         $('#contactForm').on('submit', function(e) {
             e.preventDefault();
@@ -833,4 +838,4 @@
         submitBtn.innerHTML = 'Soumettre la demande';
     });
 </script>
-@endsection@endsection
+@endsection

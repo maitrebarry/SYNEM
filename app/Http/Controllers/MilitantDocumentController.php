@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MemberCardCampaign;
 use App\Models\Militant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -67,7 +68,24 @@ class MilitantDocumentController extends Controller
 
         $messages = $militant->messages;
 
-        return view('site-web.militant-documents.index', compact('militant', 'documents', 'messages'));
+        $activeMemberCardCampaign = MemberCardCampaign::query()
+            ->active()
+            ->latest('sent_at')
+            ->first();
+
+        $memberCardSubmission = $activeMemberCardCampaign
+            ? $militant->cardPhotoSubmissions()
+                ->where('member_card_campaign_id', $activeMemberCardCampaign->id)
+                ->first()
+            : $militant->latestCardPhotoSubmission;
+
+        return view('site-web.militant-documents.index', compact(
+            'militant',
+            'documents',
+            'messages',
+            'activeMemberCardCampaign',
+            'memberCardSubmission'
+        ));
     }
 
     public function download(Request $request, $filename)

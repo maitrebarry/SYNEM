@@ -6,23 +6,35 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('contact_submissions', function (Blueprint $table) {
-            $table->renameColumn('organisation', 'coordinates');
-        });
+        if (!Schema::hasTable('contact_submissions')) {
+            return;
+        }
+
+        $hasOrganisation = Schema::hasColumn('contact_submissions', 'organisation');
+        $hasCoordinates = Schema::hasColumn('contact_submissions', 'coordinates');
+
+        if ($hasOrganisation && !$hasCoordinates) {
+            Schema::table('contact_submissions', function (Blueprint $table) {
+                $table->renameColumn('organisation', 'coordinates');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('contact_submissions', function (Blueprint $table) {
-            $table->renameColumn('coordinates', 'organisation');
-        });
+        if (!Schema::hasTable('contact_submissions')) {
+            return;
+        }
+
+        $hasOrganisation = Schema::hasColumn('contact_submissions', 'organisation');
+        $hasCoordinates = Schema::hasColumn('contact_submissions', 'coordinates');
+
+        if ($hasCoordinates && !$hasOrganisation) {
+            Schema::table('contact_submissions', function (Blueprint $table) {
+                $table->renameColumn('coordinates', 'organisation');
+            });
+        }
     }
 };

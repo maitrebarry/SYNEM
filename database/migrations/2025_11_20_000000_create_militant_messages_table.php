@@ -6,25 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('militant_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('militant_id')->constrained('militants')->cascadeOnDelete();
+            $table->unsignedBigInteger('militant_id');
             $table->text('question');
             $table->text('answer')->nullable();
             $table->enum('status', ['pending', 'answered'])->default('pending');
             $table->boolean('is_admin_read')->default(false);
             $table->timestamps();
+
+            $table->index('militant_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('militant_messages');

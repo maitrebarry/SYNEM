@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Models\MilitantMessage;
+use App\Models\MemberCardPhotoSubmission;
 
 class Militant extends Model
 {
@@ -14,7 +15,7 @@ class Militant extends Model
     protected $table = 'militants';
 
     protected $fillable = [
-        'nom', 'prenom', 'name', 'email', 'tel', 'n_cartes_syndicale', 'coordinations', 'message', 'member_card_photo', 'status', 'approved_by', 'admin_comment', 'approved_at'
+        'nom', 'prenom', 'name', 'email', 'tel', 'n_cartes_syndicale', 'coordinations', 'division', 'region', 'message', 'member_card_photo', 'status', 'approved_by', 'admin_comment', 'approved_at'
     ];
 
     protected $casts = [
@@ -59,5 +60,25 @@ class Militant extends Model
     public function messages()
     {
         return $this->hasMany(MilitantMessage::class)->orderBy('created_at', 'asc');
+    }
+
+    public function cardPhotoSubmissions()
+    {
+        return $this->hasMany(MemberCardPhotoSubmission::class)->orderByDesc('submitted_at');
+    }
+
+    public function latestCardPhotoSubmission()
+    {
+        return $this->hasOne(MemberCardPhotoSubmission::class)->latestOfMany('submitted_at');
+    }
+
+    public function getDivisionLabelAttribute(): string
+    {
+        return $this->division ?: 'Section syndicale';
+    }
+
+    public function getRegionLabelAttribute(): string
+    {
+        return $this->region ?: ($this->coordinations ?: 'Coordination non renseignée');
     }
 }

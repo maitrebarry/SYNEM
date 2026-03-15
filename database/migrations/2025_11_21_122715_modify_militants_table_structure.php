@@ -6,42 +6,79 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('militants', function (Blueprint $table) {
-            // Ajouter les nouveaux champs
-            $table->string('nom')->after('id');
-            $table->string('prenom')->after('nom');
+        if (!Schema::hasTable('militants')) {
+            return;
+        }
 
-            // Renommer card_number en n_cartes_syndicale
-            $table->renameColumn('card_number', 'n_cartes_syndicale');
+        if (!Schema::hasColumn('militants', 'nom')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->string('nom')->default('')->after('id');
+            });
+        }
 
-            // Renommer local_coordination en coordinations
-            $table->renameColumn('local_coordination', 'coordinations');
+        if (!Schema::hasColumn('militants', 'prenom')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->string('prenom')->default('')->after('nom');
+            });
+        }
 
-            // Renommer phone en tel
-            $table->renameColumn('phone', 'tel');
+        if (Schema::hasColumn('militants', 'card_number') && !Schema::hasColumn('militants', 'n_cartes_syndicale')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('card_number', 'n_cartes_syndicale');
+            });
+        }
 
-            // Garder email tel quel
-        });
+        if (Schema::hasColumn('militants', 'local_coordination') && !Schema::hasColumn('militants', 'coordinations')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('local_coordination', 'coordinations');
+            });
+        }
+
+        if (Schema::hasColumn('militants', 'phone') && !Schema::hasColumn('militants', 'tel')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('phone', 'tel');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('militants', function (Blueprint $table) {
-            // Supprimer les nouveaux champs
-            $table->dropColumn(['nom', 'prenom']);
+        if (!Schema::hasTable('militants')) {
+            return;
+        }
 
-            // Remettre les anciens noms
-            $table->renameColumn('n_cartes_syndicale', 'card_number');
-            $table->renameColumn('coordinations', 'local_coordination');
-            $table->renameColumn('tel', 'phone');
-        });
+        if (Schema::hasColumn('militants', 'n_cartes_syndicale') && !Schema::hasColumn('militants', 'card_number')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('n_cartes_syndicale', 'card_number');
+            });
+        }
+
+        if (Schema::hasColumn('militants', 'coordinations') && !Schema::hasColumn('militants', 'local_coordination')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('coordinations', 'local_coordination');
+            });
+        }
+
+        if (Schema::hasColumn('militants', 'tel') && !Schema::hasColumn('militants', 'phone')) {
+            Schema::table('militants', function (Blueprint $table) {
+                $table->renameColumn('tel', 'phone');
+            });
+        }
+
+        $columnsToDrop = [];
+        if (Schema::hasColumn('militants', 'nom')) {
+            $columnsToDrop[] = 'nom';
+        }
+        if (Schema::hasColumn('militants', 'prenom')) {
+            $columnsToDrop[] = 'prenom';
+        }
+
+        if ($columnsToDrop !== []) {
+            Schema::table('militants', function (Blueprint $table) use ($columnsToDrop) {
+                $table->dropColumn($columnsToDrop);
+            });
+        }
     }
 };

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MemberCardCampaign;
+use App\Models\MemberCardPhotoSubmission;
 use App\Models\Militant;
 use App\Models\MilitantMessage;
 use Illuminate\Http\Request;
@@ -54,7 +56,27 @@ class MilitantMessageController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('administration.militants.messages', compact('messages'));
+        $activeMemberCardCampaign = MemberCardCampaign::query()
+            ->withCount([
+                'submissions',
+                'submissions as pending_submissions_count' => fn ($query) => $query->where('status', 'pending'),
+                'submissions as approved_submissions_count' => fn ($query) => $query->where('status', 'approved'),
+                'submissions as revision_submissions_count' => fn ($query) => $query->where('status', 'revision_requested'),
+            ])
+            ->active()
+            ->latest('sent_at')
+            ->first();
+
+        $latestMemberCardSubmissions = MemberCardPhotoSubmission::with(['militant', 'campaign'])
+            ->latest('submitted_at')
+            ->take(6)
+            ->get();
+
+        return view('administration.militants.messages', compact(
+            'messages',
+            'activeMemberCardCampaign',
+            'latestMemberCardSubmissions'
+        ));
     }
 
     public function reply(Request $request, MilitantMessage $message)

@@ -66,6 +66,13 @@
             </a>
         </li>
 
+        <li class="{{ request()->routeIs('administration.pages.cartes-membres.*') ? 'mm-active' : '' }}">
+            <a href="{{ route('administration.pages.cartes-membres.index') }}" class="{{ request()->routeIs('administration.pages.cartes-membres.*') ? 'mm-active' : '' }}">
+                <div class="parent-icon"><i class='bx bx-id-card'></i></div>
+                <div class="menu-title">Cartes membres</div>
+            </a>
+        </li>
+
         <!-- Paramètres essentiels -->
         <li class="{{ request()->routeIs('administration.parametres.*') ? 'mm-active' : '' }}">
             <a href="{{ route('administration.parametres.index') }}" class="{{ request()->routeIs('administration.parametres.*') ? 'mm-active' : '' }}">

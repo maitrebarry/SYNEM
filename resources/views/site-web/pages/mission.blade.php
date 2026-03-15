@@ -62,19 +62,19 @@
             @foreach(($carouselImages ?? []) as $key => $image)
                 @php
                     $captionText = trim((string) (($carouselCaptions ?? [])[$key] ?? ''));
+                    $hasCaption = $captionText !== '';
                 @endphp
                 <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
                     <img class="w-100" src="{{ $image }}" alt="Notre Mission {{ $key + 1 }}">
-                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                        <div class="p-3" style="max-width: 900px;">
-                            <!-- <h4 class="text-white text-uppercase mb-md-3">SYNEM</h4>
-                            <h1 class="display-1 text-white mb-md-4">Notre Mission</h1> -->
-                            @if($captionText !== '')
-                                <p class="text-white mb-md-4">{{ $captionText }}</p>
-                            @endif
-                            <a href="{{ route('contact') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Nous contacter</a>
+                    @if($hasCaption)
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width: 900px;">
+                                <h4 class="text-white text-uppercase mb-md-3">SYNEM</h4>
+                                <h1 class="display-1 text-white mb-md-4">{{ $captionText }}</h1>
+                                <a href="{{ route('contact') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Nous contacter</a>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             @endforeach
         </div>
