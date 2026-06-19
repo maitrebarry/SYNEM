@@ -106,6 +106,43 @@
     </div>
 </div>
 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex align-items-center">
+            <i class="bx bx-bar-chart-square fs-4 text-primary me-2"></i>
+            <h5 class="mb-0 fw-bold">Statistiques du site</h5>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                    <p class="text-muted mb-1">Nombre total de visiteurs</p>
+                    <h3 class="mb-0 text-primary">{{ number_format($stats['visiteurs_total']) }}</h3>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                    <p class="text-muted mb-1">Visiteurs aujourd'hui</p>
+                    <h3 class="mb-0 text-success">{{ number_format($stats['visiteurs_aujourdhui']) }}</h3>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                    <p class="text-muted mb-1">Visiteurs cette semaine</p>
+                    <h3 class="mb-0 text-info">{{ number_format($stats['visiteurs_semaine']) }}</h3>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                    <p class="text-muted mb-1">Visiteurs ce mois</p>
+                    <h3 class="mb-0 text-warning">{{ number_format($stats['visiteurs_mois']) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Section principale -->
 <div class="row">
     <!-- Activités récentes -->

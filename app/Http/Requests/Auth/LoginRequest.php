@@ -2,15 +2,20 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\LoginAttempt;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    private const MAX_ATTEMPTS = 5;
+    private const LOCKOUT_SECONDS = 900;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -42,7 +47,9 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($this->throttleKey(), self::LOCKOUT_SECONDS);
+            RateLimiter::hit($this->ipThrottleKey(), self::LOCKOUT_SECONDS);
+            $this->logAttempt('failed');
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -50,6 +57,8 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+        RateLimiter::clear($this->ipThrottleKey());
+        $this->logAttempt('success');
     }
 
     /**
@@ -59,19 +68,24 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (
+            ! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)
+            && ! RateLimiter::tooManyAttempts($this->ipThrottleKey(), self::MAX_ATTEMPTS)
+        ) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $this->logAttempt('blocked');
+
+        $seconds = max(
+            RateLimiter::availableIn($this->throttleKey()),
+            RateLimiter::availableIn($this->ipThrottleKey()),
+        );
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Vous avez dépassé le nombre de tentatives autorisées. Veuillez réessayer dans quelques minutes.',
         ]);
     }
 
@@ -81,5 +95,24 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+    }
+
+    public function ipThrottleKey(): string
+    {
+        return 'ip|'.$this->ip();
+    }
+
+    private function logAttempt(string $status): void
+    {
+        if (! Schema::hasTable('login_attempts')) {
+            return;
+        }
+
+        LoginAttempt::create([
+            'ip_address' => $this->ip(),
+            'email_tente' => Str::lower((string) $this->input('email')),
+            'attempt_time' => now(),
+            'status' => $status,
+        ]);
     }
 }

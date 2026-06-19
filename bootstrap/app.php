@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Enforce a global max of 5 Mo per uploaded image (server-side guardrail)
         $middleware->web(append: [
             \App\Http\Middleware\LimitImageUploadSize::class,
+            \App\Http\Middleware\TrackVisitor::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

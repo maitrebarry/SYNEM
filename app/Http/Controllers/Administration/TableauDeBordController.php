@@ -3,12 +3,20 @@
 namespace App\Http\Controllers\Administration;
 
 use App\Http\Controllers\Controller;
+use App\Models\Visitor;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class TableauDeBordController extends Controller
 {
     public function index()
     {
+        $today = Carbon::today();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $visitorsEnabled = Schema::hasTable('visitors');
+
         // Statistiques dynamiques depuis la base de données
         $stats = [
             'utilisateurs_total' => DB::table('users')->where('role', '!=', 'superadmin')->count(),
@@ -17,6 +25,10 @@ class TableauDeBordController extends Controller
             'soumissions_contact' => DB::table('contact_submissions')->count(),
             'images_carousel' => DB::table('homepage_carousel_images')->count(),
             'evenements_historique' => DB::table('historique_events')->count(),
+            'visiteurs_total' => $visitorsEnabled ? Visitor::count() : 0,
+            'visiteurs_aujourdhui' => $visitorsEnabled ? Visitor::where('visited_at', '>=', $today)->count() : 0,
+            'visiteurs_semaine' => $visitorsEnabled ? Visitor::where('visited_at', '>=', $startOfWeek)->count() : 0,
+            'visiteurs_mois' => $visitorsEnabled ? Visitor::where('visited_at', '>=', $startOfMonth)->count() : 0,
         ];
 
         // Activités récentes (derniers éléments créés/modifiés)

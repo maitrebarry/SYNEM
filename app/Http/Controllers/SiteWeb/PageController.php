@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\SiteWeb;
 
 use App\Http\Controllers\Controller;
+use App\Models\AboutPageContent;
+use App\Models\Visitor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
     public function aPropos()
     {
         return view('site-web.pages.a-propos', [
-            'titre' => 'À propos - SYNEM'
+            'titre' => 'À propos - SYNEM',
+            'about' => AboutPageContent::first(),
+            'visitorCount' => Schema::hasTable('visitors') ? Visitor::count() : 0,
         ]);
     }
 

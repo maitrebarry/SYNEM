@@ -1,100 +1,91 @@
-<!-- Topbar Start -->
-<div class="container-fluid bg-dark py-3 px-lg-5 d-none d-lg-block">
-    <div class="row">
-        <div class="col-md-6 text-center text-lg-left mb-2 mb-lg-0">
-            <div class="d-inline-flex align-items-center">
-                <a class="text-body pr-3" href=""><i class="fa fa-phone-alt mr-2"></i>{{ $sharedTopbar->phone ?? '+223 92190993' }}</a>
-                <span class="text-body">|</span>
-                <a class="text-body px-3" href=""><i class="fa fa-envelope mr-2"></i>{{ $sharedTopbar->email ?? 'contact@synem.ml' }}</a>
+<!-- Topbar -->
+<div class="topbar d-none d-lg-block">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <a href="tel:{{ $sharedTopbar->phone ?? '+22392190993' }}">
+                    <i class="fa fa-phone-alt mr-2"></i>{{ $sharedTopbar->phone ?? '+223 92190993' }}
+                </a>
+                <span class="separator">|</span>
+                <a href="mailto:{{ $sharedTopbar->email ?? 'contact@synem.ml' }}">
+                    <i class="fa fa-envelope mr-2"></i>{{ $sharedTopbar->email ?? 'contact@synem.ml' }}
+                </a>
             </div>
-        </div>
-        <div class="col-md-6 text-center text-lg-right">
-            <div class="d-inline-flex align-items-center">
+            <div class="d-flex align-items-center">
                 @if($sharedTopbar->facebook_url ?? null)
-                    <a class="text-body px-3" href="{{ $sharedTopbar->facebook_url }}">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
+                    <a href="{{ $sharedTopbar->facebook_url }}" class="ml-3"><i class="fab fa-facebook-f"></i></a>
                 @endif
                 @if($sharedTopbar->twitter_url ?? null)
-                    <a class="text-body px-3" href="{{ $sharedTopbar->twitter_url }}">
-                        <i class="fab fa-twitter"></i>
-                    </a>
+                    <a href="{{ $sharedTopbar->twitter_url }}" class="ml-3"><i class="fab fa-twitter"></i></a>
                 @endif
                 @if($sharedTopbar->linkedin_url ?? null)
-                    <a class="text-body px-3" href="{{ $sharedTopbar->linkedin_url }}">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
+                    <a href="{{ $sharedTopbar->linkedin_url }}" class="ml-3"><i class="fab fa-linkedin-in"></i></a>
                 @endif
                 @if($sharedTopbar->instagram_url ?? null)
-                    <a class="text-body px-3" href="{{ $sharedTopbar->instagram_url }}">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                    <a href="{{ $sharedTopbar->instagram_url }}" class="ml-3"><i class="fab fa-instagram"></i></a>
                 @endif
             </div>
         </div>
     </div>
 </div>
-<!-- Topbar End -->
 
-<!-- Navbar Start -->
-<div class="container-fluid position-relative nav-bar p-0">
-    <div class="position-relative px-lg-5" style="z-index: 9;">
-        <nav class="navbar navbar-expand-lg bg-secondary navbar-dark py-3 py-lg-0 pl-3 pl-lg-5">
-            <a href="{{ route('accueil') }}" class="navbar-brand">
-                <h1 class="text-uppercase text-primary mb-1">SYNEM</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
-                <div class="navbar-nav ml-auto py-0">
-                    <a href="{{ route('accueil') }}" class="nav-item nav-link {{ request()->routeIs('accueil') ? 'active' : '' }}">Accueil</a>
-                    <a href="{{ route('a-propos') }}" class="nav-item nav-link {{ request()->routeIs('a-propos') ? 'active' : '' }}">À Propos</a>
-                    <a href="{{ route('mission') }}" class="nav-item nav-link {{ request()->routeIs('mission') ? 'active' : '' }}">Notre Mission</a>
-                    <a href="{{ route('historique') }}" class="nav-item nav-link {{ request()->routeIs('historique') ? 'active' : '' }}">Historique</a>
-                    
-                    <!-- Dropdown Publications (à activer plus tard) -->
-                    {{-- <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Publications</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="#" class="dropdown-item">Actualités</a>
-                            <a href="#" class="dropdown-item">Documents</a>
-                            <a href="#" class="dropdown-item">Rapports</a>
-                        </div>
-                    </div> --}}
-                    
-                    <!-- Dropdown Membres (à activer plus tard) -->
-                    {{-- <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Membres</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="#" class="dropdown-item">Bureau Syndical</a>
-                            <a href="#" class="dropdown-item">Adhérer</a>
-                        </div>
-                    </div> --}}
-                    
-                    {{-- <a href="{{ route('evenements') }}" class="nav-item nav-link {{ request()->routeIs('evenements') ? 'active' : '' }}">Événements</a> --}}
-                    <a href="{{ route('contact') }}" class="nav-item nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
-                    
-                    <!-- Authentification -->
-                    <div class="nav-item dropdown">
-                        @auth
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-user mr-1"></i>{{ Auth::user()->name }}
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="{{ route('accueil') }}">
+            <span class="brand-sy">SY</span><span class="brand-ne">NE</span><span class="brand-m">M</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav ml-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('accueil') ? 'active' : '' }}" href="{{ route('accueil') }}">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('a-propos') ? 'active' : '' }}" href="{{ route('a-propos') }}">À Propos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('mission') ? 'active' : '' }}" href="{{ route('mission') }}">Notre Mission</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('historique') ? 'active' : '' }}" href="{{ route('historique') }}">Historique</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">Contact</a>
+                </li>
+
+                @auth
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-user mr-1"></i>{{ Auth::user()->name }}
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="{{ route('administration.tableau-de-bord') }}" class="dropdown-item">
+                                <i class="fa fa-tachometer-alt mr-2"></i>Administration
                             </a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="{{ route('administration.tableau-de-bord') }}" class="dropdown-item">Administration</a>
-                                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Déconnexion</button>
-                                </form>
-                            </div>
-                        @else
-                            <a href="{{ route('login') }}" class="nav-link">Connexion</a>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </nav>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fa fa-sign-out-alt mr-2"></i>Déconnexion
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <a href="#" class="nav-link btn-nav-cta" data-toggle="modal" data-target="#membershipModal">
+                            <i class="fa fa-user-plus mr-1"></i>Rejoindre
+                        </a>
+                    </li>
+                @endauth
+            </ul>
+        </div>
     </div>
-</div>
-<!-- Navbar End -->
+</nav>
+
+@if(!request()->routeIs('accueil'))
+    {{-- Spacer for fixed navbar on inner pages --}}
+    <div style="height: 70px;"></div>
+@endif

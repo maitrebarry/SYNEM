@@ -204,6 +204,11 @@
                                     <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
                                 </button>
                             </div>
+
+                            <div class="alert alert-light border small text-muted" role="alert">
+                                <i class="bi bi-shield-lock me-2"></i>
+                                L'accès est temporairement bloqué après 5 tentatives échouées pendant 15 minutes.
+                            </div>
                             
                             <!-- Lien mot de passe oublié -->
                             @if (Route::has('password.request'))

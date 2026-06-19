@@ -1,1203 +1,914 @@
 @extends('layouts.site')
 
-@section('title', 'SYNEM - Accueil')
+@section('title', 'SYNEM - Syndicat National des Enseignants du Mali')
 
 @section('styles')
 <style>
-    .document-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: 1px solid #e9ecef;
-    }
-    
-    .document-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    
-    .document-card .card-header {
-        border-bottom: 2px solid rgba(255,255,255,0.2);
-    }
-    
-    .document-info {
-        border-top: 1px solid #e9ecef;
-        padding-top: 10px;
-        margin-top: 15px;
-    }
-    
-    /* Animation pour les nouveaux documents */
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    .badge-warning {
-        animation: pulse 2s infinite;
-    }
-    
-    /* Filtres */
-    .btn-group-toggle .btn {
-        margin: 0 5px 5px 0;
-    }
-    
-    .btn-group-toggle .btn.active {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: white;
-    }
-    /* Uniform news/card sizing */
-    .rent-item {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    .rent-item img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-    }
-    .rent-item .content {
-        flex: 1 1 auto;
-    }
-    .rent-item .read-btn {
-        margin-top: auto;
-    }
+/* Hero margin override for fixed nav */
+body { padding-top: 0 !important; }
+.topbar + #mainNav + .hero-section { margin-top: 0; }
 </style>
 @endsection
 
 @section('content')
-    <!-- Carousel Start -->
-    <div class="container-fluid p-0" style="margin-bottom: 90px;">
-        <div id="header-carousel" class="carousel slide" data-ride="carousel" data-bs-ride="carousel" data-interval="3000" data-bs-interval="3000">
-            <div class="carousel-inner">
-                @if($content && $content->carouselImages && count($content->carouselImages))
-                    @foreach($content->carouselImages as $key => $img)
-                        @php
-                            // support optional per-image text if present (legacy compatibility)
-                            $imgTitle = trim((string)($img->title ?? $img->caption ?? $img->label ?? ''));
-                            $imgText = trim((string)($img->text ?? $img->description ?? ''));
-                            $globalTitle = trim((string)($content->carousel_title ?? ''));
-                            $globalSubtitle = trim((string)($content->carousel_subtitle ?? ''));
 
-                            // Important: do NOT show static defaults when dynamic data exists.
-                            // If no title/text is provided, we render no caption.
-                            $displayTitle = $imgTitle !== '' ? $imgTitle : ($globalTitle !== '' ? $globalTitle : null);
-                            $displaySubtitle = $imgText !== '' ? $imgText : ($globalSubtitle !== '' ? $globalSubtitle : null);
-                            $hasCaption = !empty($displayTitle) || !empty($displaySubtitle);
-                        @endphp
-                        <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
-                            <img class="w-100" src="{{ asset('storage/carousel/' . $img->file) }}" alt="Carrousel {{ $key+1 }}">
-                            @if($hasCaption)
-                                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                    <div class="p-3" style="max-width: 900px;">
-                                        @if(!empty($displayTitle))
-                                            <h4 class="text-white text-uppercase mb-md-3">{{ $displayTitle }}</h4>
-                                        @endif
-                                        @if(!empty($displaySubtitle))
-                                            <h1 class="display-1 text-white mb-md-4">{{ $displaySubtitle }}</h1>
-                                        @endif
-                                        <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
-                                    </div>
-                                </div>
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   HERO CAROUSEL                                         --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="hero-section">
+    <div id="heroCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
+
+        {{-- Slides --}}
+        <div class="carousel-inner" style="height:100%;">
+            @if($content && $content->carouselImages && count($content->carouselImages))
+                @foreach($content->carouselImages as $key => $img)
+                    @php
+                        $imgTitle    = trim((string)($img->title ?? $img->caption ?? $img->label ?? ''));
+                        $imgText     = trim((string)($img->text ?? $img->description ?? ''));
+                        $globalTitle = trim((string)($content->carousel_title ?? ''));
+                        $globalSub   = trim((string)($content->carousel_subtitle ?? ''));
+                        $displayTitle = $imgTitle !== '' ? $imgTitle : ($globalTitle !== '' ? $globalTitle : 'Défense des Droits des Enseignants');
+                        $displaySub   = $imgText  !== '' ? $imgText  : ($globalSub  !== '' ? $globalSub  : null);
+                    @endphp
+                    <div class="carousel-item {{ $key === 0 ? 'active' : '' }}" style="height:100%;">
+                        <img src="{{ asset('storage/carousel/' . $img->file) }}" alt="Carrousel {{ $key+1 }}">
+                        <div class="hero-overlay"></div>
+                        <div class="hero-caption">
+                            <span class="hero-badge">Syndicat National des Enseignants du Mali</span>
+                            <h1>{{ $displayTitle }}</h1>
+                            @if($displaySub)
+                                <p>{{ $displaySub }}</p>
                             @endif
-                        </div>
-                    @endforeach
-                @else
-                    <div class="carousel-item active">
-                        <img class="w-100" src="{{ asset('template-siteweb/asset/img/ens8.jpeg') }}" alt="SYNEM Éducation">
-                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                            <div class="p-3" style="max-width: 900px;">
-                                <h4 class="text-white text-uppercase mb-md-3">Syndicat National</h4>
-                                <h1 class="display-1 text-white mb-md-4">Défense des Droits des Enseignants</h1>
-                                                          <a href="{{ route('a-propos') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">En savoir plus</a>
+                            <div class="hero-btns">
+                                <a href="{{ route('a-propos') }}" class="btn-hero-primary">Découvrir le SYNEM</a>
+                                <a href="{{ route('contact') }}" class="btn-hero-outline">Nous Contacter</a>
                             </div>
                         </div>
                     </div>
-                    <div class="carousel-item">
-                        <img class="w-100" src="{{ asset('template-siteweb/asset/img/ens2.jpg') }}" alt="SYNEM Formation">
-                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                            <div class="p-3" style="max-width: 900px;">
-                                <h4 class="text-white text-uppercase mb-md-3">Formation Continue</h4>
-                                <h1 class="display-1 text-white mb-md-4">Développement Professionnel des Enseignants</h1>
-                                <a href="{{ route('mission') }}" class="btn btn-primary py-md-3 px-md-5 mt-2">Notre Mission</a>
-                            </div>
+                @endforeach
+            @else
+                <div class="carousel-item active" style="height:100%;">
+                    <img src="{{ asset('template-siteweb/asset/img/ens8.jpeg') }}" alt="SYNEM Éducation">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-caption">
+                        <span class="hero-badge">Syndicat National des Enseignants du Mali</span>
+                        <h1>Défense des Droits des Enseignants</h1>
+                        <p>Ensemble, nous construisons une éducation de qualité pour tous les enfants du Mali.</p>
+                        <div class="hero-btns">
+                            <a href="{{ route('a-propos') }}" class="btn-hero-primary">Découvrir le SYNEM</a>
+                            <a href="{{ route('contact') }}" class="btn-hero-outline">Nous Contacter</a>
                         </div>
                     </div>
-                @endif
+                </div>
+                <div class="carousel-item" style="height:100%;">
+                    <img src="{{ asset('template-siteweb/asset/img/ens2.jpg') }}" alt="SYNEM Formation">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-caption">
+                        <span class="hero-badge">Formation Continue</span>
+                        <h1>Développement Professionnel des Enseignants</h1>
+                        <p>Des programmes de formation adaptés aux besoins des enseignants maliens.</p>
+                        <div class="hero-btns">
+                            <a href="{{ route('mission') }}" class="btn-hero-primary">Notre Mission</a>
+                            <a href="{{ route('contact') }}" class="btn-hero-outline">Rejoindre</a>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- Controls --}}
+        <a class="carousel-control-prev" href="#heroCarousel" data-slide="prev">
+            <i class="fa fa-chevron-left"></i>
+        </a>
+        <a class="carousel-control-next" href="#heroCarousel" data-slide="next">
+            <i class="fa fa-chevron-right"></i>
+        </a>
+        <ol class="carousel-indicators">
+            @if($content && $content->carouselImages && count($content->carouselImages))
+                @foreach($content->carouselImages as $key => $img)
+                    <li data-target="#heroCarousel" data-slide-to="{{ $key }}" class="{{ $key === 0 ? 'active' : '' }}"></li>
+                @endforeach
+            @else
+                <li data-target="#heroCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#heroCarousel" data-slide-to="1"></li>
+            @endif
+        </ol>
+    </div>
+</section>
+
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   ABOUT / BIENVENUE                                     --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="about-section">
+    <div class="container">
+        <div class="row align-items-center">
+            {{-- Texte --}}
+            <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right">
+                <p class="about-label">Qui sommes-nous</p>
+                @php
+                    $aboutTitle = trim((string)($content->about_title ?? ''));
+                    $aboutText  = trim((string)($content->about_text  ?? ''));
+                @endphp
+                <h2 class="section-title mb-3">
+                    {{ $aboutTitle !== '' ? $aboutTitle : 'Bienvenue au ' }}
+                    <span style="color:var(--primary);">SYNEM</span>
+                </h2>
+                <div class="section-divider"></div>
+                <p class="text-muted mb-4" style="font-size:15px; line-height:1.8;">
+                    {{ $aboutText !== '' ? $aboutText : "Le Syndicat National des Enseignants du Mali (SYNEM) est l'organisation syndicale qui représente et défend les intérêts des enseignants maliens à tous les niveaux du système éducatif. Fort de plusieurs décennies d'engagement, le SYNEM œuvre pour l'amélioration des conditions de travail et de vie des enseignants, la défense de leurs droits professionnels et la promotion d'une éducation de qualité pour tous les enfants du Mali." }}
+                </p>
+
+                {{-- Mini-stats --}}
+                <div class="row mt-4">
+                    <div class="col-sm-4 mb-3">
+                        <div class="about-mini-stat">
+                            <span class="stat-number">5K+</span>
+                            <span class="stat-label">Membres<br>Actifs</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <div class="about-mini-stat">
+                            <span class="stat-number">30+</span>
+                            <span class="stat-label">Années<br>d'Existence</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <div class="about-mini-stat">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Régions<br>Couvertes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('a-propos') }}" class="btn btn-primary mt-3 px-4">
+                    En savoir plus <i class="fa fa-arrow-right ml-2"></i>
+                </a>
             </div>
-            <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
-                <div class="btn btn-dark" style="width: 45px; height: 45px;">
-                    <span class="carousel-control-prev-icon mb-n2"></span>
+
+            {{-- Image --}}
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="150">
+                <div class="about-img-wrapper" style="position:relative;">
+                    <img src="{{ asset('template-siteweb/asset/img/ens10.jpeg') }}" alt="SYNEM" class="img-fluid w-100" style="border-radius:4px; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+                    {{-- Badge flottant --}}
+                    <div style="position:absolute; bottom:24px; left:-20px; background:var(--primary); color:#fff; padding:16px 24px; border-radius:4px; box-shadow:0 8px 25px rgba(200,16,46,0.4);">
+                        <div style="font-family:'Montserrat',sans-serif; font-weight:900; font-size:2rem; line-height:1;">30+</div>
+                        <div style="font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; opacity:.85;">Années de combat</div>
+                    </div>
                 </div>
-            </a>
-            <a class="carousel-control-next" href="#header-carousel" data-slide="next">
-                <div class="btn btn-dark" style="width: 45px; height: 45px;">
-                    <span class="carousel-control-next-icon mb-n2"></span>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
-    <!-- Carousel End -->
+</section>
 
-    <!-- About Start -->
-    <div class="container-fluid py-5">
-        <div class="container pt-5 pb-3">
-            <h1 class="display-1 text-primary text-center">01</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">Bienvenue au <span class="text-primary">SYNEM</span></h1>
-            <div class="row justify-content-center">
-                <div class="col-lg-10 text-center">
-                    <img class="w-75 mb-4" src="{{ asset('template-siteweb/asset/img/ens10.jpeg') }}" alt="À propos du SYNEM">
-                    <p>Le Syndicat National des Enseignants du Mali (SYNEM) est l'organisation syndicale qui représente et défend les intérêts des enseignants maliens à tous les niveaux du système éducatif. Fort de plusieurs décennies d'engagement, le SYNEM œuvre pour l'amélioration des conditions de travail et de vie des enseignants, la défense de leurs droits professionnels et la promotion d'une éducation de qualité pour tous les enfants du Mali.</p>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-lg-4 mb-2">
-                    <div class="d-flex align-items-center bg-light p-4 mb-4" style="height: 150px;">
-                        <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4" style="width: 100px; height: 100px;">
-                            <i class="fa fa-2x fa-users text-secondary"></i>
-                        </div>
-                        <h4 class="text-uppercase m-0">Représentation</h4>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-2">
-                    <div class="d-flex align-items-center bg-secondary p-4 mb-4" style="height: 150px;">
-                        <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4" style="width: 100px; height: 100px;">
-                            <i class="fa fa-2x fa-graduation-cap text-secondary"></i>
-                        </div>
-                        <h4 class="text-light text-uppercase m-0">Formation Continue</h4>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-2">
-                    <div class="d-flex align-items-center bg-light p-4 mb-4" style="height: 150px;">
-                        <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4" style="width: 100px; height: 100px;">
-                            <i class="fa fa-2x fa-handshake text-secondary"></i>
-                        </div>
-                        <h4 class="text-uppercase m-0">Dialogue Social</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- About End -->
-
-    <!-- Services Start -->
-    <div class="container-fluid py-5">
-        <div class="container pt-5 pb-3">
-            <h1 class="display-1 text-primary text-center">02</h1>
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   DOMAINES D'INTERVENTION                              --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="domains-section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <p class="section-subtitle">Nos Engagements</p>
             @php
                 $servicesItems = [];
                 if (!empty($content->services_items)) {
-                    $servicesItems = is_array($content->services_items) ? $content->services_items : (json_decode($content->services_items, true) ?: []);
+                    $servicesItems = is_array($content->services_items)
+                        ? $content->services_items
+                        : (json_decode($content->services_items, true) ?: []);
                 }
-                $hasServicesDynamic = count($servicesItems) > 0;
                 $servicesTitle = trim((string)($content->services_title ?? ''));
             @endphp
-            @if($hasServicesDynamic)
-                @if($servicesTitle !== '')
-                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $servicesTitle }}</h1>
-                @endif
+            <h2 class="section-title">{{ $servicesTitle !== '' ? $servicesTitle : 'Domaines d\'Intervention' }}</h2>
+            <div class="section-divider center"></div>
+        </div>
+
+        <div class="row">
+            @if(count($servicesItems))
+                @foreach($servicesItems as $idx => $s)
+                    @php
+                        $title       = $s['title'] ?? ($s['label'] ?? 'Service');
+                        $description = $s['text'] ?? ($s['description'] ?? ($s['content'] ?? ''));
+                        $iconClass   = $s['icon'] ?? ($s['fa'] ?? 'fa-briefcase');
+                        $bgImages    = ['ens8.jpeg','ens2.jpg','ens5.jpeg','ens10.jpeg','ens12.jpg'];
+                        $bgImg       = $bgImages[$idx % count($bgImages)];
+                        $delays      = [0, 100, 200, 300, 400, 500];
+                    @endphp
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $delays[$idx % 6] }}">
+                        <div class="domain-card">
+                            <div class="domain-bg" data-bg="{{ asset('template-siteweb/asset/img/' . $bgImg) }}"></div>
+                            <div class="domain-overlay"></div>
+                            <div class="domain-content">
+                                <div class="domain-icon">
+                                    <i class="fa {{ $iconClass }}"></i>
+                                </div>
+                                <h5 class="domain-title">{{ $title }}</h5>
+                                <p class="domain-desc">{{ $description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             @else
-                <h1 class="display-4 text-uppercase text-center mb-5">Nos Domaines d'Intervention</h1>
+                {{-- Fallback statique --}}
+                @php
+                    $fallbackDomains = [
+                        ['icon'=>'fa-balance-scale','title'=>'Défense des Droits','desc'=>'Protection des droits professionnels et amélioration des conditions de travail des enseignants.','bg'=>'ens8.jpeg'],
+                        ['icon'=>'fa-graduation-cap','title'=>'Formation Continue','desc'=>'Programmes de formation pour le développement professionnel et pédagogique des enseignants.','bg'=>'ens2.jpg'],
+                        ['icon'=>'fa-comments','title'=>'Négociation Collective','desc'=>'Dialogue social avec les autorités pour de meilleures politiques éducatives au Mali.','bg'=>'ens5.jpeg'],
+                    ];
+                @endphp
+                @foreach($fallbackDomains as $idx => $d)
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $idx * 100 }}">
+                        <div class="domain-card">
+                            <div class="domain-bg" data-bg="{{ asset('template-siteweb/asset/img/' . $d['bg']) }}"></div>
+                            <div class="domain-overlay"></div>
+                            <div class="domain-content">
+                                <div class="domain-icon">
+                                    <i class="fa {{ $d['icon'] }}"></i>
+                                </div>
+                                <h5 class="domain-title">{{ $d['title'] }}</h5>
+                                <p class="domain-desc">{{ $d['desc'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             @endif
-            <div class="row">
-                @if(count($servicesItems))
-                    @foreach($servicesItems as $idx => $s)
-                        @php
-                            $number = str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
-                            $title = $s['title'] ?? ($s['label'] ?? 'Service');
-                            $description = $s['text'] ?? ($s['description'] ?? ($s['content'] ?? ''));
-                            $iconClass = $s['icon'] ?? ($s['fa'] ?? 'fa-briefcase');
-                        @endphp
-                        <div class="col-lg-4 col-md-6 mb-2">
-                            <div class="service-item {{ $idx === 1 ? 'active' : '' }} d-flex flex-column justify-content-center px-4 mb-4">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                        <i class="fa fa-2x {{ $iconClass }} text-secondary"></i>
-                                    </div>
-                                    <h1 class="display-2 text-white mt-n2 m-0">{{ $number }}</h1>
-                                </div>
-                                <h4 class="text-uppercase mb-3">{{ $title }}</h4>
-                                <p class="m-0">{{ $description }}</p>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <!-- Static fallback content -->
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                    <i class="fa fa-2x fa-balance-scale text-secondary"></i>
-                                </div>
-                                <h1 class="display-2 text-white mt-n2 m-0">01</h1>
-                            </div>
-                            <h4 class="text-uppercase mb-3">Défense des Droits</h4>
-                            <p class="m-0">Protection des droits professionnels et amélioration des conditions de travail des enseignants.</p>
-                        </div>
+        </div>
+    </div>
+</section>
+
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   STATISTIQUES (section sombre type UM6P)              --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="stats-section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <p class="section-subtitle" style="color:rgba(255,255,255,0.5);">Nos Chiffres</p>
+            <h2 class="section-title" style="color:#fff;">Le SYNEM en Chiffres</h2>
+            <div class="section-divider center"></div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="0">
+                <div class="stat-card">
+                    <div class="stat-icon-wrap">
+                        <i class="fa fa-users"></i>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="service-item active d-flex flex-column justify-content-center px-4 mb-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                    <i class="fa fa-2x fa-book text-secondary"></i>
-                                </div>
-                                <h1 class="display-2 text-white mt-n2 m-0">02</h1>
-                            </div>
-                            <h4 class="text-uppercase mb-3">Formation Continue</h4>
-                            <p class="m-0">Programmes de formation pour le développement professionnel des enseignants.</p>
-                        </div>
+                    <div class="stat-number">
+                        <span class="counter-number" data-target="5000">0</span><span class="plus">+</span>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="d-flex align-items-center justify-content-center bg-primary ml-n4" style="width: 80px; height: 80px;">
-                                    <i class="fa fa-2x fa-comments text-secondary"></i>
-                                </div>
-                                <h1 class="display-2 text-white mt-n2 m-0">03</h1>
-                            </div>
-                            <h4 class="text-uppercase mb-3">Négociation Collective</h4>
-                            <p class="m-0">Dialogue social avec les autorités pour de meilleures politiques éducatives.</p>
-                        </div>
+                    <div class="stat-label">Membres Actifs</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="150">
+                <div class="stat-card">
+                    <div class="stat-icon-wrap">
+                        <i class="fa fa-history"></i>
                     </div>
-                @endif
+                    <div class="stat-number">
+                        <span class="counter-number" data-target="30">0</span><span class="plus">+</span>
+                    </div>
+                    <div class="stat-label">Années d'Existence</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
+                <div class="stat-card">
+                    <div class="stat-icon-wrap">
+                        <i class="fa fa-map-marker-alt"></i>
+                    </div>
+                    <div class="stat-number">
+                        <span class="counter-number" data-target="8">0</span>
+                    </div>
+                    <div class="stat-label">Sections Régionales</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="450">
+                <div class="stat-card">
+                    <div class="stat-icon-wrap">
+                        <i class="fa fa-handshake"></i>
+                    </div>
+                    <div class="stat-number">
+                        <span class="counter-number" data-target="15">0</span><span class="plus">+</span>
+                    </div>
+                    <div class="stat-label">Accords Signés</div>
+                </div>
             </div>
         </div>
     </div>
-    <!-- Services End -->
+</section>
 
-    <!-- Dernières Actualités Start -->
-    <div class="container-fluid py-5">
-        <div class="container pt-5 pb-3">
-            <h1 class="display-1 text-primary text-center">03</h1>
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   ACTUALITÉS                                            --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="news-section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <p class="section-subtitle">Restez Informés</p>
             @php
-                // Compte rendu card (if present) + news list
                 $hasCompteRendu = !empty($content->compte_rendu_title) && !empty($content->compte_rendu_content);
                 $crImages = [];
                 if ($hasCompteRendu && !empty($content->compte_rendu_images)) {
-                    $crImages = is_array($content->compte_rendu_images) ? $content->compte_rendu_images : (json_decode($content->compte_rendu_images, true) ?: []);
+                    $crImages = is_array($content->compte_rendu_images)
+                        ? $content->compte_rendu_images
+                        : (json_decode($content->compte_rendu_images, true) ?: []);
                 }
                 $newsItems = collect(explode("\n", trim((string)($content->news_items ?? ''))))->map(fn($v)=>trim($v))->filter()->values();
-                $newsCount = $newsItems->count();
-                $hasNewsDynamic = $hasCompteRendu || ($newsCount > 0);
                 $newsTitle = trim((string)($content->news_title ?? ''));
             @endphp
-            @if($hasNewsDynamic)
-                @if($newsTitle !== '')
-                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $newsTitle }}</h1>
-                @endif
-            @else
-                <h1 class="display-4 text-uppercase text-center mb-5">Dernières Actualités</h1>
-            @endif
-            <div class="row">
-                @if($hasCompteRendu)
-                    <div class="col-lg-4 col-md-6 mb-2">
-                        <div class="rent-item mb-4">
+            <h2 class="section-title">{{ $newsTitle !== '' ? $newsTitle : 'Dernières Actualités' }}</h2>
+            <div class="section-divider center"></div>
+        </div>
+
+        <div class="row">
+            @if($hasCompteRendu)
+                {{-- Compte-rendu --}}
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
+                    <div class="news-card">
+                        <div class="news-img-wrap">
                             @php $crImage = !empty($crImages) ? $crImages[0] : null; @endphp
                             @if($crImage)
-                                <img class="img-fluid mb-4" src="{{ asset('storage/compte_rendu/' . $crImage) }}" alt="Compte Rendu">
+                                <img src="{{ asset('storage/compte_rendu/' . $crImage) }}" alt="Compte Rendu">
+                            @else
+                                <img src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Compte Rendu">
                             @endif
-                            <h4 class="text-uppercase mb-4">{{ $content->compte_rendu_title }}</h4>
-                            <button class="btn btn-primary px-3" data-toggle="modal" data-target="#compteRenduModal">Lire la suite</button>
+                            <span class="news-category">Compte Rendu</span>
+                        </div>
+                        <div class="news-body">
+                            <div class="news-date"><i class="fa fa-calendar-alt"></i> {{ \Carbon\Carbon::now()->format('d M Y') }}</div>
+                            <h5 class="news-title">{{ \Illuminate\Support\Str::limit($content->compte_rendu_title, 65) }}</h5>
+                            <p class="news-excerpt">{{ \Illuminate\Support\Str::limit(strip_tags($content->compte_rendu_content), 110) }}</p>
+                            <button class="news-btn" data-toggle="modal" data-target="#compteRenduModal">
+                                Lire la suite <i class="fa fa-arrow-right"></i>
+                            </button>
                         </div>
                     </div>
-                    {{-- show up to 2 news items next to compte-rendu --}}
-                    @foreach($newsItems->slice(0,2) as $it)
-                        <div class="col-lg-4 col-md-6 mb-2">
-                                    <div class="rent-item mb-4">
-                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité">
-                                        <div class="content">
-                                            <h4 class="text-uppercase mb-4">{{ \Illuminate\Support\Str::limit($it, 60) }}</h4>
-                                            <p class="mb-4">{{ \Illuminate\Support\Str::limit($it, 120) }}</p>
-                                        </div>
-                                        <button type="button" class="btn btn-primary px-3 read-btn news-read-btn" data-news-text="{{ e($it) }}">Lire la suite</button>
-                                    </div>
-                        </div>
-                    @endforeach
-                @else
-                    {{-- No compte-rendu: show either news items or static three boxes --}}
-                    @if($newsCount > 0)
-                        @foreach($newsItems->slice(0,3) as $it)
-                            <div class="col-lg-4 col-md-6 mb-2">
-                                <div class="rent-item mb-4">
-                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité">
-                                        <div class="content">
-                                            <h4 class="text-uppercase mb-4">{{ \Illuminate\Support\Str::limit($it, 60) }}</h4>
-                                            <p class="mb-4">{{ \Illuminate\Support\Str::limit($it, 120) }}</p>
-                                        </div>
-                                        <button type="button" class="btn btn-primary px-3 read-btn news-read-btn" data-news-text="{{ e($it) }}">Lire la suite</button>
-                                    </div>
+                </div>
+                @foreach($newsItems->slice(0,2) as $idx => $it)
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ ($idx+1) * 100 }}">
+                        <div class="news-card">
+                            <div class="news-img-wrap">
+                                @php $newsImg = file_exists(public_path('template-siteweb/asset/img/ens' . ($idx+5) . '.jpeg')) ? asset('template-siteweb/asset/img/ens' . ($idx+5) . '.jpeg') : asset('template-siteweb/asset/img/ens5.jpeg'); @endphp
+                                <img src="{{ $newsImg }}" alt="Actualité" class="img-fluid-cover">
+                                <span class="news-category">Actualité</span>
                             </div>
-                        @endforeach
-                    @else
-                        {{-- Static Fallback Data --}}
-                        <div class="col-lg-4 col-md-6 mb-2">
-                            <div class="rent-item mb-4">
-                                <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité 1">
-                                <h4 class="text-uppercase mb-4">Assemblée Générale 2024</h4>
-                                <p class="mb-4">L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024...</p>
-                                <a class="btn btn-primary px-3" href="#">Lire la suite</a>
+                            <div class="news-body">
+                                <div class="news-date"><i class="fa fa-calendar-alt"></i> {{ \Carbon\Carbon::now()->format('d M Y') }}</div>
+                                <h5 class="news-title">{{ \Illuminate\Support\Str::limit($it, 65) }}</h5>
+                                <p class="news-excerpt">{{ \Illuminate\Support\Str::limit($it, 110) }}</p>
+                                <button class="news-btn news-read-btn" data-news-text="{{ e($it) }}">
+                                    Lire la suite <i class="fa fa-arrow-right"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6 mb-2">
-                                <div class="rent-item mb-4">
-                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/ens12.jpg') }}" alt="Actualité">
-                                        <div class="content">
-                                            <h4 class="text-uppercase mb-4">Formation Pédagogique</h4>
-                                            <p class="mb-4">Nouveau programme de formation continue pour les enseignants du primaire...</p>
-                                        </div>
-                                        <button type="button" class="btn btn-primary px-3 read-btn" data-news-text="Formation Pédagogique">Lire la suite</button>
-                                    </div>
+                    </div>
+                @endforeach
+            @elseif($newsItems->count() > 0)
+                @foreach($newsItems->slice(0,3) as $idx => $it)
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $idx * 100 }}">
+                        <div class="news-card">
+                            <div class="news-img-wrap">
+                                <img src="{{ asset('template-siteweb/asset/img/ens5.jpeg') }}" alt="Actualité">
+                                <span class="news-category">Actualité</span>
+                            </div>
+                            <div class="news-body">
+                                <div class="news-date"><i class="fa fa-calendar-alt"></i> {{ \Carbon\Carbon::now()->format('d M Y') }}</div>
+                                <h5 class="news-title">{{ \Illuminate\Support\Str::limit($it, 65) }}</h5>
+                                <p class="news-excerpt">{{ \Illuminate\Support\Str::limit($it, 110) }}</p>
+                                <button class="news-btn news-read-btn" data-news-text="{{ e($it) }}">
+                                    Lire la suite <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-lg-4 col-md-6 mb-2">
-                                <div class="rent-item mb-4">
-                                        <img class="img-fluid mb-4" src="{{ asset('template-siteweb/asset/img/accord.jpg') }}" alt="Actualité 3">
-                                        <div class="content">
-                                            <h4 class="text-uppercase mb-4">Accords Salariaux</h4>
-                                            <p class="mb-4">Signature d'un nouvel accord salarial avec le ministère de l'Éducation...</p>
-                                        </div>
-                                        <button type="button" class="btn btn-primary px-3 read-btn" data-news-text="Accords Salariaux">Lire la suite</button>
-                                    </div>
+                    </div>
+                @endforeach
+            @else
+                {{-- Fallback statique --}}
+                @php
+                    $fallbackNews = [
+                        ['img'=>'ens5.jpeg','cat'=>'Assemblée','title'=>'Assemblée Générale 2024','excerpt'=>"L'assemblée générale annuelle du SYNEM s'est tenue avec la participation de l'ensemble des sections régionales du Mali.",'text'=>"L'assemblée générale annuelle du SYNEM s'est tenue le 15 janvier 2024 avec la participation de représentants de toutes les régions."],
+                        ['img'=>'ens12.jpg','cat'=>'Formation','title'=>'Nouveau Programme de Formation Pédagogique','excerpt'=>"Nouveau programme de formation continue pour les enseignants du primaire, en partenariat avec le Ministère de l'Éducation.",'text'=>"Un nouveau programme de formation continue a été lancé pour les enseignants du primaire."],
+                        ['img'=>'accord.jpg','cat'=>'Accords','title'=>'Signature d\'Accords Salariaux','excerpt'=>"Signature d'un nouvel accord salarial avec le Ministère de l'Éducation nationale après plusieurs mois de négociations.",'text'=>"Un nouvel accord salarial a été signé avec le Ministère de l'Éducation nationale."],
+                    ];
+                @endphp
+                @foreach($fallbackNews as $idx => $n)
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $idx * 100 }}">
+                        <div class="news-card">
+                            <div class="news-img-wrap">
+                                @php $nImg = file_exists(public_path('template-siteweb/asset/img/' . $n['img'])) ? asset('template-siteweb/asset/img/' . $n['img']) : asset('template-siteweb/asset/img/ens5.jpeg'); @endphp
+                                <img src="{{ $nImg }}" alt="{{ $n['title'] }}">
+                                <span class="news-category">{{ $n['cat'] }}</span>
+                            </div>
+                            <div class="news-body">
+                                <div class="news-date"><i class="fa fa-calendar-alt"></i> {{ now()->format('d M Y') }}</div>
+                                <h5 class="news-title">{{ $n['title'] }}</h5>
+                                <p class="news-excerpt">{{ $n['excerpt'] }}</p>
+                                <button class="news-btn news-read-btn" data-news-text="{{ e($n['text']) }}">
+                                    Lire la suite <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
                         </div>
-                    @endif
-                @endif
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    </div>
+</section>
+
+{{-- Modal Compte Rendu --}}
+@if(!empty($content->compte_rendu_title) && !empty($content->compte_rendu_content))
+<div class="modal fade" id="compteRenduModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-red">
+                <h5 class="modal-title">{{ $content->compte_rendu_title }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4" style="line-height:1.8; font-size:15px;">
+                {!! nl2br(e($content->compte_rendu_content)) !!}
             </div>
         </div>
     </div>
-    <!-- Dernières Actualités End -->
+</div>
+@endif
 
-    @if(!empty($content->compte_rendu_title) && !empty($content->compte_rendu_content))
-    <!-- Modal Compte Rendu -->
-    <div class="modal fade" id="compteRenduModal" tabindex="-1" role="dialog" aria-labelledby="compteRenduModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title  text-white" id="compteRenduModalLabel">{{ $content->compte_rendu_title }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    {!! nl2br(e($content->compte_rendu_content)) !!}
-                </div>
+{{-- Modal Actualités --}}
+<div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-dark">
+                <h5 class="modal-title" id="newsModalLabel">Actualité</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span>&times;</span></button>
             </div>
+            <div class="modal-body p-4" id="newsModalBody" style="line-height:1.8; font-size:15px;"></div>
         </div>
     </div>
-    @endif
+</div>
 
-    <!-- Modal for news items -->
-    <div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-labelledby="newsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white" id="newsModalLabel">Actualité</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="newsModalBody">
-                    <!-- filled by JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Documents Administratifs Start -->
-    <div class="container-fluid py-5">
-        <div class="container pt-5 pb-3">
-            <h1 class="display-1 text-primary text-center">04</h1>
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   DOCUMENTS ADMINISTRATIFS                             --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="documents-section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <p class="section-subtitle">Ressources</p>
             @php
-                $hasDocumentsDynamic = ($content && $content->documents && count($content->documents));
                 $documentsTitle = trim((string)($content->documents_title ?? ''));
             @endphp
-            @if($hasDocumentsDynamic)
-                @if($documentsTitle !== '')
-                    <h1 class="display-4 text-uppercase text-center mb-5">{{ $documentsTitle }}</h1>
-                @endif
-            @else
-                <h1 class="display-4 text-uppercase text-center mb-5">Documents Administratifs</h1>
-            @endif
-            <div class="row">
-                @php
-                    $displayedDocuments = 0;
-                    $maxDocuments = 6;
-                @endphp
-                @if($content && $content->documents && count($content->documents))
-                    @foreach($content->documents as $doc)
-                        @if($displayedDocuments < $maxDocuments)
-                            <div class="col-lg-4 col-md-6 mb-4 document-item">
-                                <div class="card document-card h-100 border-0 shadow-sm">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                        <span class="badge badge-light">{{ strtoupper($doc->type) }}</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-3">
+            <h2 class="section-title">{{ $documentsTitle !== '' ? $documentsTitle : 'Documents Administratifs' }}</h2>
+            <div class="section-divider center"></div>
+        </div>
+
+        <div class="row">
+            @php $displayedDocuments = 0; $maxDocuments = 6; @endphp
+            @if($content && $content->documents && count($content->documents))
+                @foreach($content->documents as $doc)
+                    @if($displayedDocuments < $maxDocuments)
+                        <div class="col-lg-4 col-md-6 mb-4 document-item" data-aos="fade-up" data-aos-delay="{{ ($displayedDocuments % 3) * 100 }}">
+                            <div class="document-card h-100">
+                                <div class="doc-header">
+                                    <span class="doc-badge">{{ strtoupper($doc->type) }}</span>
+                                </div>
+                                <div class="doc-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="doc-icon-wrap doc-icon-{{ $doc->type }}">
                                             @if($doc->type === 'pdf')
-                                                <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
+                                                <i class="fas fa-file-pdf text-danger fa-lg"></i>
                                             @elseif($doc->type === 'word')
-                                                <i class="fas fa-file-word text-primary fa-2x mr-3"></i>
+                                                <i class="fas fa-file-word fa-lg" style="color:#0078d7"></i>
                                             @elseif($doc->type === 'excel')
-                                                <i class="fas fa-file-excel text-success fa-2x mr-3"></i>
+                                                <i class="fas fa-file-excel text-success fa-lg"></i>
                                             @else
-                                                <i class="fas fa-file-alt fa-2x mr-3"></i>
+                                                <i class="fas fa-file-alt fa-lg text-secondary"></i>
                                             @endif
-                                            <div>
-                                                <h5 class="card-title mb-1">{{ $doc->title }}</h5>
-                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="card-footer bg-transparent">
-                                        <a href="{{ asset('storage/documents/' . $doc->file) }}" class="btn btn-primary btn-sm" download>
-                                            <i class="fas fa-download mr-2"></i>Télécharger
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            @php $displayedDocuments++; @endphp
-                        @endif
-                    @endforeach
-                @else
-                    <!-- Fallback contenu statique limité à 6 documents -->
-                    @php
-                        $fallbackDocuments = [
-                            ['title' => 'Compte-rendu Congrès 2024', 'type' => 'pdf', 'size' => '2.4 MB', 'description' => 'Rapport complet des résolutions et décisions du congrès annuel 2024.'],
-                            ['title' => 'Rapport d\'Activités 2023', 'type' => 'pdf', 'size' => '1.8 MB', 'description' => 'Bilan complet des activités de l\'année 2023.'],
-                            ['title' => 'Convention Collective 2024', 'type' => 'pdf', 'size' => '3.2 MB', 'description' => 'Convention collective des enseignants du Mali.'],
-                            ['title' => 'Guide du Militant', 'type' => 'pdf', 'size' => '1.5 MB', 'description' => 'Guide complet pour les militants actifs.'],
-                            ['title' => 'Statuts SYNEM 2024', 'type' => 'pdf', 'size' => '2.1 MB', 'description' => 'Statuts officiels du Syndicat National des Enseignants du Mali.'],
-                            ['title' => 'Règlement Intérieur', 'type' => 'pdf', 'size' => '1.9 MB', 'description' => 'Règlement intérieur de l\'organisation.']
-                        ];
-                    @endphp
-                    @foreach(array_slice($fallbackDocuments, 0, $maxDocuments) as $index => $doc)
-                        <div class="col-lg-4 col-md-6 mb-4 document-item">
-                            <div class="card document-card h-100 border-0 shadow-sm">
-                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                    <span class="badge badge-light">{{ strtoupper($doc['type']) }}</span>
-                                    @if($index === 0)
-                                        <span class="badge badge-warning">Nouveau</span>
-                                    @endif
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        @if($doc['type'] === 'pdf')
-                                            <i class="fas fa-file-pdf text-danger fa-2x mr-3"></i>
-                                        @elseif($doc['type'] === 'word')
-                                            <i class="fas fa-file-word text-primary fa-2x mr-3"></i>
-                                        @elseif($doc['type'] === 'excel')
-                                            <i class="fas fa-file-excel text-success fa-2x mr-3"></i>
-                                        @else
-                                            <i class="fas fa-file-alt fa-2x mr-3"></i>
-                                        @endif
                                         <div>
-                                            <h5 class="card-title mb-1">{{ $doc['title'] }}</h5>
-                                            <small class="text-muted">Publié récemment</small>
+                                            <h6 class="doc-title">{{ $doc->title }}</h6>
+                                            <span class="doc-meta">Publié récemment</span>
                                         </div>
                                     </div>
-                                    <p class="card-text">{{ $doc['description'] }}</p>
-                                    <div class="document-info">
-                                        <small class="text-muted">
-                                            <i class="fas fa-file-alt mr-1"></i>{{ strtoupper($doc['type']) }} - {{ $doc['size'] }}
-                                        </small>
-                                    </div>
                                 </div>
-                                <div class="card-footer bg-transparent">
-                                    <button type="button" class="btn btn-primary btn-sm document-download-btn" data-document-title="{{ $doc['title'] }}">
-                                        <i class="fas fa-download mr-2"></i>Télécharger
-                                    </button>
+                                <div class="doc-footer">
+                                    <a href="{{ asset('storage/documents/' . $doc->file) }}" class="btn-download" download>
+                                        <i class="fas fa-download"></i> Télécharger
+                                    </a>
                                 </div>
                             </div>
                         </div>
                         @php $displayedDocuments++; @endphp
-                    @endforeach
-                @endif
-            </div>
-
-            <!-- Bouton Voir Tous les Documents avec Vérification Militant -->
-            <div class="text-center mt-4">
-                <button type="button" class="btn btn-outline-primary btn-lg" data-toggle="modal" data-target="#militantVerificationModal">
-                    <i class="fas fa-folder-open mr-2"></i>Voir tous les documents
-                </button>
-            </div>
-        </div>
-    </div>
-    <!-- Documents Administratifs End -->
-
-    <!-- Modals pour aperçu des documents -->
-    <div class="modal fade" id="documentModal1" tabindex="-1" role="dialog" aria-labelledby="documentModal1Label" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="documentModal1Label">Compte-rendu Congrès 2024</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fas fa-file-pdf text-danger fa-5x mb-3"></i>
-                        <p>Ce document est disponible en téléchargement.</p>
-                        <p><strong>Taille :</strong> 2.4 MB</p>
-                        <a href="{{ asset('storage/documents/congres-2024.pdf') }}" class="btn btn-primary" download>
-                            <i class="fas fa-download mr-2"></i>Télécharger le PDF
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="documentModal2" tabindex="-1" role="dialog" aria-labelledby="documentModal2Label" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="documentModal2Label">Rapport d'Activités 2023</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <i class="fas fa-file-pdf text-danger fa-5x mb-3"></i>
-                        <p>Ce document est disponible en téléchargement.</p>
-                        <p><strong>Taille :</strong> 1.8 MB</p>
-                        <a href="{{ asset('storage/documents/rapport-2023.pdf') }}" class="btn btn-primary" download>
-                            <i class="fas fa-download mr-2"></i>Télécharger le PDF
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Vérification Militant -->
-    <div class="modal fade" id="militantVerificationModal" tabindex="-1" role="dialog" aria-labelledby="militantVerificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="militantVerificationModalLabel">
-                        <i class="fas fa-user-check me-2"></i>
-                        Vérification du Statut Militant
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div id="verificationForm">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-                            <h5>Accès aux Documents Complets</h5>
-                            <p class="text-muted">
-                                Pour accéder à tous les documents, veuillez confirmer votre statut de militant approuvé.
-                            </p>
-                        </div>
-
-                        <form id="militantVerificationForm">
-                            @csrf
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="verification_email" class="form-label">
-                                        <i class="fas fa-envelope me-1"></i>Adresse Email *
-                                    </label>
-                                    <input type="email" class="form-control" id="verification_email" name="email" required
-                                           placeholder="votre.email@example.com">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="verification_card_number" class="form-label">
-                                        <i class="fas fa-id-card me-1"></i>Numéro de Carte *
-                                    </label>
-                                    <input type="text" class="form-control" id="verification_card_number" name="card_number" required
-                                           placeholder="Votre numéro de carte">
+                    @endif
+                @endforeach
+            @else
+                @php
+                    $fallbackDocuments = [
+                        ['title'=>'Compte-rendu Congrès 2024','type'=>'pdf','size'=>'2.4 MB'],
+                        ['title'=>"Rapport d'Activités 2023",'type'=>'pdf','size'=>'1.8 MB'],
+                        ['title'=>'Convention Collective 2024','type'=>'pdf','size'=>'3.2 MB'],
+                        ['title'=>'Guide du Militant','type'=>'pdf','size'=>'1.5 MB'],
+                        ['title'=>'Statuts SYNEM 2024','type'=>'pdf','size'=>'2.1 MB'],
+                        ['title'=>'Règlement Intérieur','type'=>'pdf','size'=>'1.9 MB'],
+                    ];
+                @endphp
+                @foreach(array_slice($fallbackDocuments, 0, 6) as $idx => $doc)
+                    <div class="col-lg-4 col-md-6 mb-4 document-item" data-aos="fade-up" data-aos-delay="{{ ($idx % 3) * 100 }}">
+                        <div class="document-card h-100">
+                            <div class="doc-header">
+                                <span class="doc-badge">{{ strtoupper($doc['type']) }}</span>
+                                @if($idx === 0)<span class="doc-badge-new">Nouveau</span>@endif
+                            </div>
+                            <div class="doc-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="doc-icon-wrap" style="background:rgba(220,53,69,0.1);">
+                                        <i class="fas fa-file-pdf text-danger fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="doc-title">{{ $doc['title'] }}</h6>
+                                        <span class="doc-meta">PDF — {{ $doc['size'] }}</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary btn-lg" id="verifyBtn">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    Vérifier et Accéder
+                            <div class="doc-footer">
+                                <button type="button" class="btn-download document-download-btn" data-document-title="{{ $doc['title'] }}">
+                                    <i class="fas fa-download"></i> Télécharger
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
+                @endforeach
+            @endif
+        </div>
 
-                    <div id="verificationResult" style="display: none;">
-                        <!-- Résultat de la vérification sera affiché ici -->
+        <div class="text-center mt-4" data-aos="fade-up">
+            <button type="button" class="btn btn-outline-primary btn-lg px-5" data-toggle="modal" data-target="#militantVerificationModal">
+                <i class="fas fa-folder-open mr-2"></i>Voir tous les documents
+            </button>
+        </div>
+    </div>
+</section>
+
+{{-- ╔══════════════════════════════════════════════════════╗ --}}
+{{--   ESPACE MILITANT                                       --}}
+{{-- ╚══════════════════════════════════════════════════════╝ --}}
+<section class="militant-section">
+    <div class="container" style="position:relative; z-index:1;">
+        <div class="row justify-content-center">
+            <div class="col-lg-7" data-aos="zoom-in">
+                <div class="militant-card text-center">
+                    <div class="militant-icon">
+                        <i class="fas fa-user-shield"></i>
                     </div>
+                    <h3 class="militant-title">Espace Militant</h3>
+                    <p class="militant-desc">
+                        Accédez à des documents exclusifs réservés aux militants approuvés du SYNEM.
+                    </p>
+                    <ul class="militant-list text-left d-inline-block">
+                        <li><i class="fas fa-check-circle"></i> Statuts de l'organisation</li>
+                        <li><i class="fas fa-check-circle"></i> Règlement intérieur</li>
+                        <li><i class="fas fa-check-circle"></i> Convention collective</li>
+                        <li><i class="fas fa-check-circle"></i> Guide du militant</li>
+                        <li><i class="fas fa-check-circle"></i> Documents stratégiques</li>
+                    </ul>
+                    <div class="alert-militant">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        <strong>Accès sécurisé :</strong> Seuls les militants approuvés peuvent accéder à ces documents.
+                    </div>
+                    <a href="{{ route('militant.documents.access') }}" class="btn-militant">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Accéder aux Documents Réservés
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="container-fluid py-5 bg-light">
-        <div class="container pt-5 pb-3">
-            <h1 class="display-1 text-primary text-center">05</h1>
-            <h1 class="display-4 text-uppercase text-center mb-5">Espace Militant</h1>
+</section>
 
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card border-primary shadow">
-                        <div class="card-header bg-primary text-white text-center">
-                            <h4 class="mb-0">
-                                <i class="fas fa-lock me-2"></i>
-                                Documents Réservés aux Militants Approuvés
-                            </h4>
-                        </div>
-                        <div class="card-body text-center">
-                            <div class="mb-4">
-                                <i class="fas fa-file-alt fa-4x text-primary mb-3"></i>
-                                <p class="lead">
-                                    Accédez à des documents exclusifs réservés aux militants approuvés du SYNEM :
-                                </p>
-                                <ul class="list-unstyled text-left d-inline-block">
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Statuts de l'organisation</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Règlement intérieur</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Convention collective</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Guide du militant</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Documents stratégiques</li>
-                                </ul>
-                            </div>
+{{-- ============================================================
+     MODALS
+     ============================================================ --}}
 
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Accès sécurisé :</strong> Seuls les militants dont la demande a été approuvée peuvent accéder à ces documents.
-                            </div>
-
-                            <a href="{{ route('militant.documents.access') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>
-                                Accéder aux Documents Réservés
-                            </a>
-                        </div>
+{{-- Modal vérification militant --}}
+<div class="modal fade" id="militantVerificationModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-dark">
+                <h5 class="modal-title"><i class="fas fa-user-check mr-2"></i>Vérification du Statut Militant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="verificationForm">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shield-alt fa-3x text-danger mb-3"></i>
+                        <h5 class="font-weight-bold">Accès aux Documents Complets</h5>
+                        <p class="text-muted">Pour accéder à tous les documents, veuillez confirmer votre statut de militant approuvé.</p>
                     </div>
+                    <form id="militantVerificationForm">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Adresse Email *</label>
+                                <input type="email" class="form-control" id="verification_email" name="email" required placeholder="votre.email@example.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Numéro de Carte *</label>
+                                <input type="text" class="form-control" id="verification_card_number" name="card_number" required placeholder="Votre numéro de carte">
+                            </div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <button type="submit" class="btn btn-primary btn-lg px-5" id="verifyBtn">
+                                <i class="fas fa-check-circle mr-2"></i>Vérifier et Accéder
+                            </button>
+                        </div>
+                    </form>
                 </div>
+                <div id="verificationResult" style="display:none;"></div>
             </div>
         </div>
     </div>
-    <!-- Documents Réservés Militants End -->
+</div>
 
-    <!-- Membership Submission Modal -->
-    <div class="modal fade" id="membershipModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Soumettre ma demande de militant</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="membershipForm">
-                        <div class="row g-3">
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Nom *</label>
-                                <input name="nom" type="text" class="form-control" placeholder="Votre nom" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Prénom *</label>
-                                <input name="prenom" type="text" class="form-control" placeholder="Votre prénom" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Email *</label>
-                                <input name="email" type="email" class="form-control" placeholder="votre.email@example.com" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Téléphone *</label>
-                                <input name="tel" type="tel" class="form-control" placeholder="+223 XX XX XX XX" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Numéro de carte *</label>
-                                <input name="n_cartes_syndicale" type="text" class="form-control" placeholder="Votre numéro de carte" required>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <label class="form-label">Coordination Locale</label>
-                                <input name="coordinations" type="text" class="form-control" placeholder="Ville, Région">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Message (optionnel)</label>
-                                <textarea name="message" class="form-control" rows="3" placeholder="Informations supplémentaires..."></textarea>
-                            </div>
-
-                            <!-- Photo de la carte de membre -->
-                            <div class="col-12">
-                                <label class="form-label">Photo de votre carte de membre *</label>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="text-center mb-3">
-                                                    <button type="button" id="captureBtn" class="btn btn-primary">
-                                                        <i class="fa fa-camera me-2"></i>Prendre une photo
+{{-- Modal adhésion --}}
+<div class="modal fade" id="membershipModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header modal-header-dark">
+                <h5 class="modal-title">Soumettre ma demande de militant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="membershipForm">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Nom *</label>
+                            <input name="nom" type="text" class="form-control" placeholder="Votre nom" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Prénom *</label>
+                            <input name="prenom" type="text" class="form-control" placeholder="Votre prénom" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Email *</label>
+                            <input name="email" type="email" class="form-control" placeholder="votre.email@example.com" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Téléphone *</label>
+                            <input name="tel" type="tel" class="form-control" placeholder="+223 XX XX XX XX" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Numéro de carte *</label>
+                            <input name="n_cartes_syndicale" type="text" class="form-control" placeholder="Votre numéro de carte" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Coordination Locale</label>
+                            <input name="coordinations" type="text" class="form-control" placeholder="Ville, Région">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label>Message (optionnel)</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="Informations supplémentaires..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label>Photo de votre carte de membre *</label>
+                            <div class="card border" style="border-radius:4px;">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="text-center mb-3">
+                                                <button type="button" id="captureBtn" class="btn btn-primary">
+                                                    <i class="fa fa-camera mr-2"></i>Prendre une photo
+                                                </button>
+                                                <button type="button" id="uploadPhotoBtn" class="btn btn-outline-secondary btn-sm ml-2">
+                                                    <i class="fa fa-image mr-1"></i>Importer
+                                                </button>
+                                                <p class="text-muted small mt-2">Photographiez votre carte de membre</p>
+                                                <p id="cameraFallbackHint" class="text-muted small mt-1 d-none"></p>
+                                                <input type="file" id="memberCardUpload" accept="image/*" capture="environment" class="d-none">
+                                            </div>
+                                            <div id="cameraContainer" class="d-none">
+                                                <video id="camera" class="w-100 border rounded" autoplay playsinline></video>
+                                                <div class="mt-2">
+                                                    <button type="button" id="takePhotoBtn" class="btn btn-success btn-sm mr-2">
+                                                        <i class="fa fa-camera mr-1"></i>Capturer
                                                     </button>
-                                                    <button type="button" id="uploadPhotoBtn" class="btn btn-outline-secondary btn-sm ms-2">
-                                                        <i class="fa fa-image me-1"></i>Importer une photo
+                                                    <button type="button" id="retakeBtn" class="btn btn-warning btn-sm d-none">
+                                                        <i class="fa fa-redo mr-1"></i>Reprendre
                                                     </button>
-                                                    <p class="text-muted small mt-2">Utilisez votre caméra pour photographier votre carte de membre</p>
-                                                    <p id="cameraFallbackHint" class="text-muted small mt-1 d-none"></p>
-                                                    <input type="file" id="memberCardUpload" accept="image/*" capture="environment" class="d-none">
-                                                </div>
-                                                <div id="cameraContainer" class="d-none">
-                                                    <video id="camera" class="w-100 border rounded" autoplay playsinline></video>
-                                                    <div class="mt-2">
-                                                        <button type="button" id="takePhotoBtn" class="btn btn-success btn-sm me-2">
-                                                            <i class="fa fa-camera me-1"></i>Capturer
-                                                        </button>
-                                                        <button type="button" id="retakeBtn" class="btn btn-warning btn-sm d-none">
-                                                            <i class="fa fa-refresh me-1"></i>Reprendre
-                                                        </button>
-                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div id="photoPreview" class="d-none">
-                                                    <h6>Aperçu de la photo :</h6>
-                                                    <canvas id="photoCanvas" class="w-100 border rounded"></canvas>
-                                                    <input type="hidden" name="member_card_photo" id="memberCardPhoto">
-                                                </div>
-                                                <div id="noPhotoMessage" class="text-center text-muted">
-                                                    <i class="fa fa-camera fa-3x mb-3"></i>
-                                                    <p>Cliquez sur "Prendre une photo" pour commencer</p>
-                                                </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div id="photoPreview" class="d-none">
+                                                <h6>Aperçu :</h6>
+                                                <canvas id="photoCanvas" class="w-100 border rounded"></canvas>
+                                                <input type="hidden" name="member_card_photo" id="memberCardPhoto">
+                                            </div>
+                                            <div id="noPhotoMessage" class="text-center text-muted pt-4">
+                                                <i class="fa fa-camera fa-3x mb-3"></i>
+                                                <p>Cliquez sur "Prendre une photo"</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-primary" id="submitMembershipBtn">Soumettre la demande</button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary px-4" id="submitMembershipBtn">Soumettre la demande</button>
             </div>
         </div>
     </div>
+</div>
+
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function() {
-        // Filtrage des documents par catégorie
-        $('input[name="categories"]').change(function() {
-            var selectedCategory = this.id;
+document.addEventListener('DOMContentLoaded', function () {
 
-            $('.document-item').hide();
-
-            if (selectedCategory === 'tous') {
-                $('.document-item').show();
-            } else {
-                $('.document-item[data-category="' + selectedCategory + '"]').show();
-            }
-        });
-
-        // Notification de nouveaux documents
-        function checkNewDocuments() {
-            // Simuler une vérification de nouveaux documents
-            setTimeout(function() {
-                $('.alert').fadeIn();
-            }, 3000);
-        }
-
-        // Vérifier les nouveaux documents au chargement
-        checkNewDocuments();
-
-        // Gestionnaire pour les boutons de téléchargement de documents
-        $('.document-download-btn').on('click', function() {
-            var documentTitle = $(this).data('document-title');
-            checkMilitantAccess(documentTitle);
+    // News modal
+    document.querySelectorAll('.news-read-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const txt = btn.getAttribute('data-news-text') || '';
+            const body = document.getElementById('newsModalBody');
+            if (body) body.innerHTML = '<p>' + txt.replace(/\n/g, '<br>') + '</p>';
+            try { $('#newsModal').modal('show'); } catch (e) { }
         });
     });
 
-    // Fonction de vérification d'accès militant
-    function checkMilitantAccess(documentTitle) {
-        // Ouvrir le modal de vérification
-        $('#militantVerificationModal').modal('show');
-
-        // Reset du formulaire
-        $('#militantVerificationForm')[0].reset();
-        $('#verificationForm').show();
-        $('#verificationResult').hide();
-    }
-
-    // Gestionnaire pour le formulaire de vérification
-    $(document).on('submit', '#militantVerificationForm', function(e) {
+    // Militant verification form
+    $(document).on('submit', '#militantVerificationForm', function (e) {
         e.preventDefault();
-
         var formData = new FormData(this);
-        var submitBtn = $('#verifyBtn');
-        var originalText = submitBtn.html();
-
-        // Désactiver le bouton et afficher le loading
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Vérification...');
-
+        var btn = $('#verifyBtn');
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Vérification...');
         $.ajax({
             url: '{{ route("militant.documents.verify") }}',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
-                if (response.success) {
-                    // Vérification réussie - rediriger vers la liste complète des documents
+            success: function (res) {
+                if (res.success) {
                     $('#verificationForm').hide();
-                    $('#verificationResult').show().html(`
-                        <div class="text-center">
-                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <h5 class="text-success">Vérification Réussie !</h5>
-                            <p>Vous allez être redirigé vers la liste complète des documents...</p>
-                        </div>
-                    `);
-
-                    // Rediriger après 2 secondes
-                    setTimeout(function() {
-                        window.location.href = '{{ route("militant.documents.index") }}';
-                    }, 2000);
+                    $('#verificationResult').show().html('<div class="text-center"><i class="fas fa-check-circle fa-3x text-success mb-3"></i><h5 class="text-success">Vérification Réussie !</h5><p>Redirection en cours...</p></div>');
+                    setTimeout(function () { window.location.href = '{{ route("militant.documents.index") }}'; }, 2000);
                 }
             },
-            error: function(xhr) {
-                var errorMessage = 'Une erreur est survenue lors de la vérification.';
-
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    // Erreurs de validation
-                    var errors = xhr.responseJSON.errors;
-                    errorMessage = Object.values(errors).flat().join('<br>');
-                } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-
+            error: function (xhr) {
+                var msg = 'Une erreur est survenue.';
+                if (xhr.responseJSON && xhr.responseJSON.errors) msg = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+                else if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 $('#verificationForm').hide();
-                $('#verificationResult').show().html(`
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                        <h5 class="text-warning">Vérification Échouée</h5>
-                        <p>${errorMessage}</p>
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-outline-primary me-2" onclick="showVerificationForm()">
-                                <i class="fas fa-arrow-left me-1"></i>Réessayer
-                            </button>
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#membershipModal">
-                                <i class="fas fa-user-plus me-1"></i>Devenir Militant
-                            </a>
-                        </div>
-                    </div>
-                `);
+                $('#verificationResult').show().html('<div class="text-center"><i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i><h5 class="text-warning">Vérification Échouée</h5><p>' + msg + '</p><div class="mt-3"><button class="btn btn-outline-primary mr-2" onclick="showVerificationForm()"><i class="fas fa-arrow-left mr-1"></i>Réessayer</button><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#membershipModal"><i class="fas fa-user-plus mr-1"></i>Devenir Militant</a></div></div>');
             },
-            complete: function() {
-                submitBtn.prop('disabled', false).html(originalText);
-            }
+            complete: function () { btn.prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i>Vérifier et Accéder'); }
         });
     });
-
-    // Fonction pour revenir au formulaire de vérification
     function showVerificationForm() {
         $('#verificationResult').hide();
         $('#verificationForm').show();
         $('#militantVerificationForm')[0].reset();
     }
+    window.showVerificationForm = showVerificationForm;
+
+    // Document download
+    $('.document-download-btn').on('click', function () {
+        $('#militantVerificationModal').modal('show');
+        $('#militantVerificationForm')[0].reset();
+        $('#verificationForm').show();
+        $('#verificationResult').hide();
+    });
+});
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function(){
-        // open news modal with full text
-        document.querySelectorAll('.news-read-btn').forEach(function(btn){
-            btn.addEventListener('click', function(){
-                const txt = btn.getAttribute('data-news-text') || '';
-                const modalLabel = document.getElementById('newsModalLabel');
-                const modalBody = document.getElementById('newsModalBody');
-                if(modalLabel) modalLabel.textContent = 'Actualité';
-                if(modalBody) modalBody.innerHTML = '<p>' + txt.replace(/\n/g, '<br>') + '</p>';
-                try{ $('#newsModal').modal('show'); } catch(e){
-                    try{ new bootstrap.Modal(document.getElementById('newsModal')).show(); } catch(err){ console.warn('Modal show failed', err); }
-                }
-            });
-        });
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    let stream = null;
-    let canvas = document.getElementById('photoCanvas');
-    let video = null;
+// Camera / photo
+let stream = null;
+let canvas = document.getElementById('photoCanvas');
+const video = () => document.getElementById('camera');
+const captureBtn = document.getElementById('captureBtn');
+const takePhotoBtn = document.getElementById('takePhotoBtn');
+const retakeBtn = document.getElementById('retakeBtn');
+const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+const fileUploadInput = document.getElementById('memberCardUpload');
+const fallbackHint = document.getElementById('cameraFallbackHint');
+const cameraContainer = document.getElementById('cameraContainer');
+const noPhotoMessage = document.getElementById('noPhotoMessage');
+const photoPreview = document.getElementById('photoPreview');
+const memberCardPhotoField = document.getElementById('memberCardPhoto');
 
-    const captureBtn = document.getElementById('captureBtn');
-    const takePhotoBtn = document.getElementById('takePhotoBtn');
-    const retakeBtn = document.getElementById('retakeBtn');
-    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-    const fileUploadInput = document.getElementById('memberCardUpload');
-    const fallbackHint = document.getElementById('cameraFallbackHint');
-    const cameraContainer = document.getElementById('cameraContainer');
-    const noPhotoMessage = document.getElementById('noPhotoMessage');
-    const photoPreview = document.getElementById('photoPreview');
-    const memberCardPhotoField = document.getElementById('memberCardPhoto');
+const stopCameraStream = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } };
+const showFallback = (msg) => { if (fallbackHint) { fallbackHint.textContent = msg; fallbackHint.classList.remove('d-none'); } };
+const hideFallback = () => { if (fallbackHint) fallbackHint.classList.add('d-none'); };
 
-    const stopCameraStream = () => {
-        if (!stream) return;
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
+const finalizePreview = (dataUrl) => {
+    if (memberCardPhotoField) memberCardPhotoField.value = dataUrl;
+    if (photoPreview) photoPreview.classList.remove('d-none');
+    if (retakeBtn) retakeBtn.classList.remove('d-none');
+    if (takePhotoBtn) takePhotoBtn.classList.add('d-none');
+    if (noPhotoMessage) noPhotoMessage.classList.add('d-none');
+    if (captureBtn) captureBtn.classList.add('d-none');
+    hideFallback();
+};
+const drawUploadedImage = (dataUrl) => {
+    if (!canvas) canvas = document.getElementById('photoCanvas');
+    if (!canvas) return;
+    const img = new Image();
+    img.onload = function () {
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        finalizePreview(canvas.toDataURL('image/jpeg', 0.8));
     };
-
-    const showFallbackMessage = (message) => {
-        if (!fallbackHint) return;
-        fallbackHint.textContent = message;
-        fallbackHint.classList.remove('d-none');
-    };
-
-    const hideFallbackMessage = () => {
-        if (fallbackHint) {
-            fallbackHint.classList.add('d-none');
-        }
-    };
-
-    const finalizePreview = (dataUrl) => {
-        if (memberCardPhotoField) {
-            memberCardPhotoField.value = dataUrl;
-        }
-        if (photoPreview) {
-            photoPreview.classList.remove('d-none');
-        }
-        if (retakeBtn) {
-            retakeBtn.classList.remove('d-none');
-        }
-        if (takePhotoBtn) {
-            takePhotoBtn.classList.add('d-none');
-        }
-        if (noPhotoMessage) {
-            noPhotoMessage.classList.add('d-none');
-        }
-        if (captureBtn) {
-            captureBtn.classList.add('d-none');
-        }
-        hideFallbackMessage();
-    };
-
-    const drawUploadedImage = (dataUrl) => {
-        if (!canvas) {
-            canvas = document.getElementById('photoCanvas');
-        }
-        if (!canvas) return;
-
-        const image = new Image();
-        image.onload = function () {
-            canvas.width = image.width;
-            canvas.height = image.height;
-            const context = canvas.getContext('2d');
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            const finalDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            finalizePreview(finalDataUrl);
-        };
-        image.src = dataUrl;
-    };
-
-    const handleFileUpload = (file) => {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            drawUploadedImage(event.target.result);
-        };
-        reader.readAsDataURL(file);
+    img.src = dataUrl;
+};
+const handleFileUpload = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => drawUploadedImage(e.target.result);
+    reader.readAsDataURL(file);
+    stopCameraStream();
+    if (cameraContainer) cameraContainer.classList.add('d-none');
+};
+const startCamera = async () => {
+    hideFallback();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showFallback("La caméra n'est pas disponible. Importez une photo.");
+        return;
+    }
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        const v = video();
+        if (v) v.srcObject = stream;
+        if (cameraContainer) cameraContainer.classList.remove('d-none');
+        if (noPhotoMessage) noPhotoMessage.classList.add('d-none');
+        if (captureBtn) captureBtn.classList.add('d-none');
+    } catch (err) {
+        showFallback("Impossible d'accéder à la caméra. Importez une photo.");
         stopCameraStream();
-        if (cameraContainer) {
-            cameraContainer.classList.add('d-none');
-        }
-    };
-
-    const startCamera = async () => {
-        hideFallbackMessage();
-
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showFallbackMessage('La caméra n\'est pas disponible dans ce navigateur. Importez une photo en utilisant le bouton ci-dessous.');
-            return;
-        }
-
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' },
-                audio: false
-            });
-
-            video = document.getElementById('camera');
-            canvas = canvas || document.getElementById('photoCanvas');
-
-            if (video) {
-                video.srcObject = stream;
-            }
-
-            if (cameraContainer) {
-                cameraContainer.classList.remove('d-none');
-            }
-            if (noPhotoMessage) {
-                noPhotoMessage.classList.add('d-none');
-            }
-            if (captureBtn) {
-                captureBtn.classList.add('d-none');
-            }
-        } catch (error) {
-            console.error('Error accessing camera:', error);
-            showFallbackMessage('Impossible d\'accéder à la caméra. Importez une photo en utilisant le bouton ci-dessous.');
-            stopCameraStream();
-        }
-    };
-
-    if (captureBtn) {
-        captureBtn.addEventListener('click', startCamera);
     }
+};
+if (captureBtn) captureBtn.addEventListener('click', startCamera);
+if (takePhotoBtn) takePhotoBtn.addEventListener('click', function () {
+    const v = video();
+    if (!canvas || !v) return;
+    canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+    canvas.getContext('2d').drawImage(v, 0, 0);
+    finalizePreview(canvas.toDataURL('image/jpeg', 0.8));
+    stopCameraStream();
+    if (cameraContainer) cameraContainer.classList.add('d-none');
+});
+if (retakeBtn) retakeBtn.addEventListener('click', function () {
+    if (photoPreview) photoPreview.classList.add('d-none');
+    if (memberCardPhotoField) memberCardPhotoField.value = '';
+    if (fileUploadInput) fileUploadInput.value = '';
+    hideFallback();
+    if (takePhotoBtn) takePhotoBtn.classList.remove('d-none');
+    if (captureBtn) { captureBtn.classList.remove('d-none'); captureBtn.click(); }
+    this.classList.add('d-none');
+});
+if (uploadPhotoBtn) uploadPhotoBtn.addEventListener('click', () => { if (fileUploadInput) { fileUploadInput.value = ''; fileUploadInput.click(); } });
+if (fileUploadInput) fileUploadInput.addEventListener('change', function () { handleFileUpload(this.files && this.files[0]); });
+$('#membershipModal').on('hidden.bs.modal', function () {
+    stopCameraStream();
+    if (cameraContainer) cameraContainer.classList.add('d-none');
+    if (photoPreview) photoPreview.classList.add('d-none');
+    if (captureBtn) captureBtn.classList.remove('d-none');
+    if (retakeBtn) retakeBtn.classList.add('d-none');
+    if (takePhotoBtn) takePhotoBtn.classList.remove('d-none');
+    hideFallback();
+    if (memberCardPhotoField) memberCardPhotoField.value = '';
+    if (fileUploadInput) fileUploadInput.value = '';
+});
 
-    if (takePhotoBtn) {
-        takePhotoBtn.addEventListener('click', function () {
-            if (!canvas || !video) return;
-
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            finalizePreview(dataUrl);
-
-            stopCameraStream();
-            if (cameraContainer) {
-                cameraContainer.classList.add('d-none');
-            }
+document.getElementById('submitMembershipBtn').addEventListener('click', async function () {
+    const form = document.getElementById('membershipForm');
+    const formData = new FormData(form);
+    const nom = formData.get('nom'), prenom = formData.get('prenom'), email = formData.get('email'), phone = formData.get('tel');
+    const photo = memberCardPhotoField ? memberCardPhotoField.value : '';
+    if (!nom || !prenom || !email || !phone) { Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error'); return; }
+    if (!photo) { Swal.fire('Erreur', 'Veuillez prendre une photo de votre carte de membre.', 'error'); return; }
+    if (photo.startsWith('data:image')) { const r = await fetch(photo); const blob = await r.blob(); formData.set('attachment', blob, 'member_card.jpg'); }
+    this.disabled = true;
+    this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Envoi...';
+    try {
+        const res = await fetch('{{ route("contact.submit.membership") }}', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+            body: formData
         });
-    }
-    if (retakeBtn) {
-        retakeBtn.addEventListener('click', function () {
-            if (photoPreview) {
-                photoPreview.classList.add('d-none');
-            }
-            if (memberCardPhotoField) {
-                memberCardPhotoField.value = '';
-            }
-            if (fileUploadInput) {
-                fileUploadInput.value = '';
-            }
-            hideFallbackMessage();
-            if (takePhotoBtn) {
-                takePhotoBtn.classList.remove('d-none');
-            }
-
-            if (captureBtn) {
-                captureBtn.classList.remove('d-none');
-                captureBtn.click();
-            }
-            this.classList.add('d-none');
-        });
-    }
-    if (uploadPhotoBtn) {
-        uploadPhotoBtn.addEventListener('click', function () {
-        if (fileUploadInput) {
-            fileUploadInput.value = '';
-            fileUploadInput.click();
+        const data = await res.json();
+        if (res.ok && data.success) {
+            Swal.fire('Demande soumise', data.message || 'Nous vous contacterons bientôt.', 'success');
+            form.reset();
+            if (memberCardPhotoField) memberCardPhotoField.value = '';
+            if (photoPreview) photoPreview.classList.add('d-none');
+            hideFallback();
+            if (fileUploadInput) fileUploadInput.value = '';
+            $('#membershipModal').modal('hide');
+        } else {
+            let msg = 'Erreur lors de la soumission.';
+            if (data && data.errors) msg = Object.values(data.errors).map(v => v.join(', ')).join('\n');
+            else if (data && data.message) msg = data.message;
+            Swal.fire('Erreur', msg, 'error');
         }
-        });
-    }
-
-    if (fileUploadInput) {
-        fileUploadInput.addEventListener('change', function () {
-            const file = this.files && this.files[0];
-            if (!file) return;
-            handleFileUpload(file);
-        });
-    }
-
-    $('#membershipModal').on('hidden.bs.modal', function () {
-        stopCameraStream();
-        if (cameraContainer) {
-            cameraContainer.classList.add('d-none');
-        }
-        if (photoPreview) {
-            photoPreview.classList.add('d-none');
-        }
-        if (captureBtn) {
-            captureBtn.classList.remove('d-none');
-        }
-        if (retakeBtn) {
-            retakeBtn.classList.add('d-none');
-        }
-        if (takePhotoBtn) {
-            takePhotoBtn.classList.remove('d-none');
-        }
-        hideFallbackMessage();
-        if (memberCardPhotoField) {
-            memberCardPhotoField.value = '';
-        }
-        if (fileUploadInput) {
-            fileUploadInput.value = '';
-        }
-    });
-
-    document.getElementById('submitMembershipBtn').addEventListener('click', async function () {
-        const form = document.getElementById('membershipForm');
-        const formData = new FormData(form);
-
-        // Validate required fields
-        const nom = formData.get('nom');
-        const prenom = formData.get('prenom');
-        const email = formData.get('email');
-        const phone = formData.get('tel');
-        const photo = memberCardPhotoField ? memberCardPhotoField.value : '';
-
-        if (!nom || !prenom || !email || !phone) {
-            Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error');
-            return;
-        }
-
-        if (!photo) {
-            Swal.fire('Erreur', 'Veuillez prendre une photo de votre carte de membre.', 'error');
-            return;
-        }
-
-        // Convert base64 photo to blob for FormData
-        if (photo.startsWith('data:image')) {
-            const response = await fetch(photo);
-            const blob = await response.blob();
-            formData.set('attachment', blob, 'member_card.jpg');
-        }
-
-        const submitBtn = this;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Envoi...';
-
-        try {
-            const url = '{{ route("contact.submit.membership") }}';
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: formData
-            });
-
-            const data = await res.json();
-            if (res.ok && data.success) {
-                Swal.fire('Demande soumise', data.message || 'Nous vous contacterons bientôt.', 'success');
-                form.reset();
-                if (memberCardPhotoField) {
-                    memberCardPhotoField.value = '';
-                }
-                if (photoPreview) {
-                    photoPreview.classList.add('d-none');
-                }
-                hideFallbackMessage();
-                if (fileUploadInput) {
-                    fileUploadInput.value = '';
-                }
-                $('#membershipModal').modal('hide');
-            } else {
-                let msg = 'Erreur lors de la soumission.';
-                if (data && data.errors) {
-                    msg = Object.values(data.errors).map(v=>v.join(', ')).join('\n');
-                } else if (data && data.message) {
-                    msg = data.message;
-                }
-                Swal.fire('Erreur', msg, 'error');
-            }
-        } catch (e) {
-            console.error('Submission error:', e);
-            Swal.fire('Erreur', 'Erreur réseau. Veuillez réessayer.', 'error');
-        }
-
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Soumettre la demande';
-    });
+    } catch (e) { Swal.fire('Erreur', 'Erreur réseau. Veuillez réessayer.', 'error'); }
+    this.disabled = false;
+    this.innerHTML = 'Soumettre la demande';
+});
 </script>
 @endsection
