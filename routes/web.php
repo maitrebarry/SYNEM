@@ -192,6 +192,11 @@ Route::get('/dashboard', function () {
     return redirect()->route('administration.tableau-de-bord');
 })->middleware(['auth'])->name('dashboard');
 
+// Alias /admin → /administration
+Route::get('/admin', function () {
+    return redirect()->route('administration.tableau-de-bord');
+})->middleware(['auth']);
+
 Route::prefix('administration')->name('administration.')->middleware(['auth'])->group(function () {
 
     // Tableau de bord
