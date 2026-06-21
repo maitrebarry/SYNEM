@@ -4,24 +4,14 @@
 
 @section('content')
 
-{{-- Page Hero --}}
-<section class="page-hero">
-    <div class="page-hero-bg" style="background-image: url('https://i.pinimg.com/1200x/85/ca/7f/85ca7fafb53692c6bcd190a2f04eaa89.jpg');"></div>
-    <div class="page-hero-overlay"></div>
-    <div class="page-hero-content">
-        <span class="page-label">Syndicat National des Enseignants du Mali</span>
-        <h1>À Propos du SYNEM</h1>
-        <div class="hero-divider"></div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center">
-                <li class="breadcrumb-item"><a href="{{ route('accueil') }}">Accueil</a></li>
-                <li class="breadcrumb-item active">À Propos</li>
-            </ol>
-        </nav>
-    </div>
-    <div class="page-hero-scroll"><i class="fa fa-chevron-down"></i></div>
-</section>
-<div class="page-header-accent"></div>
+@include('site-web.partials.page-hero-carousel', [
+    'heroId' => 'aboutHeroCarousel',
+    'heroSlides' => $heroSlides,
+    'fallbackImages' => [asset('template-siteweb/asset/img/ens10.jpeg')],
+    'heroLabel' => 'Syndicat National des Enseignants du Mali',
+    'heroTitle' => 'À Propos du SYNEM',
+    'heroBreadcrumb' => 'À Propos',
+])
 
 {{-- ── PRÉSENTATION ─────────────────────────────────────── --}}
 <section class="about-section">

@@ -73,6 +73,14 @@
             </a>
         </li>
 
+        <!-- Lettres administratives -->
+        <li class="{{ request()->routeIs('administration.lettres.*') ? 'mm-active' : '' }}">
+            <a href="{{ route('administration.lettres.index') }}" class="{{ request()->routeIs('administration.lettres.*') ? 'mm-active' : '' }}">
+                <div class="parent-icon"><i class='bx bx-envelope-open'></i></div>
+                <div class="menu-title">Lettres admin.</div>
+            </a>
+        </li>
+
         <!-- Paramètres essentiels -->
         <li class="{{ request()->routeIs('administration.parametres.*') ? 'mm-active' : '' }}">
             <a href="{{ route('administration.parametres.index') }}" class="{{ request()->routeIs('administration.parametres.*') ? 'mm-active' : '' }}">

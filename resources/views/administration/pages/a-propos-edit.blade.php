@@ -15,6 +15,7 @@
 
 <div class="container-fluid py-4">
     <!-- <h2 class="mb-4">Édition de la page À propos du SYNEM</h2> -->
+    @include('administration.pages.partials.page-carousel-manager', ['carouselPage' => 'a-propos'])
     <form method="POST" action="/administration/pages/a-propos/update" enctype="multipart/form-data">
         @csrf
         <div class="card mb-4">

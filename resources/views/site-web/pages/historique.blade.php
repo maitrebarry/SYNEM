@@ -4,38 +4,33 @@
 
 @section('content')
 
-{{-- Page Hero --}}
-<section class="page-hero">
-    <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/avenir_mali.png') }}');"></div>
-    <div class="page-hero-overlay"></div>
-    <div class="page-hero-content">
-        <span class="page-label">Depuis 1990</span>
-        <h1>Notre Historique</h1>
-        <div class="hero-divider"></div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center">
-                <li class="breadcrumb-item"><a href="{{ route('accueil') }}">Accueil</a></li>
-                <li class="breadcrumb-item active">Historique</li>
-            </ol>
-        </nav>
-    </div>
-    <div class="page-hero-scroll"><i class="fa fa-chevron-down"></i></div>
-</section>
-<div class="page-header-accent"></div>
+@include('site-web.partials.page-hero-carousel', [
+    'heroId' => 'historyHeroCarousel',
+    'heroSlides' => $heroSlides,
+    'fallbackImages' => [asset('template-siteweb/asset/img/avenir_mali.png')],
+    'heroLabel' => 'Depuis 1990',
+    'heroTitle' => 'Notre Historique',
+    'heroBreadcrumb' => 'Historique',
+])
 
 {{-- Intro --}}
 <section style="padding:90px 0; background:#fff;">
     <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-lg-7 text-center" data-aos="fade-up">
+        <div class="row justify-content-center align-items-center mb-5">
+            <div class="{{ !empty($main?->image) ? 'col-lg-7' : 'col-lg-9 text-center' }}" data-aos="fade-up">
                 <p class="section-subtitle">Notre Parcours</p>
                 <h2 class="section-title mb-3">34 Ans de Combat pour l'Éducation</h2>
                 <div class="section-divider center mb-4"></div>
                 <p class="text-muted" style="font-size:15px; line-height:1.8;">
-                    @php $histText = isset($historique) ? ($historique->main_text ?? $historique->description ?? '') : ''; @endphp
+                    @php $histText = $main->text ?? ''; @endphp
                     {{ $histText ?: "Depuis sa création en 1990, le SYNEM a traversé des moments forts et a su s'adapter aux évolutions du secteur éducatif malien. Découvrez l'histoire de notre organisation à travers ses grandes étapes." }}
                 </p>
             </div>
+            @if(!empty($main?->image))
+                <div class="col-lg-5" data-aos="fade-left">
+                    <img src="{{ $main->image_url }}" alt="Historique du SYNEM" class="img-fluid w-100" style="border-radius:4px;box-shadow:0 12px 40px rgba(0,0,0,.18)">
+                </div>
+            @endif
         </div>
 
         {{-- Timeline --}}
@@ -88,7 +83,7 @@
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ ($idx % 3) * 100 }}">
                     <div class="document-card">
                         <div class="doc-header">
-                            <span class="doc-badge">ARCHIVE</span>
+                            @if(!empty($archive['image']))<img src="{{ $archive['image'] }}" alt="" class="w-100" style="height:170px;object-fit:cover">@else<span class="doc-badge">ARCHIVE</span>@endif
                         </div>
                         <div class="doc-body">
                             <div class="d-flex align-items-center">
@@ -96,15 +91,15 @@
                                     <i class="fas fa-file-pdf text-danger fa-lg"></i>
                                 </div>
                                 <div>
-                                    <h6 class="doc-title">{{ $archive->title ?? $archive['title'] ?? '' }}</h6>
-                                    <span class="doc-meta">{{ $archive->year ?? $archive['year'] ?? '' }}</span>
+                                    <h6 class="doc-title">{{ $archive['title'] ?? '' }}</h6>
+                                    <span class="doc-meta">{{ $archive['text'] ?? '' }}</span>
                                 </div>
                             </div>
                         </div>
-                        @if(!empty($archive->file ?? $archive['file'] ?? null))
+                        @if(!empty($archive['link']))
                         <div class="doc-footer">
-                            <a href="{{ asset('storage/archives/' . ($archive->file ?? $archive['file'])) }}" class="btn-download" download>
-                                <i class="fas fa-download"></i> Télécharger
+                            <a href="{{ $archive['link'] }}" class="btn-download" target="_blank" rel="noopener">
+                                <i class="fas fa-external-link-alt"></i> Consulter
                             </a>
                         </div>
                         @endif
@@ -116,38 +111,28 @@
 </section>
 @endif
 
-{{-- Stats banner --}}
+{{-- Réalisations administrées --}}
 <section class="stats-section">
     <div class="container">
         <div class="row">
-            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="0">
-                <div class="stat-card">
-                    <div class="stat-icon-wrap"><i class="fa fa-calendar-alt"></i></div>
-                    <div class="stat-number"><span class="counter-number" data-target="34">0</span><span class="plus">+</span></div>
-                    <div class="stat-label">Années d'Histoire</div>
+            @php
+                $historyStats = !empty($milestones) ? $milestones : [
+                    ['number' => '34', 'label' => "Années d'Histoire", 'icon' => 'fa fa-calendar-alt', 'description' => ''],
+                    ['number' => '15', 'label' => 'Accords Signés', 'icon' => 'fa fa-handshake', 'description' => ''],
+                    ['number' => '9', 'label' => 'Congrès Nationaux', 'icon' => 'fa fa-trophy', 'description' => ''],
+                    ['number' => '5000', 'label' => 'Membres Actuels', 'icon' => 'fa fa-users', 'description' => ''],
+                ];
+            @endphp
+            @foreach($historyStats as $index => $stat)
+                <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="{{ ($index % 4) * 150 }}">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap"><i class="{{ $stat['icon'] ?: 'fa fa-star' }}"></i></div>
+                        <div class="stat-number"><span class="counter-number" data-target="{{ (int) filter_var($stat['number'], FILTER_SANITIZE_NUMBER_INT) }}">0</span><span class="plus">+</span></div>
+                        <div class="stat-label">{{ $stat['label'] }}</div>
+                        @if(!empty($stat['description']))<p class="small mt-2">{{ $stat['description'] }}</p>@endif
+                    </div>
                 </div>
-            </div>
-            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="150">
-                <div class="stat-card">
-                    <div class="stat-icon-wrap"><i class="fa fa-handshake"></i></div>
-                    <div class="stat-number"><span class="counter-number" data-target="15">0</span><span class="plus">+</span></div>
-                    <div class="stat-label">Accords Signés</div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="300">
-                <div class="stat-card">
-                    <div class="stat-icon-wrap"><i class="fa fa-trophy"></i></div>
-                    <div class="stat-number"><span class="counter-number" data-target="9">0</span></div>
-                    <div class="stat-label">Congrès Nationaux</div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="450">
-                <div class="stat-card">
-                    <div class="stat-icon-wrap"><i class="fa fa-users"></i></div>
-                    <div class="stat-number"><span class="counter-number" data-target="5000">0</span><span class="plus">+</span></div>
-                    <div class="stat-label">Membres Actuels</div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>

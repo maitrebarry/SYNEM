@@ -1,6 +1,6 @@
 <div class="parametres-section active">
     <h4 class="mb-4">Gestion des Utilisateurs Admin</h4>
-    
+
     <div class="setting-card">
         <div class="setting-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Liste des Administrateurs</h5>
@@ -10,11 +10,13 @@
         </div>
         <div class="setting-card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover align-middle">
                     <thead>
                         <tr>
-                            <th>Nom</th>
+                            <th>Nom complet</th>
                             <th>Email</th>
+                            <th>Fonction</th>
+                            <th>WhatsApp</th>
                             <th>Rôle</th>
                             <th>Statut</th>
                             <th>Dernière connexion</th>
@@ -24,8 +26,19 @@
                     <tbody>
                         @foreach($users as $user)
                         <tr>
-                            <td>{{ $user->name }}</td>
+                            <td class="fw-semibold">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
+                            <td>{{ $user->fonction ?? '—' }}</td>
+                            <td>
+                                @if($user->whatsapp)
+                                    <a href="https://wa.me/223{{ ltrim($user->whatsapp,'0') }}" target="_blank"
+                                       class="badge bg-success text-decoration-none" style="font-size:12px">
+                                        <i class="bx bxl-whatsapp me-1"></i>{{ $user->whatsapp }}
+                                    </a>
+                                @else
+                                    <span class="text-muted small">—</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($user->isSuperAdmin())
                                     <span class="badge bg-success">Super Admin</span>
@@ -40,41 +53,34 @@
                                     <span class="badge bg-danger">Inactif</span>
                                 @endif
                             </td>
+                            <td>{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Jamais' }}</td>
                             <td>
-                                {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Jamais' }}
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary edit-user-btn" 
-                                        data-bs-toggle="modal" 
+                                <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#editUserModal"
                                         data-user-id="{{ $user->id }}"
                                         data-user-name="{{ $user->name }}"
                                         data-user-email="{{ $user->email }}"
                                         data-user-role="{{ $user->role }}"
-                                        data-user-active="{{ $user->is_active }}"
-                                        title="Éditer" aria-label="Éditer" data-bs-toggle="tooltip">
+                                        data-user-active="{{ $user->is_active ? '1' : '0' }}"
+                                        data-user-whatsapp="{{ $user->whatsapp ?? '' }}"
+                                        data-user-fonction="{{ $user->fonction ?? '' }}"
+                                        title="Éditer">
                                     <i class="bx bx-edit"></i>
                                 </button>
 
                                 @if(!$user->isSuperAdmin())
-                                    <form action="{{ route('administration.parametres.utilisateurs.toggle-status', $user->id) }}" 
-                                          method="POST" class="d-inline">
+                                    <form action="{{ route('administration.parametres.utilisateurs.toggle-status', $user->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-warning ms-1" title="{{ $user->is_active ? 'Désactiver' : 'Activer' }}" aria-label="{{ $user->is_active ? 'Désactiver' : 'Activer' }}" data-bs-toggle="tooltip">
-                                            @if($user->is_active)
-                                                <i class="bx bx-power-off"></i>
-                                            @else
-                                                <i class="bx bx-check-circle"></i>
-                                            @endif
+                                        <button type="submit" class="btn btn-sm btn-outline-warning ms-1"
+                                            title="{{ $user->is_active ? 'Désactiver' : 'Activer' }}">
+                                            <i class="bx {{ $user->is_active ? 'bx-power-off' : 'bx-check-circle' }}"></i>
                                         </button>
                                     </form>
-                                    
-                                    <form action="{{ route('administration.parametres.utilisateurs.destroy', $user->id) }}" 
-                                          method="POST" class="d-inline delete-user-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-user-btn" 
-                                            title="Supprimer" aria-label="Supprimer" data-bs-toggle="tooltip">
+
+                                    <form action="{{ route('administration.parametres.utilisateurs.destroy', $user->id) }}" method="POST" class="d-inline delete-user-form">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-user-btn" title="Supprimer">
                                             <i class="bx bx-trash"></i>
                                         </button>
                                     </form>
@@ -94,35 +100,46 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Ajouter un administrateur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title"><i class="bx bx-user-plus me-2"></i>Ajouter un administrateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('administration.parametres.utilisateurs.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="name" class="form-label">Nom complet</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
+                        <label class="form-label fw-semibold">Nom complet <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" value="{{ old('name') }}" required placeholder="Prénom NOM">
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" value="{{ old('email') }}" required placeholder="admin@synem.ml">
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="password" class="form-label">Mot de passe</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label class="form-label fw-semibold">Fonction</label>
+                        <input type="text" class="form-control" name="fonction" placeholder="Ex : Secrétaire Général, Trésorier...">
+                        <small class="text-muted">Affiché dans le bouton WhatsApp du site public.</small>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="password_confirmation" class="form-label">Confirmer le mot de passe</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                        <label class="form-label fw-semibold">
+                            <i class="bx bxl-whatsapp text-success me-1"></i>Numéro WhatsApp
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">+223</span>
+                            <input type="text" class="form-control" name="whatsapp" placeholder="75 XX XX XX" maxlength="20">
+                        </div>
+                        <small class="text-muted">Numéro malien sans indicatif. Sera visible sur le site public.</small>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="role" class="form-label">Rôle</label>
-                        <select class="form-select" id="role" name="role" required>
+                        <label class="form-label fw-semibold">Mot de passe <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Confirmer le mot de passe <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="password_confirmation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rôle <span class="text-danger">*</span></label>
+                        <select class="form-select" name="role" required>
                             <option value="admin">Admin</option>
                             @if(Auth::user()->isSuperAdmin())
                                 <option value="superadmin">Super Admin</option>
@@ -132,7 +149,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                    <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Créer</button>
                 </div>
             </form>
         </div>
@@ -144,35 +161,45 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modifier l'administrateur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title"><i class="bx bx-edit me-2"></i>Modifier l'administrateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="editUserForm" method="POST">
-                @csrf
-                @method('PUT')
+                @csrf @method('PUT')
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="edit_name" class="form-label">Nom complet</label>
+                        <label class="form-label fw-semibold">Nom complet <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="edit_name" name="name" required>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="edit_email" class="form-label">Email</label>
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="edit_email" name="email" required>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="edit_password" class="form-label">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+                        <label class="form-label fw-semibold">Fonction</label>
+                        <input type="text" class="form-control" id="edit_fonction" name="fonction" placeholder="Ex : Secrétaire Général">
+                        <small class="text-muted">Affiché dans le bouton WhatsApp du site public.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bx bxl-whatsapp text-success me-1"></i>Numéro WhatsApp
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">+223</span>
+                            <input type="text" class="form-control" id="edit_whatsapp" name="whatsapp" maxlength="20">
+                        </div>
+                        <small class="text-muted">Numéro malien sans indicatif.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nouveau mot de passe <small class="text-muted">(laisser vide pour ne pas changer)</small></label>
                         <input type="password" class="form-control" id="edit_password" name="password">
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="edit_password_confirmation" class="form-label">Confirmer le nouveau mot de passe</label>
-                        <input type="password" class="form-control" id="edit_password_confirmation" name="password_confirmation">
+                        <label class="form-label fw-semibold">Confirmer le mot de passe</label>
+                        <input type="password" class="form-control" name="password_confirmation">
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="edit_role" class="form-label">Rôle</label>
+                        <label class="form-label fw-semibold">Rôle <span class="text-danger">*</span></label>
                         <select class="form-select" id="edit_role" name="role" required>
                             <option value="admin">Admin</option>
                             @if(Auth::user()->isSuperAdmin())
@@ -180,15 +207,14 @@
                             @endif
                         </select>
                     </div>
-                    
-                    <div class="form-check form-switch mb-3">
+                    <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active" value="1">
                         <label class="form-check-label" for="edit_is_active">Utilisateur actif</label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                    <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Mettre à jour</button>
                 </div>
             </form>
         </div>
@@ -196,61 +222,33 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion de l'édition des utilisateurs
-    const editButtons = document.querySelectorAll('.edit-user-btn');
-    
-    editButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const userId = this.getAttribute('data-user-id');
-            const userName = this.getAttribute('data-user-name');
-            const userEmail = this.getAttribute('data-user-email');
-            const userRole = this.getAttribute('data-user-role');
-            const userActive = this.getAttribute('data-user-active');
-            
-            // Mettre à jour le formulaire
-            document.getElementById('edit_name').value = userName;
-            document.getElementById('edit_email').value = userEmail;
-            document.getElementById('edit_role').value = userRole;
-            document.getElementById('edit_is_active').checked = userActive === '1';
-            
-            // CORRECTION : Mettre à jour l'action du formulaire
-            const form = document.getElementById('editUserForm');
-            form.action = `/administration/parametres/utilisateurs/${userId}`;
+document.addEventListener('DOMContentLoaded', function () {
+    // Pré-remplir le modal d'édition
+    document.querySelectorAll('.edit-user-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.getElementById('edit_name').value     = this.dataset.userName;
+            document.getElementById('edit_email').value    = this.dataset.userEmail;
+            document.getElementById('edit_role').value     = this.dataset.userRole;
+            document.getElementById('edit_is_active').checked = this.dataset.userActive === '1';
+            document.getElementById('edit_whatsapp').value = this.dataset.userWhatsapp;
+            document.getElementById('edit_fonction').value = this.dataset.userFonction;
+            document.getElementById('edit_password').value = '';
+            document.getElementById('editUserForm').action =
+                `/administration/parametres/utilisateurs/${this.dataset.userId}`;
         });
     });
 
-    // Gestion des messages flash
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
+    // Reset modals à la fermeture
+    document.getElementById('addUserModal').addEventListener('hidden.bs.modal', function () {
+        this.querySelector('form').reset();
+    });
+    document.getElementById('editUserModal').addEventListener('hidden.bs.modal', function () {
+        this.querySelector('form').reset();
     });
 
-    // Réinitialiser le modal d'ajout à la fermeture
-    const addModal = document.getElementById('addUserModal');
-    addModal.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('addUserModal').querySelector('form').reset();
-    });
-
-    // Réinitialiser le modal d'édition à la fermeture
-    const editModal = document.getElementById('editUserModal');
-    editModal.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('editUserModal').querySelector('form').reset();
-    });
-
-    // Initialiser les tooltips Bootstrap pour les icônes
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // SweetAlert pour suppression utilisateur
-    document.querySelectorAll('.delete-user-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
+    // SweetAlert suppression
+    document.querySelectorAll('.delete-user-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const form = btn.closest('form');
             Swal.fire({
                 title: 'Supprimer cet utilisateur ?',
@@ -261,10 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Oui, supprimer',
                 cancelButtonText: 'Annuler'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
+            }).then(function (result) {
+                if (result.isConfirmed) form.submit();
             });
         });
     });

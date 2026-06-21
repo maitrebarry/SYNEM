@@ -243,6 +243,9 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
 
     // Pages du site
     Route::prefix('pages')->name('pages.')->group(function () {
+        Route::post('/carousels/{page}', [\App\Http\Controllers\Administration\AdminPageCarouselController::class, 'store'])->name('carousels.store');
+        Route::put('/carousels/slide/{slide}', [\App\Http\Controllers\Administration\AdminPageCarouselController::class, 'update'])->name('carousels.update');
+        Route::delete('/carousels/slide/{slide}', [\App\Http\Controllers\Administration\AdminPageCarouselController::class, 'destroy'])->name('carousels.destroy');
         Route::get('/accueil/edit', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'edit'])->name('accueil.edit');
         Route::post('/accueil/update', [\App\Http\Controllers\Administration\AdminAccueilController::class, 'update'])->name('accueil.update');
         // Section-specific update routes
@@ -406,6 +409,21 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
     });
 
    // Paramètres
+    // ── Lettres administratives ──────────────────────────────
+    Route::prefix('lettres')->name('lettres.')->group(function () {
+        Route::get('/',                [\App\Http\Controllers\Administration\LettreController::class, 'index'])->name('index');
+        Route::get('/creer',           [\App\Http\Controllers\Administration\LettreController::class, 'create'])->name('create');
+        Route::post('/',               [\App\Http\Controllers\Administration\LettreController::class, 'store'])->name('store');
+        Route::get('/{lettre}',        [\App\Http\Controllers\Administration\LettreController::class, 'show'])->name('show');
+        Route::get('/{lettre}/editer', [\App\Http\Controllers\Administration\LettreController::class, 'edit'])->name('edit');
+        Route::put('/{lettre}',        [\App\Http\Controllers\Administration\LettreController::class, 'update'])->name('update');
+        Route::delete('/{lettre}',     [\App\Http\Controllers\Administration\LettreController::class, 'destroy'])->name('destroy');
+        Route::post('/{lettre}/publier',[\App\Http\Controllers\Administration\LettreController::class, 'togglePublier'])->name('publier');
+        Route::get('/{lettre}/pdf',    [\App\Http\Controllers\Administration\LettreController::class, 'voirPdf'])->name('pdf');
+        Route::get('/{lettre}/telecharger', [\App\Http\Controllers\Administration\LettreController::class, 'telechargerPdf'])->name('telecharger');
+        Route::post('/ia/assistance',  [\App\Http\Controllers\Administration\LettreController::class, 'assistanceIa'])->name('ia');
+    });
+
     Route::prefix('parametres')->name('parametres.')->group(function () {
         Route::get('/', function () {
             return redirect()->route('administration.parametres.utilisateurs');
@@ -438,5 +456,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// ── Lettres publiques (téléchargement par militants) ─────
+Route::get('/lettres/{lettre}/telecharger', [\App\Http\Controllers\Administration\LettreController::class, 'telechargerPublic'])
+    ->name('lettres.public.telecharger');
 
 require __DIR__ . '/auth.php';

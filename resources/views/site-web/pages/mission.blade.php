@@ -10,21 +10,17 @@
     {{-- Carousel images --}}
     <div id="missionHeroCarousel" class="carousel slide" data-ride="carousel" data-interval="5500">
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/solidarite_synem.png') }}');"></div>
-            </div>
-            <div class="carousel-item">
-                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/mission_slide2.png') }}');"></div>
-            </div>
-            <div class="carousel-item">
-                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/mission_slide3.png') }}');"></div>
-            </div>
+            @foreach($carouselImages as $index => $image)
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                    <div class="page-hero-bg" style="background-image: url('{{ $image }}');"></div>
+                </div>
+            @endforeach
         </div>
         {{-- Indicateurs --}}
         <ol class="carousel-indicators">
-            <li data-target="#missionHeroCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#missionHeroCarousel" data-slide-to="1"></li>
-            <li data-target="#missionHeroCarousel" data-slide-to="2"></li>
+            @foreach($carouselImages as $index => $image)
+                <li data-target="#missionHeroCarousel" data-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"></li>
+            @endforeach
         </ol>
     </div>
 
@@ -56,20 +52,15 @@
                     Ensemble pour une<br><span style="color:var(--primary);">Éducation de Qualité</span>
                 </h2>
                 <div class="section-divider"></div>
-                @php
-                    $missionText = '';
-                    if (!empty($missionPage->main_text ?? null)) $missionText = $missionPage->main_text;
-                    elseif (!empty($missionPage->description ?? null)) $missionText = $missionPage->description;
-                @endphp
                 <p class="text-muted mb-4" style="font-size:15px; line-height:1.8;">
-                    {{ $missionText ?: "Le SYNEM s'est fixé pour mission de défendre les droits et intérêts des enseignants maliens, de promouvoir la qualité de l'éducation et de créer un environnement propice à l'épanouissement professionnel de chaque enseignant. Notre action repose sur le dialogue, la solidarité et l'engagement collectif." }}
+                    {{ $missionMain }}
                 </p>
                 <a href="{{ route('contact') }}" class="btn btn-primary px-4">
                     Nous rejoindre <i class="fa fa-arrow-right ml-2"></i>
                 </a>
             </div>
             <div class="col-lg-6" data-aos="fade-left" data-aos-delay="150">
-                <img src="{{ asset('template-siteweb/asset/img/ens2.jpg') }}" alt="Mission SYNEM" class="img-fluid w-100" style="border-radius:4px; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+                <img src="{{ $missionImage }}" alt="Mission SYNEM" class="img-fluid w-100" style="border-radius:4px; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
             </div>
         </div>
     </div>
@@ -84,19 +75,6 @@
             <div class="section-divider center"></div>
         </div>
         <div class="row">
-            @php
-                $missionItems = [];
-                if (!empty($missionItems_data ?? null) && is_array($missionItems_data)) $missionItems = $missionItems_data;
-                $defaultMissions = [
-                    ['icon'=>'fa-balance-scale','title'=>'Défense des Droits','text'=>"Protéger les droits professionnels et améliorer les conditions de travail et de vie des enseignants maliens."],
-                    ['icon'=>'fa-graduation-cap','title'=>'Formation Continue','text'=>"Développer des programmes de formation pour améliorer les compétences pédagogiques des enseignants."],
-                    ['icon'=>'fa-comments','title'=>'Dialogue Social','text'=>"Maintenir un dialogue constructif avec les autorités éducatives pour des politiques enseignantes favorables."],
-                    ['icon'=>'fa-users','title'=>'Solidarité','text'=>"Renforcer la cohésion et la solidarité entre tous les enseignants maliens, quelle que soit leur région."],
-                    ['icon'=>'fa-shield-alt','title'=>'Protection Sociale','text'=>"Veiller à la protection sociale des enseignants, y compris la retraite, la santé et les avantages sociaux."],
-                    ['icon'=>'fa-book-open','title'=>'Qualité Éducative','text'=>"Promouvoir des standards élevés d'éducation pour offrir la meilleure chance à chaque élève malien."],
-                ];
-            @endphp
-            @php $missions = count($missionItems) ? $missionItems : $defaultMissions; @endphp
             @foreach($missions as $idx => $m)
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ ($idx % 3) * 100 }}">
                     <div class="mission-card">
@@ -121,21 +99,14 @@
             <div class="section-divider center"></div>
         </div>
         <div class="row">
-            @php
-                $values = [
-                    ['icon'=>'fa-handshake','label'=>'Solidarité'],
-                    ['icon'=>'fa-star','label'=>'Excellence'],
-                    ['icon'=>'fa-balance-scale','label'=>'Justice'],
-                    ['icon'=>'fa-lightbulb','label'=>'Innovation'],
-                ];
-            @endphp
             @foreach($values as $idx => $v)
                 <div class="col-6 col-lg-3" data-aos="zoom-in" data-aos-delay="{{ $idx * 150 }}">
                     <div class="stat-card">
                         <div class="stat-icon-wrap">
-                            <i class="fa {{ $v['icon'] }}"></i>
+                            <i class="{{ $v['icon'] }}"></i>
                         </div>
-                        <div class="stat-label mt-3" style="font-size:14px; letter-spacing:2px;">{{ $v['label'] }}</div>
+                        <div class="stat-label mt-3" style="font-size:14px; letter-spacing:2px;">{{ $v['title'] }}</div>
+                        @if(!empty($v['text']))<p class="small mt-2 mb-0" style="color:rgba(255,255,255,.75)">{{ $v['text'] }}</p>@endif
                     </div>
                 </div>
             @endforeach
@@ -143,18 +114,36 @@
     </div>
 </section>
 
+@if($missionDocuments->isNotEmpty())
+<section style="padding:80px 0;background:var(--light)">
+    <div class="container">
+        <div class="text-center mb-5"><p class="section-subtitle">Ressources</p><h2 class="section-title">Documents de mission</h2><div class="section-divider center"></div></div>
+        <div class="row justify-content-center">
+            @foreach($missionDocuments as $document)
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <a href="{{ asset('storage/mission_documents/' . $document->file) }}" class="document-card d-block p-4 h-100" target="_blank" rel="noopener">
+                        <i class="fas fa-file-alt fa-2x text-danger mb-3"></i>
+                        <h6>{{ $document->title ?: $document->file }}</h6>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- CTA --}}
 <section style="padding:80px 0; background:#fff;">
     <div class="container">
         <div class="row justify-content-center text-center" data-aos="zoom-in">
             <div class="col-lg-7">
                 <p class="section-subtitle">Rejoignez-nous</p>
-                <h2 class="section-title mb-3">Ensemble, faisons la différence</h2>
+                <h2 class="section-title mb-3">{{ $cta['title'] }}</h2>
                 <div class="section-divider center mb-4"></div>
-                <p class="text-muted mb-5" style="font-size:15px;">Rejoignez le SYNEM et participez activement à la défense des droits des enseignants et à l'amélioration de l'éducation au Mali.</p>
+                <p class="text-muted mb-5" style="font-size:15px;">{{ $cta['subtitle'] }}</p>
                 <div class="d-flex justify-content-center flex-wrap" style="gap:16px;">
-                    <a href="{{ route('contact') }}" class="btn btn-primary px-5">
-                        <i class="fa fa-user-plus mr-2"></i>Devenir Membre
+                    <a href="{{ $cta['link'] }}" class="btn btn-primary px-5">
+                        <i class="fa fa-user-plus mr-2"></i>{{ $cta['button_text'] }}
                     </a>
                     <a href="{{ route('a-propos') }}" class="btn btn-outline-primary px-5">
                         En savoir plus

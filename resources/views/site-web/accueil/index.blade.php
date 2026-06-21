@@ -449,6 +449,49 @@ body { padding-top: 0 !important; }
                 @endforeach
             @endif
         </div>
+
+        {{-- ── Lettres publiées (Communiqués SYNEM) ── --}}
+        @if($lettresPubliees && $lettresPubliees->count())
+        <div class="text-center mb-4 mt-3" data-aos="fade-up">
+            <p class="section-subtitle">Communiqués officiels</p>
+            <h3 class="section-title" style="font-size:1.6rem">Lettres &amp; Communiqués du SYNEM</h3>
+            <div class="section-divider center"></div>
+        </div>
+
+        <div class="row">
+            @foreach($lettresPubliees as $idx => $lettre)
+            <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $idx * 100 }}">
+                <div class="document-card h-100">
+                    <div class="doc-header">
+                        <span class="doc-badge">PDF</span>
+                        <small style="color:rgba(255,255,255,.5);font-size:11px">{{ $lettre->date_lettre->format('d M Y') }}</small>
+                    </div>
+                    <div class="doc-body">
+                        <div class="d-flex align-items-center">
+                            <div class="doc-icon-wrap" style="background:rgba(220,53,69,0.1);">
+                                <i class="fas fa-file-pdf text-danger fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="doc-title">{{ $lettre->numero }}</h6>
+                                <span class="doc-meta">{{ \Illuminate\Support\Str::limit($lettre->objet, 60) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="doc-footer">
+                        @if($lettre->est_telechargeable)
+                        <a href="{{ route('lettres.public.telecharger', $lettre) }}" class="btn-download" download>
+                            <i class="fas fa-download"></i> Télécharger
+                        </a>
+                        @else
+                        <span style="font-size:11px;color:#aaa;font-weight:600;letter-spacing:.5px;text-transform:uppercase"><i class="fas fa-lock mr-1"></i> Confidentiel</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+
     </div>
 </section>
 

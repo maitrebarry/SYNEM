@@ -8,6 +8,7 @@ use App\Models\HistoriqueEvent;
 use App\Models\Milestone;
 use App\Models\Archive;
 use App\Models\HistoriqueMain;
+use App\Models\PageCarouselSlide;
 
 class AdminHistoriqueController extends Controller
 {
@@ -16,6 +17,7 @@ class AdminHistoriqueController extends Controller
         $milestones = [];
         $archives = [];
         $main = null;
+        $carouselSlides = collect();
         try {
             if (class_exists(HistoriqueEvent::class)) {
                 $events = HistoriqueEvent::orderBy('ordering')->orderBy('id')->get();
@@ -29,13 +31,14 @@ class AdminHistoriqueController extends Controller
             if (class_exists(HistoriqueMain::class)) {
                 $main = HistoriqueMain::first();
             }
+            $carouselSlides = PageCarouselSlide::where('page', 'historique')->orderBy('ordering')->orderBy('id')->get();
         } catch (\Throwable $e) {
             $events = [];
             $milestones = [];
             $archives = [];
         }
 
-        return view('administration.pages.historique-edit', compact('events','milestones','archives','main'));
+        return view('administration.pages.historique-edit', compact('events','milestones','archives','main', 'carouselSlides'));
     }
     public function updateMain(Request $request) {
         $data = $request->validate([

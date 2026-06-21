@@ -4,24 +4,14 @@
 
 @section('content')
 
-{{-- Page Hero --}}
-<section class="page-hero">
-    <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/voix_enseignants.png') }}');"></div>
-    <div class="page-hero-overlay"></div>
-    <div class="page-hero-content">
-        <span class="page-label">Syndicat National des Enseignants du Mali</span>
-        <h1>Contactez-nous</h1>
-        <div class="hero-divider"></div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center">
-                <li class="breadcrumb-item"><a href="{{ route('accueil') }}">Accueil</a></li>
-                <li class="breadcrumb-item active">Contact</li>
-            </ol>
-        </nav>
-    </div>
-    <div class="page-hero-scroll"><i class="fa fa-chevron-down"></i></div>
-</section>
-<div class="page-header-accent"></div>
+@include('site-web.partials.page-hero-carousel', [
+    'heroId' => 'contactHeroCarousel',
+    'heroSlides' => $carousels,
+    'fallbackImages' => [asset('template-siteweb/asset/img/voix_enseignants.png')],
+    'heroLabel' => 'Syndicat National des Enseignants du Mali',
+    'heroTitle' => 'Contactez-nous',
+    'heroBreadcrumb' => 'Contact',
+])
 
 {{-- Info Cards --}}
 <section style="padding:80px 0; background:#fff;">
@@ -40,8 +30,22 @@
                     ['icon'=>'fa-envelope','label'=>'Email','value'=> ($sharedTopbar->email ?? 'contact@synem.ml')],
                     ['icon'=>'fa-clock','label'=>'Horaires','value'=>'Lun–Ven : 8h00–17h00'],
                 ];
+                $contactInfos = $infos->isNotEmpty()
+                    ? $infos->map(function ($info) {
+                        $icons = [
+                            'address' => 'fa-map-marker-alt', 'adresse' => 'fa-map-marker-alt',
+                            'phone' => 'fa-phone-alt', 'telephone' => 'fa-phone-alt', 'téléphone' => 'fa-phone-alt',
+                            'email' => 'fa-envelope', 'hours' => 'fa-clock', 'horaires' => 'fa-clock',
+                        ];
+                        return [
+                            'icon' => $icons[strtolower($info->type)] ?? 'fa-info-circle',
+                            'label' => $info->label ?: ucfirst($info->type),
+                            'value' => $info->value,
+                        ];
+                    })->all()
+                    : $defaultInfos;
             @endphp
-            @foreach($defaultInfos as $idx => $info)
+            @foreach($contactInfos as $idx => $info)
                 <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $idx * 100 }}">
                     <div class="contact-info-card">
                         <div class="contact-icon">
@@ -105,18 +109,22 @@
                         <i class="fa fa-clock mr-2" style="color:var(--primary);"></i>Heures d'Ouverture
                     </h4>
                     @php
-                        $hours = [];
-                        if (!empty($contactHours ?? null) && count($contactHours)) {
-                            $hours = $contactHours;
+                        $displayHours = [];
+                        if ($hours->isNotEmpty()) {
+                            $displayHours = $hours->map(fn ($hour) => [
+                                'day' => $hour->day,
+                                'time' => $hour->closed ? 'Fermé' : trim(($hour->open ?? '') . ' – ' . ($hour->close ?? ''), ' –'),
+                                'open' => !$hour->closed,
+                            ])->all();
                         } else {
-                            $hours = [
+                            $displayHours = [
                                 ['day'=>'Lundi – Vendredi','time'=>'08h00 – 17h00','open'=>true],
                                 ['day'=>'Samedi','time'=>'09h00 – 13h00','open'=>true],
                                 ['day'=>'Dimanche','time'=>'Fermé','open'=>false],
                             ];
                         }
                     @endphp
-                    @foreach($hours as $h)
+                    @foreach($displayHours as $h)
                         @php
                             $day    = is_array($h) ? $h['day']  : ($h->day  ?? '');
                             $time   = is_array($h) ? $h['time'] : ($h->time ?? '');
@@ -155,7 +163,7 @@
 </section>
 
 {{-- FAQ --}}
-@if(!empty($contactFaqs ?? null) && count($contactFaqs))
+@if($faqs->isNotEmpty())
 <section style="padding:80px 0; background:var(--light);">
     <div class="container">
         <div class="text-center mb-5" data-aos="fade-up">
@@ -166,7 +174,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div id="faqAccordion">
-                    @foreach($contactFaqs as $idx => $faq)
+                    @foreach($faqs as $idx => $faq)
                         <div class="card mb-3 border-0" style="border-radius:6px; overflow:hidden; box-shadow:var(--shadow);">
                             <div class="card-header" style="background:#fff; padding:0; border:none;">
                                 <button class="btn w-100 text-left d-flex justify-content-between align-items-center p-4" data-toggle="collapse" data-target="#faq{{ $idx }}" style="font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; color:var(--dark);">
@@ -184,6 +192,15 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+@endif
+
+@if($map && $map->value)
+<section style="padding:0 0 80px;background:var(--light)">
+    <div class="container">
+        <div class="text-center mb-4"><p class="section-subtitle">Localisation</p><h2 class="section-title">Nous trouver</h2><div class="section-divider center"></div></div>
+        <div class="rounded overflow-hidden" style="min-height:360px">{!! $map->value !!}</div>
     </div>
 </section>
 @endif

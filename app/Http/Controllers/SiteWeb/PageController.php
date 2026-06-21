@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SiteWeb;
 use App\Http\Controllers\Controller;
 use App\Models\AboutPageContent;
 use App\Models\Visitor;
+use App\Models\PageCarouselSlide;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,6 +17,7 @@ class PageController extends Controller
             'titre' => 'À propos - SYNEM',
             'about' => AboutPageContent::first(),
             'visitorCount' => Schema::hasTable('visitors') ? Visitor::count() : 0,
+            'heroSlides' => PageCarouselSlide::where('page', 'a-propos')->orderBy('ordering')->orderBy('id')->get(),
         ]);
     }
 
@@ -29,9 +31,9 @@ class PageController extends Controller
         }
 
         $carouselImages = [
-            asset('template-siteweb/asset/img/bg.jpg'),
-            asset('template-siteweb/asset/img/gallery-2.jpg'),
-            asset('template-siteweb/asset/img/gallery-3.jpg')
+            asset('template-siteweb/asset/img/solidarite_synem.png'),
+            asset('template-siteweb/asset/img/mission_slide2.png'),
+            asset('template-siteweb/asset/img/mission_slide3.png')
         ];
         // Captions are optional. By default, don't show any static text.
         $carouselCaptions = [];
@@ -56,6 +58,7 @@ class PageController extends Controller
         ];
 
         $cta = ['title' => 'Rejoignez Notre Mission', 'subtitle' => 'Ensemble, construisons un avenir meilleur pour l\'éducation au Mali.', 'button_text' => 'Nous Rejoindre', 'link' => route('contact')];
+        $missionDocuments = collect();
 
         if ($page) {
             // header images
@@ -85,6 +88,7 @@ class PageController extends Controller
             if (!empty($page->mission_cta) && is_array($page->mission_cta)) {
                 $cta = array_merge($cta, $page->mission_cta);
             }
+            $missionDocuments = $page->documents()->orderBy('id')->get();
         }
 
         return view('site-web.pages.mission', [
@@ -97,6 +101,7 @@ class PageController extends Controller
             'missions' => $missions,
             'values' => $values,
             'cta' => $cta,
+            'missionDocuments' => $missionDocuments,
         ]);
     }
 
@@ -173,6 +178,7 @@ class PageController extends Controller
             'main' => isset($main) ? $main : null,
             'milestones' => isset($milestones) ? $milestones : null,
             'archives' => isset($archives) ? $archives : null,
+            'heroSlides' => PageCarouselSlide::where('page', 'historique')->orderBy('ordering')->orderBy('id')->get(),
         ]);
     }
 

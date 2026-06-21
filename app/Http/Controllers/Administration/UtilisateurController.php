@@ -53,19 +53,23 @@ class UtilisateurController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:admin,superadmin'],
+            'role'     => ['required', 'in:admin,superadmin'],
+            'whatsapp' => ['nullable', 'string', 'max:30'],
+            'fonction' => ['nullable', 'string', 'max:120'],
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'is_active' => true,
-            'email_verified_at' => now(),
+            'name'               => $request->name,
+            'email'              => $request->email,
+            'password'           => Hash::make($request->password),
+            'role'               => $request->role,
+            'is_active'          => true,
+            'email_verified_at'  => now(),
+            'whatsapp'           => $request->whatsapp ? preg_replace('/\D/', '', $request->whatsapp) : null,
+            'fonction'           => $request->fonction,
         ]);
 
         return redirect()->route('administration.parametres.utilisateurs')
@@ -83,9 +87,11 @@ class UtilisateurController extends Controller
         }
 
         $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
-            'role' => ['required', 'in:admin,superadmin'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'role'     => ['required', 'in:admin,superadmin'],
+            'whatsapp' => ['nullable', 'string', 'max:30'],
+            'fonction' => ['nullable', 'string', 'max:120'],
         ];
 
         if ($request->filled('password')) {
@@ -95,10 +101,12 @@ class UtilisateurController extends Controller
         $request->validate($rules);
 
         $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'role'      => $request->role,
             'is_active' => $request->has('is_active'),
+            'whatsapp'  => $request->whatsapp ? preg_replace('/\D/', '', $request->whatsapp) : null,
+            'fonction'  => $request->fonction,
         ];
 
         if ($request->filled('password')) {

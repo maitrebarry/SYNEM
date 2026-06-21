@@ -28,6 +28,8 @@
     <i class="fas fa-arrow-left"></i> Retour au tableau de bord
 </a>
 
+    @include('administration.pages.partials.page-carousel-manager', ['carouselPage' => 'historique'])
+
     <!-- Card: Historique (Texte & Image) -->
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">

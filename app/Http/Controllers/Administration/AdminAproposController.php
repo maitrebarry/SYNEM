@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Administration;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\PageCarouselSlide;
 
 class AdminAproposController extends Controller
 {
     public function edit() {
         $about = \App\Models\AboutPageContent::first();
-        return view('administration.pages.a-propos-edit', compact('about'));
+        $carouselSlides = PageCarouselSlide::where('page', 'a-propos')->orderBy('ordering')->orderBy('id')->get();
+        return view('administration.pages.a-propos-edit', compact('about', 'carouselSlides'));
     }
     public function updatePresentation(Request $request) {
         $about = \App\Models\AboutPageContent::firstOrNew([]);
