@@ -36,10 +36,10 @@
         }
         .slide.active { opacity: 1; transform: scale(1); }
         /* Images : enseignants & éducation en Afrique / Mali */
-        .slide:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1920&q=80&fit=crop'); }
-        .slide:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=1920&q=80&fit=crop'); }
-        .slide:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1920&q=80&fit=crop'); }
-        .slide:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1920&q=80&fit=crop'); }
+        .slide:nth-child(1) { background-image: url('https://i.pinimg.com/1200x/85/ca/7f/85ca7fafb53692c6bcd190a2f04eaa89.jpg'); }
+        .slide:nth-child(2) { background-image: url('/images/login/slide2.png'); }
+        .slide:nth-child(3) { background-image: url('/images/login/slide3.png'); }
+        .slide:nth-child(4) { background-image: url('/images/login/slide4.png'); }
 
         /* overlay bleu léger — images visibles */
         .overlay {

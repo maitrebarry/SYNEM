@@ -290,6 +290,37 @@ a { transition: var(--transition); }
 /* =========================================
    HERO CAROUSEL
    ========================================= */
+/* ── PAGE CAROUSEL (autres pages) ──────────────────────── */
+#page-carousel {
+    position: relative;
+    height: 500px;
+    min-height: 350px;
+}
+#page-carousel .carousel-inner,
+#page-carousel .carousel-item {
+    height: 100%;
+}
+#page-carousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+#page-carousel .carousel-caption {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(15,15,26,0.70) 0%, rgba(26,26,46,0.55) 100%);
+    padding: 2rem;
+}
+@media (max-width: 768px) {
+    #page-carousel { height: 320px; min-height: 250px; }
+}
+
+/* ── HERO SECTION (accueil) ─────────────────────────────── */
 .hero-section {
     position: relative;
     height: 100vh;
@@ -1001,74 +1032,204 @@ a { transition: var(--transition); }
 /* =========================================
    PAGE HEADER (pages internes)
    ========================================= */
-.page-header {
-    height: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* =========================================
+   PAGE HERO — sous-pages (même style que accueil)
+   ========================================= */
+.page-hero {
     position: relative;
+    height: 100vh;
+    min-height: 600px;
     overflow: hidden;
-    background: var(--dark);
-    margin-bottom: 0;
 }
-.page-header .page-header-bg {
+
+/* Image de fond avec effet Ken Burns */
+.page-hero-bg {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    opacity: 0.25;
+    animation: kenBurns 14s ease-in-out infinite alternate;
+    will-change: transform;
 }
-.page-header .page-header-content {
-    position: relative;
+@keyframes kenBurns {
+    0%   { transform: scale(1)    translateX(0)    translateY(0); }
+    50%  { transform: scale(1.06) translateX(-1%)  translateY(-1%); }
+    100% { transform: scale(1.12) translateX(2%)   translateY(1%); }
+}
+
+/* Overlay dégradé identique au hero accueil */
+.page-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(15,15,26,0.82) 0%,
+        rgba(26,26,46,0.60) 60%,
+        rgba(15,15,26,0.50) 100%
+    );
+    z-index: 1;
+}
+
+/* Contenu centré */
+.page-hero-content {
+    position: absolute;
+    inset: 0;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    padding: 2rem;
 }
-.page-header .page-label {
+
+/* Badge / label */
+.page-hero-content .page-label {
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 4px;
     text-transform: uppercase;
     color: var(--primary);
-    margin-bottom: 12px;
-    display: block;
+    margin-bottom: 16px;
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+    padding: 6px 18px;
+    border-radius: 50px;
+    animation: heroSlideDown .7s .15s cubic-bezier(.16,1,.3,1) both;
 }
-.page-header h1 {
+
+/* Titre H1 */
+.page-hero-content h1 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-size: clamp(2rem, 5vw, 4rem);
     color: #fff;
     text-transform: uppercase;
     letter-spacing: -0.5px;
     line-height: 1.1;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    animation: heroSlideUp .8s .35s cubic-bezier(.16,1,.3,1) both;
 }
-.page-header .breadcrumb {
+
+/* Ligne décorative sous le titre */
+.page-hero-content .hero-divider {
+    width: 60px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+    margin: 0 auto 24px;
+    animation: heroScaleIn .6s .55s ease both;
+}
+
+/* Breadcrumb */
+.page-hero-content .breadcrumb {
     background: transparent;
     padding: 0;
     margin: 0;
     justify-content: center;
+    animation: heroSlideUp .7s .6s cubic-bezier(.16,1,.3,1) both;
 }
-.page-header .breadcrumb-item,
-.page-header .breadcrumb-item a {
+.page-hero-content .breadcrumb-item,
+.page-hero-content .breadcrumb-item a {
     font-family: 'Montserrat', sans-serif;
     font-size: 12px;
     font-weight: 600;
     color: rgba(255,255,255,0.6);
     letter-spacing: 0.5px;
+    transition: color .2s;
 }
-.page-header .breadcrumb-item.active { color: #fff; }
-.page-header .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.3); }
-.page-header .breadcrumb-item a:hover { color: var(--primary); }
+.page-hero-content .breadcrumb-item.active { color: #fff; }
+.page-hero-content .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.3); }
+.page-hero-content .breadcrumb-item a:hover { color: var(--primary); }
+
+/* Flèche scroll vers le bas */
+.page-hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    animation: bounce 2s 1.2s infinite, heroFadeIn .8s 1s both;
+    cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    font-size: 1.6rem;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(10px); }
+}
+
+/* ── Keyframes animations ──────────────────────────── */
+@keyframes heroSlideDown {
+    from { opacity: 0; transform: translateY(-22px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroSlideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroScaleIn {
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
+}
+@keyframes heroFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Barre accent en bas */
 .page-header-accent {
     width: 100%;
     height: 4px;
     background: linear-gradient(90deg, var(--primary) 0%, #ff4d6a 50%, var(--primary) 100%);
 }
 
-@media (max-width: 991.98px) {
-    .page-header { height: 300px; }
+@media (max-width: 768px) {
+    .page-hero { height: 100vh; min-height: 500px; }
+    .page-hero-content h1 { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+}
+
+/* ── PAGE HERO CAROUSEL (plusieurs slides) ─────────────── */
+.page-hero-carousel .carousel,
+.page-hero-carousel .carousel-inner,
+.page-hero-carousel .carousel-item {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+}
+.page-hero-carousel .carousel-item .page-hero-bg {
+    animation: none;
+}
+.page-hero-carousel .carousel-item.active .page-hero-bg {
+    animation: kenBurns 14s ease-in-out infinite alternate;
+}
+.page-hero-carousel .carousel-indicators {
+    bottom: 4rem;
+    z-index: 5;
+    margin: 0;
+    justify-content: center;
+}
+.page-hero-carousel .carousel-indicators li,
+.page-hero-carousel .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: none;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background .3s, width .3s;
+}
+.page-hero-carousel .carousel-indicators .active,
+.page-hero-carousel .carousel-indicators [aria-current="true"] {
+    background: #fff;
+    width: 28px;
+    border-radius: 4px;
 }
 
 /* =========================================

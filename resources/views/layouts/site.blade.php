@@ -124,5 +124,16 @@
         })();
     </script>
     @yield('scripts')
+    <script>
+        /* Flèche scroll page-hero → contenu suivant */
+        document.querySelectorAll('.page-hero-scroll').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var hero = el.closest('.page-hero');
+                var next = hero ? hero.nextElementSibling : null;
+                if (next && next.classList.contains('page-header-accent')) next = next.nextElementSibling;
+                if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
 </body>
 </html>

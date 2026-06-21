@@ -4,12 +4,36 @@
 
 @section('content')
 
-{{-- Page Header --}}
-<div class="page-header">
-    <div class="page-header-bg" data-bg="{{ asset('template-siteweb/asset/img/ens2.jpg') }}"></div>
-    <div class="page-header-content">
+{{-- Page Hero Carousel --}}
+<section class="page-hero page-hero-carousel">
+
+    {{-- Carousel images --}}
+    <div id="missionHeroCarousel" class="carousel slide" data-ride="carousel" data-interval="5500">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/solidarite_synem.png') }}');"></div>
+            </div>
+            <div class="carousel-item">
+                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/mission_slide2.png') }}');"></div>
+            </div>
+            <div class="carousel-item">
+                <div class="page-hero-bg" style="background-image: url('{{ asset('template-siteweb/asset/img/mission_slide3.png') }}');"></div>
+            </div>
+        </div>
+        {{-- Indicateurs --}}
+        <ol class="carousel-indicators">
+            <li data-target="#missionHeroCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#missionHeroCarousel" data-slide-to="1"></li>
+            <li data-target="#missionHeroCarousel" data-slide-to="2"></li>
+        </ol>
+    </div>
+
+    <div class="page-hero-overlay"></div>
+
+    <div class="page-hero-content">
         <span class="page-label">Notre Engagement</span>
         <h1>Notre Mission</h1>
+        <div class="hero-divider"></div>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
                 <li class="breadcrumb-item"><a href="{{ route('accueil') }}">Accueil</a></li>
@@ -17,7 +41,9 @@
             </ol>
         </nav>
     </div>
-</div>
+
+    <div class="page-hero-scroll"><i class="fa fa-chevron-down"></i></div>
+</section>
 <div class="page-header-accent"></div>
 
 {{-- Mission Intro --}}

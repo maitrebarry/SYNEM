@@ -73,6 +73,45 @@ body { padding-top: 0 !important; }
                         </div>
                     </div>
                 </div>
+                <div class="carousel-item" style="height:100%;">
+                    <img src="{{ asset('template-siteweb/asset/img/solidarite_synem.png') }}" alt="SYNEM Solidarité">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-caption">
+                        <span class="hero-badge">Syndicat National des Enseignants du Mali</span>
+                        <h1>Unis et Solidaires pour Nos Droits</h1>
+                        <p>Ensemble, nous défendons les droits et les intérêts de tous les enseignants du Mali.</p>
+                        <div class="hero-btns">
+                            <a href="{{ route('a-propos') }}" class="btn-hero-primary">Découvrir le SYNEM</a>
+                            <a href="{{ route('contact') }}" class="btn-hero-outline">Nous Rejoindre</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:100%;">
+                    <img src="{{ asset('template-siteweb/asset/img/avenir_mali.png') }}" alt="SYNEM Avenir Mali">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-caption">
+                        <span class="hero-badge">Éducation · Mali</span>
+                        <h1>Construisons l'Avenir de la Nation</h1>
+                        <p>Pour une éducation de qualité accessible à tous les enfants du Mali.</p>
+                        <div class="hero-btns">
+                            <a href="{{ route('mission') }}" class="btn-hero-primary">Notre Mission</a>
+                            <a href="{{ route('contact') }}" class="btn-hero-outline">Contact</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item" style="height:100%;">
+                    <img src="{{ asset('template-siteweb/asset/img/voix_enseignants.png') }}" alt="SYNEM Voix Enseignants">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-caption">
+                        <span class="hero-badge">Engagement · Syndicat</span>
+                        <h1>SYNEM — La Voix des Enseignants</h1>
+                        <p>Au service de l'éducation et du progrès pour toutes les régions du Mali.</p>
+                        <div class="hero-btns">
+                            <a href="{{ route('a-propos') }}" class="btn-hero-primary">En Savoir Plus</a>
+                            <a href="{{ route('contact') }}" class="btn-hero-outline">Nous Contacter</a>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
 
@@ -91,6 +130,9 @@ body { padding-top: 0 !important; }
             @else
                 <li data-target="#heroCarousel" data-slide-to="0" class="active"></li>
                 <li data-target="#heroCarousel" data-slide-to="1"></li>
+                <li data-target="#heroCarousel" data-slide-to="2"></li>
+                <li data-target="#heroCarousel" data-slide-to="3"></li>
+                <li data-target="#heroCarousel" data-slide-to="4"></li>
             @endif
         </ol>
     </div>
