@@ -21,7 +21,7 @@
                             <p>Vous pouvez désormais accéder à l&rsquo;espace exclusif des <strong>documents réservés aux militants approuvés</strong> en suivant ce lien :</p>
                             <p><a href="{{ route('militant.documents.index') }}" style="color: #007bff;">Accéder aux documents militants</a></p>
                             <p>Si vous ne parvenez pas à ouvrir la page, connectez-vous d&rsquo;abord avec l&rsquo;email que vous avez utilisé pour soumettre votre demande.</p>
-                            <p>Pour toute question complémentaire, répondez simplement à cet email ou contactez <strong>contact@synem.ml</strong>.</p>
+                            <p>Pour toute question complémentaire, répondez simplement à cet email ou contactez <strong>contact@synem-mali.org</strong>.</p>
                             <p style="margin-bottom: 0;">Fraternellement,<br>L&rsquo;équipe SYNEM</p>
                         </td>
                     </tr>

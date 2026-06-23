@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Militant;
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -30,6 +31,9 @@ class MilitantApprovedNotification extends Mailable
     {
         return new Envelope(
             subject: 'Votre adhésion au SYNEM a été approuvée',
+            replyTo: [
+                new Address('contact@synem-mali.org', 'SYNEM'),
+            ],
         );
     }
 

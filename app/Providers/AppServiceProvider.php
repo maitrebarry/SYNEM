@@ -23,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->ensureDefaultSuperAdminExists();
+        if (! $this->app->runningInConsole()) {
+            $this->ensureDefaultSuperAdminExists();
+        }
 
         View::composer('layouts.administration', function ($view) {
             $notifications = MilitantMessage::with('militant')

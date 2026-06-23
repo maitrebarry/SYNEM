@@ -122,11 +122,13 @@ class MilitantController extends Controller
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
+        $wasApproved = $militant->status === 'approved';
+
         if ($request->status === 'rejected') {
             $militant->delete();
         } else {
             $militant->update(['status' => $request->status]);
-            if ($request->status === 'approved') {
+            if ($request->status === 'approved' && ! $wasApproved) {
                 $this->sendApprovalEmail($militant);
             }
         }
@@ -150,11 +152,13 @@ class MilitantController extends Controller
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
+        $wasApproved = $militant->status === 'approved';
+
         if ($request->status === 'rejected') {
             $militant->delete();
         } else {
             $militant->update(['status' => $request->status]);
-            if ($request->status === 'approved') {
+            if ($request->status === 'approved' && ! $wasApproved) {
                 $this->sendApprovalEmail($militant);
             }
         }
