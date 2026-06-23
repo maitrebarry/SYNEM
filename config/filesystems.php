@@ -1,5 +1,7 @@
 <?php
 
+$publicDiskRoot = env('FILESYSTEM_PUBLIC_ROOT') ?: public_path('storage');
+
 return [
 
     /*
@@ -40,7 +42,7 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => $publicDiskRoot,
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
@@ -73,8 +75,10 @@ return [
     |
     */
 
-    'links' => [
-        public_path('storage') => storage_path('app/public'),
-    ],
+    'links' => $publicDiskRoot === public_path('storage')
+        ? []
+        : [
+            public_path('storage') => $publicDiskRoot,
+        ],
 
 ];
