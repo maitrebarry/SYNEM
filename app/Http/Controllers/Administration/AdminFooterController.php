@@ -81,8 +81,11 @@ class AdminFooterController extends Controller
         $footer = Footer::first();
         if ($footer) {
             $field = 'gallery_image_' . $index;
-            if ($footer->$field && Storage::disk('public')->exists($footer->$field)) {
-                Storage::disk('public')->delete($footer->$field);
+            if ($footer->$field) {
+                if (Storage::disk('public')->exists($footer->$field)) {
+                    Storage::disk('public')->delete($footer->$field);
+                }
+
                 $footer->$field = null;
                 $footer->save();
             }

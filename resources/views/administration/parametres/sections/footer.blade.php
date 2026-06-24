@@ -125,7 +125,7 @@
                                 <img src="{{ asset('storage/' . $footer->{'gallery_image_' . $i}) }}" 
                                      alt="Galerie {{ $i }}" class="img-thumbnail" style="max-width: 100px;">
                                 <button type="button" class="btn btn-sm btn-danger ms-2 delete-gallery-image" 
-                                        data-index="{{ $i }}">Supprimer</button>
+                                        data-delete-url="{{ route('administration.parametres.footer.gallery_image.delete', $i) }}">Supprimer</button>
                             </div>
                         @endif
                         <input type="file" class="form-control" id="gallery_image_{{ $i }}" name="gallery_image_{{ $i }}" 
@@ -145,14 +145,15 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 $(document).ready(function() {
     $('.delete-gallery-image').on('click', function() {
-        const index = $(this).data('index');
+        const url = $(this).data('delete-url');
 
         const deleteImage = function() {
             $.ajax({
-                url: '{{ route("administration.parametres.footer.gallery_image.delete", ":index") }}'.replace(':index', index),
+                url: url,
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -202,3 +203,4 @@ $(document).ready(function() {
     }
 });
 </script>
+@endpush
