@@ -1,7 +1,7 @@
 <!-- Footer Top Bar -->
 <div class="footer-top-bar">
     <div class="container">
-        <p class="footer-org-name">Syndicat National des Enseignants du Mali — SYNEM</p>
+        <p class="footer-org-name">{{ $sharedFooter->organization_name ?? 'Syndicat National des Enseignants du Mali — SYNEM' }}</p>
     </div>
 </div>
 
@@ -35,6 +35,8 @@
                     @endif
                     @if($sharedFooter->instagram_url ?? null)
                         <a href="{{ $sharedFooter->instagram_url }}" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    @else
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                     @endif
                 </div>
             </div>
@@ -87,6 +89,7 @@
 
                 <h5 class="footer-heading mt-4">Newsletter</h5>
                 <div class="footer-newsletter">
+                    <p>{{ $sharedFooter->newsletter_description ?? 'Inscrivez-vous pour recevoir les dernières actualités du SYNEM.' }}</p>
                     <div class="input-wrap">
                         <input type="email" placeholder="Votre adresse email">
                         <button type="button">OK</button>

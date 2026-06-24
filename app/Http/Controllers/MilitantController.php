@@ -170,6 +170,36 @@ class MilitantController extends Controller
         ]);
     }
 
+    public function destroy(Request $request, Militant $militant)
+    {
+        $paths = collect([$militant->member_card_photo])
+            ->merge($militant->cardPhotoSubmissions()->pluck('photo_path'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $militant->messages()->delete();
+        $militant->cardPhotoSubmissions()->delete();
+        $militant->delete();
+
+        $paths->each(function (string $path) {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        });
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Militant supprimé avec succès.',
+            ]);
+        }
+
+        return redirect()
+            ->route('administration.pages.militants.index')
+            ->with('success', 'Militant supprimé avec succès.');
+    }
+
     protected function sendApprovalEmail(Militant $militant): void
     {
         try {

@@ -20,12 +20,17 @@ class FooterSeeder extends Seeder
             'facebook_url' => null,
             'twitter_url' => null,
             'linkedin_url' => null,
+            'instagram_url' => null,
             'copyright_text' => '&copy; SYNEM. Tous droits réservés.',
             'organization_name' => 'Syndicat National des Enseignants du Mali',
+            'footer_description' => 'Le Syndicat National des Enseignants du Mali défend les droits des enseignants et œuvre pour une éducation de qualité pour tous les enfants du Mali.',
             'newsletter_description' => 'Inscrivez-vous pour recevoir les dernières actualités du SYNEM.',
             'gallery_image_1' => null,
             'gallery_image_2' => null,
             'gallery_image_3' => null,
+            'gallery_image_4' => null,
+            'gallery_image_5' => null,
+            'gallery_image_6' => null,
         ]);
     }
 }

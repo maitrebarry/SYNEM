@@ -69,15 +69,15 @@
                                 </table>
                             </div>
 
-                            @if($militant->status === 'pending')
                             <div class="mt-4">
                                 <h5>Actions</h5>
                                 <div class="btn-group">
+                                    @if($militant->status === 'pending')
                                     <form action="{{ route('administration.pages.militants.update-status', $militant) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="btn btn-success">
+                                        <button type="submit" class="btn btn-success js-status-action" data-action-label="approuver">
                                             <i class="fas fa-check"></i> Approuver la demande
                                         </button>
                                     </form>
@@ -85,13 +85,20 @@
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="btn btn-danger">
+                                        <button type="submit" class="btn btn-danger js-status-action" data-action-label="rejeter">
                                             <i class="fas fa-times"></i> Rejeter la demande
+                                        </button>
+                                    </form>
+                                    @endif
+                                    <form action="{{ route('administration.pages.militants.destroy', $militant) }}" method="POST" class="d-inline ml-2">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger js-delete-action">
+                                            <i class="fas fa-trash"></i> Supprimer le militant
                                         </button>
                                     </form>
                                 </div>
                             </div>
-                            @endif
                         </div>
                         <div class="col-md-4">
                             <div class="card">
@@ -127,14 +134,40 @@
 <script>
 $(document).ready(function() {
     // Confirmation for status changes
-    $('form button[type="submit"]').on('click', function(e) {
+    $('.js-status-action').on('click', function(e) {
         e.preventDefault();
         const form = $(this).closest('form');
-        const action = $(this).hasClass('btn-success') ? 'approuver' : 'rejeter';
+        const action = $(this).data('action-label');
 
         if (confirm(`Êtes-vous sûr de vouloir ${action} cette demande de militant ?`)) {
             form.submit();
         }
+    });
+
+    $('.js-delete-action').on('click', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        const message = 'Supprimer définitivement ce militant ? Cette action supprimera aussi ses accès et photos associées.';
+
+        if (!window.Swal) {
+            form.submit();
+            return;
+        }
+
+        Swal.fire({
+            title: 'Confirmer la suppression',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     });
 });
 </script>

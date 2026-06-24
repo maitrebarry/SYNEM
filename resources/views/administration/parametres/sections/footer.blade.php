@@ -14,7 +14,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-        <form method="POST" enctype="multipart/form-data" action="/administration/parametres/footer/update">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('administration.parametres.footer.update') }}">
             @csrf
 
             <div class="row">
@@ -56,6 +56,12 @@
             </div>
 
             <div class="mb-3">
+                <label for="footer_description" class="form-label">Description du Footer</label>
+                <textarea class="form-control" id="footer_description" name="footer_description" rows="4"
+                          placeholder="Le Syndicat National des Enseignants du Mali défend les droits des enseignants...">{{ old('footer_description', $footer->footer_description ?? "Le Syndicat National des Enseignants du Mali défend les droits des enseignants et œuvre pour une éducation de qualité pour tous les enfants du Mali.") }}</textarea>
+            </div>
+
+            <div class="mb-3">
                 <label for="copyright_text" class="form-label">Texte de Copyright</label>
                 <input type="text" class="form-control" id="copyright_text" name="copyright_text" 
                        value="{{ old('copyright_text', $footer->copyright_text ?? '&copy; SYNEM. Tous droits réservés.') }}" 
@@ -74,7 +80,7 @@
 
             <h6 class="mb-3">Liens des Réseaux Sociaux</h6>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-3">
                         <label for="facebook_url" class="form-label">Facebook</label>
                         <input type="url" class="form-control" id="facebook_url" name="facebook_url" 
@@ -82,7 +88,7 @@
                                placeholder="https://facebook.com/synem">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-3">
                         <label for="twitter_url" class="form-label">Twitter</label>
                         <input type="url" class="form-control" id="twitter_url" name="twitter_url" 
@@ -90,7 +96,7 @@
                                placeholder="https://twitter.com/synem">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-3">
                         <label for="linkedin_url" class="form-label">LinkedIn</label>
                         <input type="url" class="form-control" id="linkedin_url" name="linkedin_url" 
@@ -98,11 +104,19 @@
                                placeholder="https://linkedin.com/company/synem">
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="instagram_url" class="form-label">Instagram</label>
+                        <input type="url" class="form-control" id="instagram_url" name="instagram_url"
+                               value="{{ old('instagram_url', $footer->instagram_url) }}"
+                               placeholder="https://instagram.com/synem">
+                    </div>
+                </div>
             </div>
 
             <h6 class="mb-3">Images de Galerie</h6>
             <div class="row">
-                @for($i = 1; $i <= 3; $i++)
+                @for($i = 1; $i <= 6; $i++)
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="gallery_image_{{ $i }}" class="form-label">Image Galerie {{ $i }}</label>
@@ -135,7 +149,8 @@
 $(document).ready(function() {
     $('.delete-gallery-image').on('click', function() {
         const index = $(this).data('index');
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
+
+        const deleteImage = function() {
             $.ajax({
                 url: '{{ route("administration.parametres.footer.gallery_image.delete", ":index") }}'.replace(':index', index),
                 method: 'DELETE',
@@ -149,7 +164,27 @@ $(document).ready(function() {
                     showNotification('error', 'Erreur lors de la suppression.');
                 }
             });
+        };
+
+        if (!window.Swal) {
+            deleteImage();
+            return;
         }
+
+        Swal.fire({
+            title: 'Supprimer cette image ?',
+            text: 'Cette image de galerie sera supprimée du footer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                deleteImage();
+            }
+        });
     });
     
     function showNotification(type, message) {

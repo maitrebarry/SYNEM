@@ -21,3 +21,10 @@
     </form>
 </div>
 @endif
+<form action="{{ route('administration.pages.militants.destroy', $militant) }}" method="POST" class="d-inline ml-1 js-delete-militant">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="btn btn-sm btn-danger">
+        <i class="fas fa-trash"></i> Supprimer
+    </button>
+</form>

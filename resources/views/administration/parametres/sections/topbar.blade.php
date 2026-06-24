@@ -14,7 +14,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-        <form method="POST" enctype="multipart/form-data" action="/administration/parametres/topbar/update">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('administration.parametres.topbar.update') }}">
             @csrf
 
             <div class="row">

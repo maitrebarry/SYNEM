@@ -185,6 +185,13 @@
                                             </form>
                                         </div>
                                         @endif
+                                        <form action="{{ route('administration.pages.militants.destroy', $militant) }}" method="POST" class="d-inline ml-1 js-delete-militant">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                                 @empty
@@ -397,6 +404,33 @@ $(document).ready(function() {
                 `;
                 $('.container-fluid').prepend(alertHtml);
                 setTimeout(() => $('.alert').fadeOut(), 5000);
+            }
+        });
+    });
+
+    $('#militants-table').on('submit', '.js-delete-militant', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const form = this;
+        const message = 'Supprimer définitivement ce militant ? Cette action supprimera aussi ses accès et photos associées.';
+
+        if (!window.Swal) {
+            form.submit();
+            return;
+        }
+
+        Swal.fire({
+            title: 'Confirmer la suppression',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                form.submit();
             }
         });
     });

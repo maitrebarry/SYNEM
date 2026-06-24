@@ -374,6 +374,7 @@ Route::prefix('administration')->name('administration.')->middleware(['auth'])->
         Route::get('/militants/{militant}', [\App\Http\Controllers\MilitantController::class, 'show'])->name('militants.show');
         Route::patch('/militants/{militant}/status', [\App\Http\Controllers\MilitantController::class, 'updateStatus'])->name('militants.update-status');
         Route::patch('/militants/{militant}/status-ajax', [\App\Http\Controllers\MilitantController::class, 'updateStatusAjax'])->name('militants.update-status-ajax');
+        Route::delete('/militants/{militant}', [\App\Http\Controllers\MilitantController::class, 'destroy'])->name('militants.destroy');
 
         Route::get('/militant-messages', [MilitantMessageController::class, 'adminIndex'])->name('militant-messages.index');
         Route::post('/militant-messages/{message}/reply', [MilitantMessageController::class, 'reply'])->name('militant-messages.reply');

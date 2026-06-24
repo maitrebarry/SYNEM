@@ -28,12 +28,17 @@ class AdminFooterController extends Controller
             'facebook_url' => 'nullable|url|max:255',
             'twitter_url' => 'nullable|url|max:255',
             'linkedin_url' => 'nullable|url|max:255',
+            'instagram_url' => 'nullable|url|max:255',
             'copyright_text' => 'nullable|string|max:500',
             'organization_name' => 'nullable|string|max:255',
+            'footer_description' => 'nullable|string|max:1000',
             'newsletter_description' => 'nullable|string|max:500',
-            'gallery_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'gallery_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'gallery_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'gallery_image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_image_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_image_5' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'gallery_image_6' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $footer = Footer::first();
@@ -43,11 +48,12 @@ class AdminFooterController extends Controller
 
         $data = $request->only([
             'address', 'phone', 'email', 'facebook_url', 'twitter_url', 'linkedin_url',
-            'copyright_text', 'organization_name', 'newsletter_description'
+            'instagram_url', 'copyright_text', 'organization_name', 'footer_description',
+            'newsletter_description'
         ]);
 
         // Handle gallery images
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $field = 'gallery_image_' . $i;
             if ($request->hasFile($field)) {
                 // Delete old image if exists
@@ -70,6 +76,8 @@ class AdminFooterController extends Controller
 
     public function deleteGalleryImage(Request $request, $index)
     {
+        abort_unless((int) $index >= 1 && (int) $index <= 6, 404);
+
         $footer = Footer::first();
         if ($footer) {
             $field = 'gallery_image_' . $index;
