@@ -24,7 +24,8 @@
             --bg:     #f0f4ff;
         }
 
-        html, body { height: 100%; font-family: 'Montserrat', sans-serif; overflow: hidden; }
+        html, body { min-height: 100%; font-family: 'Montserrat', sans-serif; }
+        body { overflow-x: hidden; }
 
         /* ── CAROUSEL ─────────────────────────────────────────── */
         .carousel-bg { position: fixed; inset: 0; z-index: 0; }
@@ -310,8 +311,56 @@
         }
 
         @media (max-width: 520px) {
+            body { overflow-y: auto; }
+
+            .page {
+                min-height: 100svh;
+                align-items: flex-start;
+                padding: .85rem;
+            }
+
+            .card {
+                max-width: 100%;
+                border-radius: 18px;
+                margin: .35rem auto 1rem;
+                box-shadow: 0 18px 45px rgba(10,42,122,.36);
+            }
+
+            .logo-icon {
+                width: 54px;
+                height: 54px;
+                margin-bottom: .75rem;
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 2.1rem;
+            }
+
+            .card-sub {
+                font-size: .6rem;
+                line-height: 1.4;
+            }
+
             .card-body  { padding: 1.6rem 1.4rem; }
             .card-header { padding: 1.8rem 1.4rem 1.5rem; }
+
+            .remember-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: .75rem;
+                margin-bottom: 1.35rem;
+            }
+
+            .form-input {
+                font-size: .84rem;
+                padding-right: 2.75rem;
+            }
+
+            .slide-message,
+            .carousel-dots {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -440,7 +489,7 @@
 
                 <div class="security-note">
                     <i class="bi bi-shield-check"></i>
-                    <p>Accès réservé aux administrateurs. Bloqué après 5 tentatives échouées (15 min).</p>
+                    <p>Accès réservé aux administrateurs.</p>
                 </div>
 
                 <a href="{{ route('accueil') }}" class="back-link">

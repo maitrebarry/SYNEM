@@ -317,7 +317,25 @@ a { transition: var(--transition); }
     padding: 2rem;
 }
 @media (max-width: 768px) {
-    #page-carousel { height: 320px; min-height: 250px; }
+    #page-carousel {
+        height: auto;
+        min-height: 0;
+        background: #111322;
+    }
+    #page-carousel .carousel-inner,
+    #page-carousel .carousel-item {
+        height: auto;
+    }
+    #page-carousel .carousel-item img {
+        height: auto;
+        max-height: 72vh;
+        object-fit: contain;
+        object-position: center bottom;
+        background: #111322;
+    }
+    #page-carousel .carousel-caption {
+        padding: 1.25rem .9rem;
+    }
 }
 
 /* ── HERO SECTION (accueil) ─────────────────────────────── */
@@ -473,6 +491,63 @@ a { transition: var(--transition); }
     background: var(--primary);
     width: 28px;
     border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        height: auto;
+        min-height: 0;
+        background: #111322;
+    }
+    .hero-section .carousel,
+    .hero-section .carousel-inner,
+    .hero-section .carousel-item {
+        height: auto;
+    }
+    .hero-section .carousel-item img {
+        height: auto;
+        max-height: 72vh;
+        object-fit: contain;
+        object-position: center bottom;
+        background: #111322;
+    }
+    .hero-caption {
+        padding: 1rem 1.1rem;
+    }
+    .hero-caption .hero-badge {
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+    .hero-caption h1 {
+        font-size: clamp(1.75rem, 9vw, 2.6rem);
+        margin-bottom: 12px;
+    }
+    .hero-caption p {
+        font-size: .92rem;
+        margin-bottom: 20px;
+    }
+    .hero-caption .hero-btns {
+        gap: 10px;
+    }
+    .hero-caption .btn-hero-primary,
+    .hero-caption .btn-hero-outline {
+        width: 100%;
+        max-width: 280px;
+        padding: 11px 18px;
+        font-size: 11px;
+        letter-spacing: .8px;
+    }
+    .hero-section .carousel-control-prev,
+    .hero-section .carousel-control-next {
+        width: 40px;
+        height: 40px;
+    }
+    .hero-section .carousel-control-prev { left: 10px; }
+    .hero-section .carousel-control-next { right: 10px; }
+    .hero-section .carousel-indicators {
+        margin-bottom: 10px;
+    }
 }
 
 @keyframes fadeInUp {
@@ -1189,8 +1264,39 @@ a { transition: var(--transition); }
 }
 
 @media (max-width: 768px) {
-    .page-hero { height: 100vh; min-height: 500px; }
+    .page-hero {
+        height: min(72vh, 520px);
+        min-height: 360px;
+        background: #111322;
+    }
+    .page-hero-bg {
+        background-size: contain;
+        background-position: center bottom;
+        background-repeat: no-repeat;
+    }
+    .page-hero-overlay {
+        background: linear-gradient(
+            135deg,
+            rgba(15,15,26,0.62) 0%,
+            rgba(26,26,46,0.48) 60%,
+            rgba(15,15,26,0.58) 100%
+        );
+    }
     .page-hero-content h1 { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+    .page-hero-content {
+        padding: 1.25rem;
+    }
+    .page-hero-content .page-label {
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+    .page-hero-scroll {
+        bottom: 1rem;
+        font-size: 1.2rem;
+    }
+    .page-hero-carousel .carousel-indicators {
+        bottom: 2.6rem;
+    }
 }
 
 /* ── PAGE HERO CAROUSEL (plusieurs slides) ─────────────── */
