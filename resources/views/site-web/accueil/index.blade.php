@@ -737,8 +737,12 @@ body { padding-top: 0 !important; }
                             <input name="n_cartes_syndicale" type="text" class="form-control" placeholder="Votre numéro de carte" required>
                         </div>
                         <div class="col-12 col-sm-6 mb-3">
-                            <label>Coordination Locale</label>
-                            <input name="coordinations" type="text" class="form-control" placeholder="Ville, Région">
+                            <label>Division *</label>
+                            <input name="division" type="text" class="form-control" placeholder="Ex : Section syndicale" required>
+                        </div>
+                        <div class="col-12 col-sm-6 mb-3">
+                            <label>Coordination Locale *</label>
+                            <input name="coordinations" type="text" class="form-control" placeholder="Ville, Région" required>
                         </div>
                         <div class="col-12 mb-3">
                             <label>Message (optionnel)</label>
@@ -964,8 +968,9 @@ document.getElementById('submitMembershipBtn').addEventListener('click', async f
     const form = document.getElementById('membershipForm');
     const formData = new FormData(form);
     const nom = formData.get('nom'), prenom = formData.get('prenom'), email = formData.get('email'), phone = formData.get('tel');
+    const cardNumber = formData.get('n_cartes_syndicale'), division = formData.get('division'), coordination = formData.get('coordinations');
     const photo = memberCardPhotoField ? memberCardPhotoField.value : '';
-    if (!nom || !prenom || !email || !phone) { Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error'); return; }
+    if (!nom || !prenom || !email || !phone || !cardNumber || !division || !coordination) { Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error'); return; }
     if (!photo) { Swal.fire('Erreur', 'Veuillez prendre une photo de votre carte de membre.', 'error'); return; }
     if (photo.startsWith('data:image')) { const r = await fetch(photo); const blob = await r.blob(); formData.set('attachment', blob, 'member_card.jpg'); }
     this.disabled = true;

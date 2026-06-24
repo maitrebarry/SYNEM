@@ -19,6 +19,7 @@ class MilitantController extends Controller
             'email' => 'required|email|max:255|unique:militants,email',
             'tel' => 'required|string|max:20|unique:militants,tel',
             'n_cartes_syndicale' => 'required|string|max:50|unique:militants,n_cartes_syndicale',
+            'division' => 'required|string|max:255',
             'coordinations' => 'required|string|max:255',
             'message' => 'nullable|string',
             'member_card_photo' => 'required|string', // Base64 encoded image
@@ -47,6 +48,7 @@ class MilitantController extends Controller
             'email' => $request->email,
             'tel' => $request->tel,
             'n_cartes_syndicale' => $request->n_cartes_syndicale,
+            'division' => $request->division,
             'coordinations' => $request->coordinations,
             'message' => $request->message,
             'member_card_photo' => $path,
